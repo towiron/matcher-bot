@@ -4,12 +4,9 @@ from app.filters.kb_filter import LangCallback
 from loader import i18n
 
 language_dict = {
-    "ru": "🏁 Русский",
-    "uk": "🇺🇦 Українська",
-    "en": "🇬🇧 English",
-    "es": "🇪🇸 Español",
-    "pl": "🇵🇱 Polski",
-    "fr": "🇫🇷 Français",
+    "ru": "🇷🇺 Русский",
+    "uz": "🇺🇿 O'zbek",
+    # "en": "🇬🇧 English",
 }
 
 

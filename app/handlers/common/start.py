@@ -4,9 +4,9 @@ from aiogram.filters.state import StateFilter
 
 from app.business.menu_service import menu
 from app.keyboards.default.registration_form import create_profile_kb
+from app.keyboards.inline.lang import lang_ikb
 from app.routers import common_router
 from app.text import message_text as mt
-from data.config import LOGO_DIR
 from database.models import UserModel
 
 
@@ -16,9 +16,4 @@ async def _start_command(message: types.Message, user: UserModel) -> None:
     if user.profile:
         await menu(user.id)
     else:
-        photo = types.FSInputFile(LOGO_DIR)
-        await message.answer_photo(
-            photo=photo,
-            caption=mt.WELCOME,
-            reply_markup=create_profile_kb(),
-        )
+        await message.answer(mt.CHANGE_LANG, reply_markup=lang_ikb())

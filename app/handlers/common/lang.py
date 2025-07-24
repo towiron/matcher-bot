@@ -7,6 +7,8 @@ from app.routers import common_router
 from app.text import message_text as mt
 from database.models import UserModel
 from database.services import User
+from app.business.menu_service import menu
+from app.keyboards.default.registration_form import create_profile_kb
 
 
 @common_router.message(StateFilter(None), Command("language"))
@@ -28,3 +30,7 @@ async def _change_lang(
         language=language,
     )
     await callback.message.edit_text(mt.DONE_CHANGE_LANG(language))
+    if user.profile:
+        await menu(callback.from_user.id)
+    else:
+        await callback.message.answer(mt.WELCOME, reply_markup=create_profile_kb())
