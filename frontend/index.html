@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание профиля - Dating App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-heart"></i> Создание профиля</h1>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">1 из 16</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Step 1: Name -->
+            <div class="step" id="step1" data-step="1">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2>Как вас зовут?</h2>
+                    <p class="step-description">Введите ваше имя, которое будут видеть другие пользователи</p>
+                    <div class="input-group">
+                        <input type="text" id="name" class="form-input" placeholder="Ваше имя" maxlength="200">
+                        <div class="input-validation" id="nameValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Surname -->
+            <div class="step" id="step2" data-step="2" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                    <h2>Ваша фамилия</h2>
+                    <p class="step-description">Фамилия не будет отображаться другим пользователям</p>
+                    <div class="input-group">
+                        <input type="text" id="surname" class="form-input" placeholder="Ваша фамилия" maxlength="200">
+                        <div class="input-validation" id="surnameValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Gender -->
+            <div class="step" id="step3" data-step="3" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-venus-mars"></i>
+                    </div>
+                    <h2>Ваш пол</h2>
+                    <p class="step-description">Выберите ваш пол</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="male">
+                            <i class="fas fa-mars"></i>
+                            <span>Мужской</span>
+                        </button>
+                        <button class="option-btn" data-value="female">
+                            <i class="fas fa-venus"></i>
+                            <span>Женский</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Age -->
+            <div class="step" id="step4" data-step="4" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <h2>Ваш возраст</h2>
+                    <p class="step-description">Укажите ваш возраст</p>
+                    <div class="input-group">
+                        <input type="number" id="age" class="form-input" placeholder="Возраст" min="18" max="100">
+                        <div class="input-validation" id="ageValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: City -->
+            <div class="step" id="step5" data-step="5" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h2>Ваш город</h2>
+                    <p class="step-description">Укажите город, где вы проживаете</p>
+                    <div class="input-group">
+                        <input type="text" id="city" class="form-input" placeholder="Название города" maxlength="200">
+                        <button class="location-btn" id="locationBtn">
+                            <i class="fas fa-location-arrow"></i>
+                            Определить автоматически
+                        </button>
+                        <div class="input-validation" id="cityValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Ethnicity -->
+            <div class="step" id="step6" data-step="6" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h2>Ваша национальность</h2>
+                    <p class="step-description">Выберите вашу национальность</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="Uzbek">Узбек</button>
+                        <button class="option-btn" data-value="Russian">Русский</button>
+                        <button class="option-btn" data-value="Kazakh">Казах</button>
+                        <button class="option-btn" data-value="Kyrgyz">Кыргыз</button>
+                        <button class="option-btn" data-value="Tajik">Таджик</button>
+                        <button class="option-btn" data-value="Turkmen">Туркмен</button>
+                        <button class="option-btn" data-value="Other">Другая</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Religion -->
+            <div class="step" id="step7" data-step="7" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-pray"></i>
+                    </div>
+                    <h2>Ваша религия</h2>
+                    <p class="step-description">Выберите вашу религию</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="Islam">Ислам</button>
+                        <button class="option-btn" data-value="Christianity">Христианство</button>
+                        <button class="option-btn" data-value="Judaism">Иудаизм</button>
+                        <button class="option-btn" data-value="Buddhism">Буддизм</button>
+                        <button class="option-btn" data-value="Other">Другая</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 8: Religious Level -->
+            <div class="step" id="step8" data-step="8" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h2>Уровень религиозности</h2>
+                    <p class="step-description">Оцените ваш уровень религиозности</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="low">Низкий</button>
+                        <button class="option-btn" data-value="medium">Средний</button>
+                        <button class="option-btn" data-value="high">Высокий</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 9: Education -->
+            <div class="step" id="step9" data-step="9" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h2>Ваше образование</h2>
+                    <p class="step-description">Выберите ваш уровень образования</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="none">Без образования</button>
+                        <button class="option-btn" data-value="secondary">Среднее</button>
+                        <button class="option-btn" data-value="higher">Высшее</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 10: Job -->
+            <div class="step" id="step10" data-step="10" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h2>Ваша профессия</h2>
+                    <p class="step-description">Укажите вашу профессию или вид деятельности (необязательно)</p>
+                    <div class="input-group">
+                        <input type="text" id="job" class="form-input" placeholder="Профессия" maxlength="100">
+                        <div class="input-validation" id="jobValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 11: Height -->
+            <div class="step" id="step11" data-step="11" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-ruler-vertical"></i>
+                    </div>
+                    <h2>Ваш рост</h2>
+                    <p class="step-description">Укажите ваш рост в сантиметрах</p>
+                    <div class="input-group">
+                        <input type="number" id="height" class="form-input" placeholder="Рост (см)" min="100" max="250">
+                        <div class="input-validation" id="heightValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 12: Weight -->
+            <div class="step" id="step12" data-step="12" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                    <h2>Ваш вес</h2>
+                    <p class="step-description">Укажите ваш вес в килограммах</p>
+                    <div class="input-group">
+                        <input type="number" id="weight" class="form-input" placeholder="Вес (кг)" min="30" max="200">
+                        <div class="input-validation" id="weightValidation"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 13: Marital Status -->
+            <div class="step" id="step13" data-step="13" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-ring"></i>
+                    </div>
+                    <h2>Семейное положение</h2>
+                    <p class="step-description">Выберите ваше семейное положение</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="single">Холост/Не замужем</button>
+                        <button class="option-btn" data-value="divorced">Разведен(а)</button>
+                        <button class="option-btn" data-value="widowed">Вдовец/Вдова</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 14: Has Children -->
+            <div class="step" id="step14" data-step="14" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-baby"></i>
+                    </div>
+                    <h2>Есть ли у вас дети?</h2>
+                    <p class="step-description">Укажите, есть ли у вас дети</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="true">Да</button>
+                        <button class="option-btn" data-value="false">Нет</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 15: Polygamy -->
+            <div class="step" id="step15" data-step="15" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2>Отношение к многожёнству</h2>
+                    <p class="step-description">Ваше отношение к многожёнству</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="true">Принимаю</button>
+                        <button class="option-btn" data-value="false">Не принимаю</button>
+                        <button class="option-btn" data-value="null">Не уверен(а)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 16: Goal -->
+            <div class="step" id="step16" data-step="16" style="display: none;">
+                <div class="step-content">
+                    <div class="step-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h2>Цель знакомства</h2>
+                    <p class="step-description">Какую цель вы преследуете при знакомстве?</p>
+                    <div class="options-grid">
+                        <button class="option-btn" data-value="friendship">Дружба</button>
+                        <button class="option-btn" data-value="communication">Общение</button>
+                        <button class="option-btn" data-value="marriage">Брак</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Step -->
+            <div class="step" id="successStep" style="display: none;">
+                <div class="step-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2>Профиль создан успешно!</h2>
+                    <p class="step-description">Ваш профиль был успешно создан. Теперь вы можете начать поиск своей второй половинки!</p>
+                    <div class="success-actions">
+                        <button class="btn btn-primary" id="viewProfileBtn">
+                            <i class="fas fa-user"></i>
+                            Посмотреть профиль
+                        </button>
+                        <button class="btn btn-secondary" id="startSearchBtn">
+                            <i class="fas fa-search"></i>
+                            Начать поиск
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <button class="nav-btn nav-prev" id="prevBtn" style="display: none;">
+                <i class="fas fa-arrow-left"></i>
+                Назад
+            </button>
+            <button class="nav-btn nav-next" id="nextBtn">
+                Далее
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Создание профиля...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
