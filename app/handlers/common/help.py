@@ -12,4 +12,4 @@ from data.config import LOGO_DIR
 async def _help_command(message: types.Message) -> None:
     """Отправляет пользователю небольшое описание бота"""
     photo = types.FSInputFile(LOGO_DIR)
-    await message.answer_photo(photo=photo, caption=mt.INFO)
+    await message.answer(photo=photo, text=mt.INFO)

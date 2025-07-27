@@ -45,7 +45,6 @@ class Stats:
         stmt = select(
             func.count(UserModel.id).label("count"),
             func.sum(case((UserModel.status == 0, 1), else_=0)).label("banned_count"),
-            func.sum(UserModel.referral).label("total_referrals"),
         )
         result = await session.execute(stmt)
         stats = result.fetchone()
@@ -63,7 +62,6 @@ class Stats:
         return {
             "count": stats[0],
             "banned_count": stats[1],
-            "total_referrals": stats[2] if stats[2] else 0,
             "most_popular_language": popular_language[0] if popular_language else None,
         }
 
@@ -114,8 +112,8 @@ class Stats:
             "male_count": stats[1],
             "female_count": stats[2],
             "inactive_profile": stats[3],
-            "average_age": round(stats[4], 1)
+            "average_age": round(stats[4], 0)
             if stats[4]
-            else None,  # Округление до 1 знака после запятой
+            else None,
             "most_popular_city": popular_city[0] if popular_city else None,
         }

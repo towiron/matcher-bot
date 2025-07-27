@@ -6,9 +6,10 @@ from aiogram import F, types
 from aiogram.filters.state import StateFilter
 from aiogram.fsm.context import FSMContext
 
+from loader import _
+
 from app.business.profile_service import complaint_to_profile, send_profile_with_dist
 from app.constans import EFFECTS_DICTIONARY
-from app.handlers.common.cancel import cancel_command
 from app.keyboards.default.base import match_kb
 from app.keyboards.default.report import report_kb
 from app.routers import dating_router
@@ -45,7 +46,7 @@ async def match_archive(
             await message.answer(mt.MESSAGE_TO_YOU.format(match_data.message))
     else:
         await message.answer(mt.LIKE_ARCHIVE)
-        await cancel_command(message, state)
+        await cancel_command(message, state, user)
 
 
 @dating_router.callback_query(StateFilter("*"), F.data == "archive")
@@ -116,7 +117,7 @@ async def _match_response(
             reason=message.text,
             complaint_user=another_user,
         )
-    elif message.text == "↩️":
+    elif message.text == _(mt.KB_BACK):
         await message.answer(mt.SEARCH, reply_markup=match_kb)
     await Match.delete(session, user.id, another_user.id)
 

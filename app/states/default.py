@@ -6,18 +6,40 @@ class LikeResponse(StatesGroup):
 
 
 class ProfileCreate(StatesGroup):
-    gender = State()
-    find_gender = State()
-    photo = State()
     name = State()
+    surname = State()
+    gender = State()
     age = State()
     city = State()
-    description = State()
-
+    ethnicity = State()
+    religion = State()
+    religious_level = State()
+    education = State()
+    job = State()
+    height = State()
+    weight = State()
+    marital_status = State()
+    has_children = State()
+    polygamy = State()
+    goal = State()
 
 class ProfileEdit(StatesGroup):
-    photo = State()
-    description = State()
+    name = State()
+    surname = State()
+    gender = State()
+    age = State()
+    city = State()
+    ethnicity = State()
+    religion = State()
+    religious_level = State()
+    education = State()
+    job = State()
+    height = State()
+    weight = State()
+    marital_status = State()
+    has_children = State()
+    polygamy = State()
+    goal = State()
 
 
 class Search(StatesGroup):

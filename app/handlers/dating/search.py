@@ -2,6 +2,8 @@ from aiogram import F, types
 from aiogram.filters.state import StateFilter
 from aiogram.fsm.context import FSMContext
 
+from loader import _
+
 import app.filters.create_profile_filtres as filters
 from app.business.dating_service import send_user_like_alert
 from app.business.menu_service import menu
@@ -18,7 +20,7 @@ from database.services.search import search_profiles
 from ..common.cancel import cancel_command
 
 
-@dating_router.message(StateFilter(None), F.text == "🔍")
+@dating_router.message(StateFilter(None), F.text == _(mt.KB_FIND_MATCH))
 async def _search_command(
     message: types.Message, state: FSMContext, user: UserModel, session
 ) -> None:

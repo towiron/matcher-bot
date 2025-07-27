@@ -3,6 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from loader import _
 
 from .kb_generator import simple_kb_generator as kb_gen
+from app.text import message_text as mt
 
 del_kb = ReplyKeyboardRemove()
 
@@ -16,24 +17,21 @@ start_kb: ReplyKeyboardMarkup = kb_gen(
 )
 
 profile_kb: ReplyKeyboardMarkup = kb_gen(
-    ["🔄", "🖼", "✍️", "❌"],
-    ["↩️"],
+    [_(mt.KB_FILL_PROFILE_AGAIN), mt.KB_BACK],
 )
 
 menu_kb: ReplyKeyboardMarkup = kb_gen(
-    ["🔍", "👤", "📭"],
-    ["✉️"],
+    [_(mt.KB_FIND_MATCH)],
+    [_(mt.KB_MY_PROFILE), _(mt.KB_DISABLE_PROFILE)]
 )
 
 search_kb: ReplyKeyboardMarkup = kb_gen(
-    ["❤️", "📩", "👎"],
-    ["💢"],
+    ["❤️", "👎"],
     ["💤"],
 )
 
 match_kb: ReplyKeyboardMarkup = kb_gen(
     ["❤️", "👎"],
-    ["💢"],
     ["💤"],
 )
 

@@ -21,20 +21,16 @@ class MessageText:
     @property
     def MENU(self):
         return _("""
-🔍 Смотреть анкеты
-👤 Моя анкета
-📭 Кто меня лайкнул
+🔍 Найти пару.
+👤 Мой профиль.
 
-✉️ Пригласить друзей""")
+❌ Я больше не хочу никого искать.
+""")
 
     @property
     def PROFILE_MENU(self):
         return _("""
-🔄 Заполнить анкету заново
-🖼 Изменить фотографию
-✍️ Изменить описание
-❌ Отключить анкету
-
+🔄 Заполнить профиль заново
 ↩️ Назад
 """)
 
@@ -45,12 +41,7 @@ class MessageText:
     @property
     def INFO(self):
         return _("""
-👋
-Немного информации о боте:
-Этот бот был создан по аналогии с популярным ботом для знакомств <a href='https://t.me/leomatchbot?start=i_VwRd0'>Дайвинчик</a>
-Весь код бота открыт и доступен на <a href='https://github.com/devvsima/dating-bot'>GitHub</a>
-
-По вопросам и предложениям можно писать сюда: @devvsima.
+👋 Пока что пусто...
 """)
 
     @property
@@ -68,12 +59,6 @@ class MessageText:
     @property
     def EMPTY_PROFILE_SEARCH(self):
         return _("Анкеты закончились. Попробуй позже! 😊")
-
-    def LIKE_PROFILE(self, language: str):
-        return _(
-            "Твоя анкета получила <b>{}</b> ❤️\n\n📭 Нажми, чтобы посмотреть",
-            locale=language,
-        )
 
     @property
     def MESSAGE_TO_YOU(self):
@@ -93,34 +78,6 @@ class MessageText:
         return _("Пока никто не поставил тебе лайк, но всё ещё впереди!")
 
     @property
-    def GENDER(self):
-        return _("Укажи, свой пол: 👤")
-
-    @property
-    def FIND_GENDER(self):
-        return _("Выбери, кого ты ищешь: 💕")
-
-    @property
-    def PHOTO(self):
-        return _("Пришли своё фото! 📸")
-
-    @property
-    def NAME(self):
-        return _("Как тебя зовут? ✍️")
-
-    @property
-    def AGE(self):
-        return _("Сколько тебе лет? 🎂")
-
-    @property
-    def CITY(self):
-        return _("Укажи свой город: 🏙️")
-
-    @property
-    def DESCRIPTION(self):
-        return _("Расскажи немного о себе — это поможет другим узнать тебя лучше! 📝")
-
-    @property
     def MAILING_TO_USER(self):
         return _(
             "Можешь написать пользователю, до 250 символов. ✉️\n\nЕсли не хочешь писать, нажми на кнопку ниже."
@@ -137,10 +94,6 @@ class MessageText:
 💬 Чтобы снова активировать анкету, отправь команду /start.""")
 
     @property
-    def ACTIVATE_PROFILE_ALERT(self):
-        return _("✅ Твоя анкета успешно восстановлена! Теперь ты снова можешь пользоваться ботом.")
-
-    @property
     def INVALID_RESPONSE(self):
         return _("Некорректный ответ. Пожалуйста, выбери на клавиатуре или напиши правильно. 📝")
 
@@ -153,20 +106,16 @@ class MessageText:
         return _("Такой город не найдет :(")
 
     @property
-    def INVALID_PHOTO(self):
-        return _(
-            "Неверный формат фотографии! Пожалуйста, загрузите изображение в правильном формате. 🖼️"
-        )
-
-    @property
     def INVALID_AGE(self):
         return _("Неверный формат, возраст нужно указывать цифрами. 🔢")
 
     @property
-    def INVITE_FRIENDS(self):
-        return _(
-            "Приглашай друзей и получай бонусы!\n\nПриглашенные пользователи: <b>{}</b>\n\nСсылка для друзей:\n<code>https://t.me/{}?start={}</code>"
-        )
+    def INVALID_HEIGHT(self):
+        return _("Неверный формат, рост нужно указывать цифрами. 🔢")
+
+    @property
+    def INVALID_WEIGHT(self):
+        return _("Неверный формат, вес нужно указывать цифрами. 🔢")
 
     @property
     def CHANGE_LANG(self):
@@ -174,6 +123,19 @@ class MessageText:
 
     def DONE_CHANGE_LANG(self, language: str):
         return _("Язык бота изменён! ✅", locale=language)
+
+    @property
+    def YOU_ARE_ADMIN(self):
+        return _("""Вы — администратор!
+Новые доступные команды:
+- <b>/stats</b> — статистика бота.
+- <b>/mailing</b> — рассылка всем пользователям.
+- <b>/log</b> — просмотр логов бота.
+- <b>/ban</b> — заблокировать пользователя по ID.
+- <b>/unban</b> — разблокировать пользователя по ID.
+""")
+
+
 
     @property
     def REPORT_TO_USER(self):
@@ -213,6 +175,417 @@ The reason: {}
         return _(f"""
     ✨ Чтобы продолжить пользоваться ботом, тебе нужно создать профиль!
     """)
+
+    @property
+    def USER_STATS(self):
+        return _("""
+👤 Пользователей: {}\t| 🚫 Заблокированных: {}
+🌍 Самый популярный язык: {}
+""")
+
+    @property
+    def PROFILE_STATS(self):
+        return _("""
+📂 Профилей: {} | 🔕 Инактивных: {}
+🙍‍♂ Парней: {} | 🙍‍♀ Девушек: {}
+
+💘 Мэтчи: {}
+
+🕘 Средний возраст: {}
+🏙 Популярный город: {}
+""")
+
+    # ОПИСАНИЕ ПРОФИЛЯ
+    @property
+    def PROFILE_HEADER(self):
+        return _("<b>Ваш профиль:</b>")
+
+    @property
+    def PROFILE_NAME(self):
+        return _("<b>Имя:</b> {}")
+
+    @property
+    def PROFILE_SURNAME(self):
+        return _("<b>Имя:</b> {} <i>(Видно только вам)</i>")
+
+    @property
+    def PROFILE_AGE(self):
+        return _("<b>Возраст:</b> {}")
+
+    @property
+    def PROFILE_GENDER(self):
+        return _("<b>Пол:</b> {}")
+
+    @property
+    def PROFILE_CITY(self):
+        return _("<b>Город:</b> {}")
+
+    @property
+    def PROFILE_HEIGHT(self):
+        return _("<b>Рост:</b> {} см")
+
+    @property
+    def PROFILE_WEIGHT(self):
+        return _("<b>Вес:</b> {} кг")
+
+    @property
+    def PROFILE_MARITAL_STATUS(self):
+        return _("<b>Семейное положение:</b> {}")
+
+    @property
+    def PROFILE_HAS_CHILDREN(self):
+        return _("<b>Есть дети:</b> {}")
+
+    @property
+    def PROFILE_CHILDREN_LIVE_WITH_ME(self):
+        return _("<b>Дети живут со мной:</b> {}")
+
+    @property
+    def PROFILE_EDUCATION(self):
+        return _("<b>Образование:</b> {}")
+
+    @property
+    def PROFILE_JOB(self):
+        return _("<b>Профессия:</b> {}")
+
+    @property
+    def PROFILE_GOAL(self):
+        return _("<b>Цель знакомства:</b> {}")
+
+    @property
+    def PROFILE_POLYGAMY(self):
+        return _("<b>Многожёнство:</b> {}")
+
+    @property
+    def PROFILE_RELIGION(self):
+        return _("<b>Религия:</b> {}")
+
+    @property
+    def PROFILE_RELIGIOUS_LEVEL(self):
+        return _("<b>Уровень религиозности:</b> {}")
+
+    @property
+    def PROFILE_ETHNICITY(self):
+        return _("<b>Национальность:</b> {}")
+
+    @property
+    def PROFILE_NOT_SPECIFIED(self):
+        return _("Не указано")
+
+    @property
+    def PROFILE_YES(self):
+        return _("Да")
+
+    @property
+    def PROFILE_NO(self):
+        return _("Нет")
+
+    @property
+    def GENDER_MALE(self):
+        return _("Парень")
+
+    @property
+    def GENDER_FEMALE(self):
+        return _("Девушка")
+
+    @property
+    def MARITAL_STATUS_SINGLE(self):
+        return _("Не женат / не замужем")
+
+    @property
+    def MARITAL_STATUS_DIVORCED(self):
+        return _("Разведён / разведена")
+
+    @property
+    def MARITAL_STATUS_WIDOWED(self):
+        return _("Вдовец / вдова")
+
+    @property
+    def EDUCATION_PRIMARY(self):
+        return _("Начальное")
+
+    @property
+    def EDUCATION_SECONDARY(self):
+        return _("Среднее")
+
+    @property
+    def EDUCATION_HIGHER(self):
+        return _("Высшее")
+
+    @property
+    def GOAL_FRIENDSHIP(self):
+        return _("Дружба")
+
+    @property
+    def GOAL_COMMUNICATION(self):
+        return _("Общение")
+
+    @property
+    def GOAL_MARRIAGE(self):
+        return _("Брак")
+
+    @property
+    def RELIGION_ISLAM(self):
+        return _("Ислам")
+
+    @property
+    def RELIGION_CHRISTIANITY(self):
+        return _("Христианство")
+
+    @property
+    def RELIGION_JUDAISM(self):
+        return _("Иудаизм")
+
+    @property
+    def RELIGION_BUDDHISM(self):
+            return _("Буддизм")
+
+    @property
+    def RELIGIOUS_LEVEL_LOW(self):
+        return _("Низкий")
+
+    @property
+    def RELIGIOUS_LEVEL_MEDIUM(self):
+        return _("Средний")
+
+    @property
+    def RELIGIOUS_LEVEL_HIGH(self):
+        return _("Высокий")
+
+
+
+    # ЗАПОЛНЕНИЕ ПРОФИЛЯ
+    @property
+    def CREATE_PROFILE(self):
+        return _("Создать профиль")
+
+    @property
+    def ASK_NAME(self):
+        return _("Как вас зовут?")
+
+    @property
+    def ASK_SURNAME(self):
+        return _("Укажите фамилию:")
+
+    @property
+    def ASK_GENDER(self):
+        return _("Укажите пол:")
+
+    @property
+    def ASK_AGE(self):
+        return _("Укажите возраст:")
+
+    @property
+    def ASK_CITY(self):
+        return _("Укажите город:")
+
+    @property
+    def ASK_ETHNICITY(self):
+        return _("Укажите национальность:")
+
+    @property
+    def ASK_RELIGION(self):
+        return _("Укажите религию:")
+
+    @property
+    def ASK_RELIGIOUS_LEVEL(self):
+        return _("Насколько вы религиозны?")
+
+    @property
+    def ASK_EDUCATION(self):
+        return _("Укажите образование:")
+
+    @property
+    def ASK_JOB(self):
+        return _("Чем вы занимаетесь?")
+
+    @property
+    def ASK_HEIGHT(self):
+        return _("Укажите рост в см:")
+
+    @property
+    def ASK_WEIGHT(self):
+        return _("Укажите вес в кг:")
+
+    @property
+    def ASK_MARITAL_STATUS(self):
+        return _("Ваше семейное положение?")
+
+    @property
+    def ASK_HAS_CHILDREN(self):
+        return _("Есть ли у вас дети?")
+
+    @property
+    def ASK_POLYGAMY(self):
+        return _("Вы приемлете полигамию?")
+
+    @property
+    def ASK_GOAL(self):
+        return _("Какова ваша цель знакомства?")
+
+    @property
+    def PRFILE_SUCCESSFULLY_CREATED(self):
+        return _("✅ Ваш профиль успешно создан!")
+
+    # КЛАВИАТУРА
+    @property
+    def KB_FILL_PROFILE_AGAIN(self):
+        return _("🔄 Заполнить профиль заново")
+
+    @property
+    def KB_BACK(self):
+        return _("↩️ Назад")
+
+    @property
+    def KB_FIND_MATCH(self):
+        return _("🔍 Найти пару")
+
+    @property
+    def KB_MY_PROFILE(self):
+        return _("👤 Мой профиль")
+
+    @property
+    def KB_DISABLE_PROFILE(self):
+        return _("❌ Я больше не хочу никого искать")
+
+    @property
+    def KB_GENDER_MALE(self):
+        return _("Парень")
+
+    @property
+    def KB_GENDER_MALE(self):
+        return _("Парень")
+
+    @property
+    def KB_GENDER_FEMALE(self):
+        return _("Девушка")
+
+    @property
+    def KB_LOCATION(self):
+        return _("📍 Отправить местоположение")
+
+    @property
+    def KB_ETHNICITY_UZBEK(self):
+        return _("Узбек/чка")
+
+    @property
+    def KB_ETHNICITY_RUSSIAN(self):
+        return _("Русский/ая")
+
+    @property
+    def KB_RELIGION_ISLAM(self):
+        return _("Ислам")
+
+    @property
+    def KB_RELIGION_CHRISTIANITY(self):
+        return _("Христианство")
+
+    @property
+    def KB_RELIGION_JUDAISM(self):
+        return _("Иудаизм")
+
+    @property
+    def KB_RELIGION_BUDDHISM(self):
+        return _("Буддизм")
+
+    @property
+    def KB_RELIGION_OTHER(self):
+        return _("Другое")
+
+    @property
+    def KB_RELIGIOSITY_NONE(self):
+        return _("Не религиозен(а)")
+
+    @property
+    def KB_RELIGIOSITY_LOW(self):
+        return _("Немного")
+
+    @property
+    def KB_RELIGIOSITY_MEDIUM(self):
+        return _("Средне")
+
+    @property
+    def KB_RELIGIOSITY_HIGH(self):
+        return _("Очень")
+
+    @property
+    def KB_RELIGIOSITY_STRICT(self):
+        return _("Следую всем нормам")
+
+    @property
+    def KB_EDUCATION_SECONDARY(self):
+        return _("Среднее")
+
+    @property
+    def KB_EDUCATION_INCOMPLETE_HIGHER(self):
+        return _("Неоконченное высшее")
+
+    @property
+    def KB_EDUCATION_HIGHER(self):
+        return _("Высшее")
+
+    @property
+    def KB_MARITAL_STATUS_SINGLE(self):
+        return _("Не женат / Не замужем")
+
+    @property
+    def KB_MARITAL_STATUS_DIVORCED(self):
+        return _("В разводе")
+
+    @property
+    def KB_MARITAL_STATUS_WIDOWED(self):
+        return _("Вдовец / Вдова")
+
+    @property
+    def KB_HAS_CHILDREN_YES(self):
+        return _("Да")
+
+    @property
+    def KB_HAS_CHILDREN_NO(self):
+        return _("Нет")
+
+    @property
+    def KB_POLYGAMY_YES(self):
+        return _("Да")
+
+    @property
+    def KB_POLYGAMY_NO(self):
+        return _("Нет")
+
+    @property
+    def KB_POLYGAMY_UNSURE(self):
+        return _("Не знаю / Не уверен(а)")
+
+
+
+    @property
+    def KB_GOAL_MARRIAGE(self):
+        return _("Брак")
+
+    @property
+    def KB_GOAL_SERIOUS_RELATIONSHIP(self):
+        return _("Серьезные отношения")
+
+    @property
+    def KB_GOAL_FRIENDSHIP(self):
+        return _("Дружба")
+
+    @property
+    def KB_GOAL_COMMUNICATION(self):
+        return _("Общение")
+
+    @property
+    def KB_LEAVE_PREVIOUS(self):
+        return _("Оставить предыдущее")
+
+    @property
+    def KB_STAT_USER(self):
+        return _("Статистика пользователей")
+
+    @property
+    def KB_STAT_PROFILE(self):
+        return _("Статистика профилей")
+
 
 
 message_text = MessageText()

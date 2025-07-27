@@ -1,6 +1,5 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-
 def simple_kb_generator(
     *buttons_list: list, one_time: bool = False, resize: bool = True
 ) -> ReplyKeyboardMarkup:
