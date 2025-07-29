@@ -1,14 +1,17 @@
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.filters.state import StateFilter
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 
+from app.keyboards.default.registration_form import create_profile_kb
 from app.keyboards.inline.lang import LangCallback, lang_ikb
 from app.routers import common_router
 from app.text import message_text as mt
 from database.models import UserModel
 from database.services import User
 from app.business.menu_service import menu
-from app.keyboards.default.registration_form import create_profile_kb
+from loader import _
+from data.config import WEB_APP_URL
 
 
 @common_router.message(StateFilter(None), Command("language"))
@@ -33,4 +36,6 @@ async def _change_lang(
     if user.profile:
         await menu(callback.from_user.id)
     else:
-        await callback.message.answer(mt.WELCOME, reply_markup=create_profile_kb())
+        keyboard = create_profile_kb()
+
+        await callback.message.answer(_(mt.WELCOME), reply_markup=keyboard)

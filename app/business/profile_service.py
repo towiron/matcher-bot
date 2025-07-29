@@ -7,7 +7,6 @@ from database.services.search import haversine_distance
 from loader import bot
 from utils.logging import logger
 
-
 async def send_profile(chat_id: int, profile: ProfileModel) -> None:
     """Отправляет пользователю переданный в функцию профиль"""
     profile_text = format_profile_text(profile)
@@ -107,7 +106,7 @@ def format_profile_text(profile: ProfileModel) -> str:
         "medium": mt.KB_RELIGIOSITY_MEDIUM,
         "high": mt.KB_RELIGIOSITY_HIGH,
         "strict": mt.KB_RELIGIOSITY_STRICT,
-        None: mt.KB_RELIGIOSITY_NONE,
+        "none": mt.KB_RELIGIOSITY_NONE,
     }
 
     # Сборка текста
@@ -133,12 +132,16 @@ def format_profile_text(profile: ProfileModel) -> str:
 {mt.PROFILE_JOB.format(profile.job or mt.PROFILE_NOT_SPECIFIED)}
 {mt.PROFILE_GOAL.format(goal_map.get(profile.goal, profile.goal))}
 {mt.PROFILE_POLYGAMY.format(mt.PROFILE_YES if profile.polygamy else mt.PROFILE_NO)}
-{mt.PROFILE_RELIGION.format(religion_map.get(profile.religion, profile.religion))}"""
+{mt.PROFILE_RELIGION.format(religion_map.get((profile.religion or "").lower(), profile.religion))}"""
 
     if profile.religious_level:
-        profile_text += f"\n{mt.PROFILE_RELIGIOUS_LEVEL.format(religious_level_map.get(profile.religious_level, profile.religious_level))}"
+        profile_text += f"\n{mt.PROFILE_RELIGIOUS_LEVEL.format(religious_level_map.get(profile.religious_level))}"
 
     profile_text += f"""
 {mt.PROFILE_ETHNICITY.format(profile.ethnicity)}"""
+    profile_text += f"""
+{mt.PROFILE_ABOUT.format(profile.about)}"""
+    profile_text += f"""
+{mt.PROFILE_LOOKING_FOR.format(profile.looking_for)}"""
 
     return profile_text

@@ -3,7 +3,6 @@ from aiogram.filters import CommandStart
 from aiogram.filters.state import StateFilter
 
 from app.business.menu_service import menu
-from app.keyboards.default.registration_form import create_profile_kb
 from app.keyboards.inline.lang import lang_ikb
 from app.routers import common_router
 from app.text import message_text as mt

@@ -64,6 +64,8 @@ MIN_PROFILES: int = env.int("MIN_PROFILES", default=100)              # Мин. 
 RADIUS: int = env.int("RADIUS", default=6371)                          # Радиус Земли
 BLOCK_SIZE: float = env.float("BLOCK_SIZE", default=50.0)             # Размер блока
 
+# WEB APP
+WEB_APP_URL: str = env.str("WEB_APP_URL", default=None)
 
 # ---< Path\Dir >---
 IMAGES_DIR: Path = DIR / "images"

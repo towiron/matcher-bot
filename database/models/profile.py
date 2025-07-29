@@ -69,26 +69,14 @@ class ProfileModel(BaseModel):
     # Профессия или вид деятельности (опционально)
     job: Mapped[str] = mapped_column(String(100), nullable=True)
 
+    # О себе
+    about: Mapped[str] = mapped_column(String(300), nullable=True)
+
+    # Кого пользователь ищет
+    looking_for: Mapped[str] = mapped_column(String(300), nullable=True)
+
     # Активен ли профиль (может использоваться для временного скрытия)
     is_active: Mapped[bool] = mapped_column(default=True)
 
     # Связь с пользователем
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore
-
-    # Ограничения на уровне базы данных
-    # __table_args__ = (
-    #     # Пол может быть только 'male' или 'female'
-    #     CheckConstraint("gender IN ('male', 'female')", name="gender_check"),
-    #
-    #     # Допустимые значения для семейного положения
-    #     CheckConstraint("marital_status IN ('single', 'divorced', 'widowed')", name="marital_status_check"),
-    #
-    #     # Допустимые значения для образования
-    #     CheckConstraint("education IN ('none', 'secondary', 'higher')", name="education_check"),
-    #
-    #     # Допустимые цели знакомства
-    #     CheckConstraint("goal IN ('friendship', 'communication', 'marriage')", name="goal_check"),
-    #
-    #     # Религиозность может быть NULL или одним из допустимых уровней
-    #     CheckConstraint("religious_level IS NULL OR religious_level IN ('low', 'medium', 'high')", name="religious_level_check"),
-    # )

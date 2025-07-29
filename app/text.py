@@ -269,6 +269,14 @@ The reason: {}
         return _("<b>Национальность:</b> {}")
 
     @property
+    def PROFILE_ABOUT(self):
+        return _("<b>О себе:</b> {}")
+
+    @property
+    def PROFILE_LOOKING_FOR(self):
+        return _("<b>Кого ищу:</b> {}")
+
+    @property
     def PROFILE_NOT_SPECIFIED(self):
         return _("Не указано")
 
@@ -447,10 +455,6 @@ The reason: {}
     @property
     def KB_DISABLE_PROFILE(self):
         return _("❌ Я больше не хочу никого искать")
-
-    @property
-    def KB_GENDER_MALE(self):
-        return _("Парень")
 
     @property
     def KB_GENDER_MALE(self):

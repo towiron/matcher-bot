@@ -1,6 +1,7 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, WebAppInfo, InlineKeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardMarkup
 
+from data.config import WEB_APP_URL
 from database.models.profile import ProfileModel
 from database.models.user import UserModel
 from loader import _
@@ -9,15 +10,34 @@ from .base import del_kb
 from .kb_generator import simple_kb_generator as kb_gen
 from app.text import message_text as mt
 
-
 def create_profile_kb() -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardMarkup(
-        resize_keyboard=True,
         keyboard=[
             [
-                KeyboardButton(text=_(mt.CREATE_PROFILE)),
-            ],
+                KeyboardButton(
+                    text=_(mt.CREATE_PROFILE),
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/fill_profile")
+                )
+            ]
         ],
+        resize_keyboard=True
+    )
+    return kb
+
+def profile_menu_kb() -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(
+                    text=_(mt.KB_FILL_PROFILE_AGAIN),
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/fill_profile")
+                ),
+                KeyboardButton(
+                    text=_(mt.KB_BACK),
+                )
+            ]
+        ],
+        resize_keyboard=True
     )
     return kb
 
