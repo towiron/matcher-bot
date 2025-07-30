@@ -97,3 +97,61 @@ select {
   color: #666;
   font-weight: 600;
 }
+
+/* Стили для аватарок */
+.avatar-section {
+  margin-bottom: 0.75rem;
+}
+
+.avatar-section label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.avatar-option {
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.avatar-option:hover {
+  border-color: #0088cc;
+  transform: scale(1.05);
+}
+
+.avatar-option.selected {
+  border-color: #0088cc;
+  box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.3);
+}
+
+.avatar-option img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.3rem;
+  display: block;
+}
+
+.avatar-placeholder {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+/* Скрытое поле для хранения выбранной аватарки */
+.avatar-input {
+  display: none;
+}

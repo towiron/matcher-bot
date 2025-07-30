@@ -19,4 +19,4 @@ async def cancel_command(message: types.Message, state: FSMContext, user: UserMo
     if user.profile:
         await menu(message.from_user.id)
     else:
-        await message.answer(mt.EMPTY_PROFILE, reply_markup=create_profile_kb())
+        await message.answer(mt.EMPTY_PROFILE, reply_markup=create_profile_kb(user.language))

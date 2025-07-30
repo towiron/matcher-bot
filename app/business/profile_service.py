@@ -3,13 +3,15 @@ from app.text import message_text as mt
 from data.config import MODERATOR_GROUP
 from database.models.profile import ProfileModel
 from database.models.user import UserModel
+from database.services import City
 from database.services.search import haversine_distance
+from sqlalchemy.ext.asyncio import AsyncSession
 from loader import bot
 from utils.logging import logger
 
-async def send_profile(chat_id: int, profile: ProfileModel) -> None:
+async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru") -> None:
     """Отправляет пользователю переданный в функцию профиль"""
-    profile_text = format_profile_text(profile)
+    profile_text = await format_profile_text(session, profile, user_language)
 
     await bot.send_message(
         chat_id=chat_id,
@@ -36,13 +38,13 @@ async def send_profile_with_dist(user: UserModel, profile: ProfileModel, keyboar
 
 
 async def complaint_to_profile(
-    complainant: UserModel, reason: str, complaint_user: UserModel
+    session: AsyncSession, complainant: UserModel, reason: str, complaint_user: UserModel
 ) -> None:
     """Отправляет в группу модераторов анкету пользователя
     на которого пришла жалоба"""
     if MODERATOR_GROUP:
         try:
-            await send_profile(MODERATOR_GROUP, complaint_user.profile)
+            await send_profile(session, MODERATOR_GROUP, complaint_user.profile, complaint_user.language)
 
             text = mt.REPORT_TO_USER.format(
                 complainant.id,
@@ -64,7 +66,7 @@ async def complaint_to_profile(
             logger.error("Сообщение в модераторскую группу не отправленно")
 
 
-def format_profile_text(profile: ProfileModel) -> str:
+async def format_profile_text(session: AsyncSession, profile: ProfileModel, user_language: str = "ru") -> str:
     """Форматирует профиль для отображения"""
 
     # Используем значения напрямую из message_text
@@ -109,6 +111,17 @@ def format_profile_text(profile: ProfileModel) -> str:
         "none": mt.KB_RELIGIOSITY_NONE,
     }
 
+    city_obj = await City.get_by_id(session, id=profile.city_id)
+    city_name = city_obj.name_en
+    if city_obj:
+        match user_language:
+            case "uz":
+                city_name = city_obj.name_uz
+            case "en":
+                city_name = city_obj.name_en
+            case "ru":
+                city_name = city_obj.name_ru
+
     # Сборка текста
     profile_text = f"""
 {mt.PROFILE_HEADER}
@@ -117,7 +130,7 @@ def format_profile_text(profile: ProfileModel) -> str:
 {mt.PROFILE_SURNAME.format(profile.surname)}
 {mt.PROFILE_AGE.format(profile.age)}
 {mt.PROFILE_GENDER.format(gender_map.get(profile.gender, profile.gender))}
-{mt.PROFILE_CITY.format(profile.city)}
+{mt.PROFILE_CITY.format(city_name)}
 {mt.PROFILE_HEIGHT.format(profile.height)}
 {mt.PROFILE_WEIGHT.format(profile.weight)}
 

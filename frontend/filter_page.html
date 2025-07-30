@@ -14,7 +14,9 @@
   <div class="container">
     <h1>🔍 Фильтры поиска</h1>
     <form id="filterForm">
-      <input type="text" name="city" id="cityInput" placeholder="Город" required />
+      <select name="city" id="cityInput" required>
+        <option value="">Выберите город</option>
+      </select>
       <div class="range-group">
         <label>Возраст:</label>
         <div class="range-inputs">
@@ -68,7 +70,39 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // �� Отправка формы
+    const urlParams = new URLSearchParams(window.location.search);
+    const language = urlParams.get("language") || "ru"; // fallback
+
+    const cityInput = document.getElementById("cityInput");
+
+    let citiesList = [];
+
+    // 🔹 Загрузка списка городов из API
+    async function loadCities() {
+      try {
+        const response = await fetch('/cities');
+        const cities = await response.json();
+        citiesList = cities;
+        
+        // Очищаем список, оставляя только первый элемент
+        cityInput.innerHTML = '<option value="">Выберите город</option>';
+        
+        // Добавляем города в выпадающий список
+        cities.forEach(city => {
+          const option = document.createElement('option');
+          option.value = city.id;
+          option.textContent = city[language] || city.ru; // Используем русское название
+          cityInput.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Ошибка загрузки городов:", error);
+      }
+    }
+
+    // 🔹 Загружаем города при загрузке страницы
+    loadCities();
+
+    // 🔹 Отправка формы
     document.getElementById("filterForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -79,9 +113,13 @@
         formData.polygamy = formData.polygamy === "true";
       }
 
+      // Находим выбранный город по ID
+      const selectedCity = citiesList.find(city => city.id == formData.city);
+      
       const payload = {
         action: 'filter_submit',
         ...formData,
+        city_name: selectedCity ? selectedCity.ru : formData.city, // Добавляем название города
         user_id: tg.initDataUnsafe?.user?.id,
       };
 

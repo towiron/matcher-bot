@@ -25,13 +25,13 @@ class ProfileModel(BaseModel):
     gender: Mapped[str] = mapped_column(String(20), nullable=False)
 
     # Город проживания
-    city: Mapped[str] = mapped_column(String(200), nullable=False)
+    city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"), nullable=False)
 
     # Географическая широта города (для геопоиска)
-    latitude: Mapped[float] = mapped_column(nullable=False)
+    # latitude: Mapped[float] = mapped_column(nullable=False)
 
     # Географическая долгота города
-    longitude: Mapped[float] = mapped_column(nullable=False)
+#     longitude: Mapped[float] = mapped_column(nullable=False)
 
     # Рост пользователя в сантиметрах
     height: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -80,3 +80,5 @@ class ProfileModel(BaseModel):
 
     # Связь с пользователем
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore
+
+    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore

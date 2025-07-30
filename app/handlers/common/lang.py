@@ -36,6 +36,5 @@ async def _change_lang(
     if user.profile:
         await menu(callback.from_user.id)
     else:
-        keyboard = create_profile_kb()
-
+        keyboard = create_profile_kb(user.language)
         await callback.message.answer(_(mt.WELCOME), reply_markup=keyboard)

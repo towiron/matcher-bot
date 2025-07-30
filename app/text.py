@@ -53,8 +53,22 @@ class MessageText:
         return _("""
 🔍 Поиск по фильтру (1 шанс)  
 🧠 Умный поиск (3 шанса)  
+
+🔄 Изменить фильтр
 ↩️ Назад
 """)
+
+    @property
+    def KB_CHANGE_FILTER(self):
+        return _("🔄 Изменить фильтр")
+
+    @property
+    def KB_SEARCH_BY_FILTER(self):
+        return _("🔍 Поиск по фильтру")
+
+    @property
+    def KB_SEARCH_BY_AI(self):
+        return _("🧠 Умный поиск")
 
     @property
     def ARCHIVE_SEARCH(self):

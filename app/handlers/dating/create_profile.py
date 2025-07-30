@@ -15,6 +15,11 @@ from database.services import Profile
 from utils.geopy import get_coordinates
 
 from .profile import profile_command
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.text import message_text as mt
+from app.business.profile_service import send_profile
+from app.keyboards.default.registration_form import profile_menu_kb
 
 from app.text import message_text as mt
 
@@ -32,7 +37,7 @@ def WebAppActionFilter(expected_action: str):
 
 
 @dating_router.message(WebAppActionFilter("profile_submit"))
-async def _create_profile_command(message: types.Message, session, user: UserModel):
+async def _create_profile_command(message: types.Message, session: AsyncSession, user: UserModel):
     data = json.loads(message.web_app_data.data)
     profile = normalize_profile_data(data)
     await Profile.create_or_update(
@@ -44,17 +49,22 @@ async def _create_profile_command(message: types.Message, session, user: UserMod
     await session.refresh(user)
 
     await message.answer(_(mt.PRFILE_SUCCESSFULLY_CREATED), reply_markup=ReplyKeyboardRemove())
-    await profile_command(message, user)
+
+    # Call business logic functions directly instead of the handler
+    keyboard = profile_menu_kb(user.language)
+    await send_profile(session, message.from_user.id, user.profile, user.language)
+    await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
+
 
 def normalize_profile_data(data: dict) -> dict:
     # Попытка получить координаты, если они не указаны, но указан город
-    latitude = data.get("latitude")
-    longitude = data.get("longitude")
+    # latitude = data.get("latitude")
+    # longitude = data.get("longitude")
 
-    if (latitude is None or longitude is None) and data.get("city"):
-        coordinates = get_coordinates(data["city"])
-        if coordinates:
-            latitude, longitude = coordinates
+    # if (latitude is None or longitude is None) and data.get("city"):
+    #     coordinates = get_coordinates(data["city"])
+    #     if coordinates:
+    #         latitude, longitude = coordinates
 
     return {
         "gender": filters.gender_map.get(data.get("gender"), data.get("gender")),
@@ -68,9 +78,9 @@ def normalize_profile_data(data: dict) -> dict:
         "name": data.get("name"),
         "surname": data.get("surname"),
         "age": int(data.get("age")) if data.get("age") is not None else None,
-        "city": data.get("city"),
-        "latitude": latitude,
-        "longitude": longitude,
+        "city_id": int(data.get("city")) if data.get("city") is not None else None,
+        # "latitude": latitude,
+        # "longitude": longitude,
         "height": int(data.get("height")) if data.get("height") is not None else None,
         "weight": int(data.get("weight")) if data.get("weight") is not None else None,
         "ethnicity": data.get("ethnicity"),

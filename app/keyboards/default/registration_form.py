@@ -10,13 +10,13 @@ from .base import del_kb
 from .kb_generator import simple_kb_generator as kb_gen
 from app.text import message_text as mt
 
-def create_profile_kb() -> ReplyKeyboardMarkup:
+def create_profile_kb(language: str) -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [
                 KeyboardButton(
                     text=_(mt.CREATE_PROFILE),
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile?language={language}")
                 )
             ]
         ],
@@ -24,13 +24,13 @@ def create_profile_kb() -> ReplyKeyboardMarkup:
     )
     return kb
 
-def profile_menu_kb() -> ReplyKeyboardMarkup:
+def profile_menu_kb(language: str) -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [
                 KeyboardButton(
                     text=_(mt.KB_FILL_PROFILE_AGAIN),
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile?language={language}")
                 ),
                 KeyboardButton(
                     text=_(mt.KB_BACK),

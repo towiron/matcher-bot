@@ -13,13 +13,13 @@ class FilterModel(BaseModel):
     )
 
     # Город для поиска (опционально)
-    city: Mapped[str] = mapped_column(String(200), nullable=True)
+    city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"), nullable=True)
 
     # Минимальный возраст для поиска
-    age_from: Mapped[int] = mapped_column(Integer, nullable=False)
+    age_from: Mapped[int] = mapped_column(Integer, nullable=True)
 
     # Максимальный возраст для поиска
-    age_to: Mapped[int] = mapped_column(Integer, nullable=False)
+    age_to: Mapped[int] = mapped_column(Integer, nullable=True)
 
     # Минимальный рост
     height_from: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -44,3 +44,5 @@ class FilterModel(BaseModel):
 
     # Связь с пользователем
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="filter")  # type: ignore
+    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
+
