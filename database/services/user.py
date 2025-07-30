@@ -22,13 +22,26 @@ class User(BaseService):
         return result.scalar_one_or_none()
 
     @staticmethod
+    async def get_with_relations(session: AsyncSession, id: int):
+        """Возвращает пользователя с профилем и фильтром"""
+        result = await session.execute(
+            select(UserModel)
+            .options(
+                joinedload(UserModel.profile),
+                joinedload(UserModel.filter)
+            )
+            .where(UserModel.id == id)
+        )
+        return result.scalar_one_or_none()
+
+    @staticmethod
     async def get_or_create(
-        session: AsyncSession, id: int, username: str = None, language: str = None
+            session: AsyncSession, id: int, username: str = None, language: str = None
     ) -> UserModel:
-        if user := await User.get_with_profile(session, id):
+        if user := await User.get_with_relations(session, id):
             return user, False
         await User.create(session, id=id, username=username, language=language)
-        user = await User.get_with_profile(session, id)
+        user = await User.get_with_relations(session, id)
         return user, True
 
     @staticmethod

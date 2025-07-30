@@ -49,6 +49,14 @@ class MessageText:
         return _("🔍 Выполняется поиск...")
 
     @property
+    def SEARCH_MENU(self):
+        return _("""
+🔍 Поиск по фильтру (1 шанс)  
+🧠 Умный поиск (3 шанса)  
+↩️ Назад
+""")
+
+    @property
     def ARCHIVE_SEARCH(self):
         return _("Твоя анкета понравилась {} людям! Давай посмотрим, кто это:")
 
@@ -194,6 +202,51 @@ The reason: {}
 🕘 Средний возраст: {}
 🏙 Популярный город: {}
 """)
+
+    # ОПИСАНИЕ ФИЛЬТРА
+    @property
+    def FILTER_HEADER(self):
+        return _("<b>Ваш фильтр:</b>")
+
+    @property
+    def FILTER_CITY(self):
+        return _("<b>Город:</b> {}")
+
+    @property
+    def FILTER_AGE_FROM(self):
+        return _("<b>Возраст от:</b> {}")
+
+    @property
+    def FILTER_AGE_TO(self):
+        return _("<b>Возраст до:</b> {}")
+
+    @property
+    def FILTER_HEIGHT_FROM(self):
+        return _("<b>Рост(см) от:</b> {}")
+
+    @property
+    def FILTER_HEIGHT_TO(self):
+        return _("<b>Рост(см) до:</b> {}")
+
+    @property
+    def FILTER_WEIGHT_FROM(self):
+        return _("<b>Вес(кг) от:</b> {}")
+
+    @property
+    def FILTER_WEIGHT_TO(self):
+        return _("<b>Вес(кг) до:</b> {}")
+
+    @property
+    def FILTER_HAS_CHILDREN(self):
+        return _("<b>Есть ли дети:</b> {}")
+
+    @property
+    def FILTER_GOAL(self):
+        return _("<b>Цель:</b> {}")
+
+    @property
+    def FILTER_ETHNICITY(self):
+        return _("<b>Национальность:</b> {}")
 
     # ОПИСАНИЕ ПРОФИЛЯ
     @property
@@ -435,6 +488,10 @@ The reason: {}
     def PRFILE_SUCCESSFULLY_CREATED(self):
         return _("✅ Ваш профиль успешно создан!")
 
+    @property
+    def FILTER_SUCCESSFULLY_ADDED(self):
+        return _("✅ Фильтр успешно установлен!")
+
     # КЛАВИАТУРА
     @property
     def KB_FILL_PROFILE_AGAIN(self):
@@ -590,6 +647,14 @@ The reason: {}
     def KB_STAT_PROFILE(self):
         return _("Статистика профилей")
 
+    @property
+    def KB_SEARCH_FILTER(self):
+        return _("Фильтр поиска")
+
+    @property
+    def FILL_FILTER(self):
+        return _("""
+Пожалуйста, заполните фильтр перед использованием функции поиска.""")
 
 
 message_text = MessageText()

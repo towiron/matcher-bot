@@ -24,3 +24,7 @@ class UserModel(BaseModel):
     profile: Mapped["ProfileModel"] = relationship(  # type: ignore
         "ProfileModel", uselist=False, back_populates="user"
     )
+
+    filter: Mapped["FilterModel"] = relationship(  # type: ignore
+        "FilterModel", uselist=False, back_populates="user"
+    )

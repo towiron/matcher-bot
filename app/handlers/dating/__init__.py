@@ -1,5 +1,5 @@
 from .profile import dating_router
-from .search import dating_router
+from .filter import dating_router
 from .inbox import dating_router
 
 from .create_profile import dating_router

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Фильтры поиска</title>
+  <link rel="stylesheet" href="static/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Фильтры поиска</h1>
+    <form id="filterForm">
+      <input type="text" name="city" id="cityInput" placeholder="Город" required />
+      <div class="range-group">
+        <label>Возраст:</label>
+        <div class="range-inputs">
+          <input type="number" name="age_from" placeholder="От" min="18" max="100" />
+          <span>-</span>
+          <input type="number" name="age_to" placeholder="До" min="18" max="100" />
+        </div>
+      </div>
+
+      <div class="range-group">
+        <label>Рост (см):</label>
+        <div class="range-inputs">
+          <input type="number" name="height_from" placeholder="От" min="140" max="220" />
+          <span>-</span>
+          <input type="number" name="height_to" placeholder="До" min="140" max="220" />
+        </div>
+      </div>
+
+      <div class="range-group">
+        <label>Вес (кг):</label>
+        <div class="range-inputs">
+          <input type="number" name="weight_from" placeholder="От" min="40" max="200" />
+          <span>-</span>
+          <input type="number" name="weight_to" placeholder="До" min="40" max="200" />
+        </div>
+      </div>
+
+      <select name="has_children">
+        <option value="">Есть ли дети?</option>
+        <option value="true">Да</option>
+        <option value="false">Нет</option>
+        <option value="any">Не важно</option>
+      </select>
+
+      <select name="goal">
+        <option value="">Цель знакомства</option>
+        <option value="friendship">Дружба</option>
+        <option value="communication">Общение</option>
+        <option value="serious_relationship">Серьезные отношения</option>
+        <option value="marriage">Брак</option>
+        <option value="any">Не важно</option>
+      </select>
+
+      <input type="text" name="ethnicity" placeholder="Национальность" />
+
+      <button type="submit">✅ Применить фильтр</button>
+    </form>
+  </div>
+  <!-- ВСТАВЛЕННЫЙ СКРИПТ -->
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // �� Отправка формы
+    document.getElementById("filterForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      formData.has_children = formData.has_children === "true";
+      if (formData.polygamy) {
+        formData.polygamy = formData.polygamy === "true";
+      }
+
+      const payload = {
+        action: 'filter_submit',
+        ...formData,
+        user_id: tg.initDataUnsafe?.user?.id,
+      };
+
+      console.log("Отправка данных в бота:", payload);
+      tg.sendData(JSON.stringify(payload));
+      alert("Данные отправлены!");
+    });
+  </script>
+</body>
+</html> 

@@ -16,7 +16,7 @@ def create_profile_kb() -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(
                     text=_(mt.CREATE_PROFILE),
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/fill_profile")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile")
                 )
             ]
         ],
@@ -30,7 +30,7 @@ def profile_menu_kb() -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(
                     text=_(mt.KB_FILL_PROFILE_AGAIN),
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/fill_profile")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile")
                 ),
                 KeyboardButton(
                     text=_(mt.KB_BACK),

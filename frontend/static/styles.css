@@ -69,3 +69,31 @@ select {
   background-size: 0.65rem;
   padding-right: 2rem;
 }
+
+.range-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.range-group label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.range-inputs input {
+  flex: 1;
+  min-width: 0;
+}
+
+.range-inputs span {
+  color: #666;
+  font-weight: 600;
+}

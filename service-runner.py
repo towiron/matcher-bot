@@ -21,19 +21,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/fill_profile", response_class=HTMLResponse)
+@app.get("/profile", response_class=HTMLResponse)
 async def index():
-    with open("frontend/index.html", "r", encoding="utf-8") as f:
+    with open("frontend/profile_page.html", "r", encoding="utf-8") as f:
         content = f.read()
         content = content.replace('href="styles.css"', 'href="/static/styles.css"')
-        content = content.replace('src="script.js"', 'src="/static/script.js"')
         return content
 
-@app.post("/api/profile/create")
-async def submit_profile(request: Request):
-    data = await request.json()
-    print("Получена анкета:", data)
-    return {"success": True}
+@app.get("/filter", response_class=HTMLResponse)
+async def index():
+    with open("frontend/filter_page.html", "r", encoding="utf-8") as f:
+        content = f.read()
+        content = content.replace('href="styles.css"', 'href="/static/styles.css"')
+        return content
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8000, reload=True)
