@@ -14,7 +14,7 @@
   <div class="container">
     <h1>🔍 Фильтры поиска</h1>
     <form id="filterForm">
-      <select name="city" id="cityInput" required>
+      <select name="city" id="cityInput">
         <option value="">Выберите город</option>
       </select>
       <div class="range-group">
@@ -60,7 +60,9 @@
         <option value="any">Не важно</option>
       </select>
 
-      <input type="text" name="ethnicity" placeholder="Национальность" />
+       <select name="ethnicity" id="ethnicityInput">
+        <option value="">Выберите национальность</option>
+      </select>
 
       <button type="submit">✅ Применить фильтр</button>
     </form>
@@ -74,8 +76,10 @@
     const language = urlParams.get("language") || "ru"; // fallback
 
     const cityInput = document.getElementById("cityInput");
+    const ethnicityInput = document.getElementById("ethnicityInput");
 
     let citiesList = [];
+    let ethnicitiesList = [];
 
     // 🔹 Загрузка списка городов из API
     async function loadCities() {
@@ -99,8 +103,30 @@
       }
     }
 
+    async function loadEthnicities() {
+      try {
+        const response = await fetch('/ethnicities');
+        const ethnicities = await response.json();
+        ethnicitiesList = ethnicities;
+
+        // Очищаем список, оставляя только первый элемент
+        ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
+
+        // Добавляем города в выпадающий список
+        ethnicities.forEach(ethnicity => {
+          const option = document.createElement('option');
+          option.value = ethnicity.id;
+          option.textContent = ethnicity[language] || ethnicity.ru; // Используем русское название
+          ethnicityInput.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Ошибка загрузки национальностей:", error);
+      }
+    }
+
     // 🔹 Загружаем города при загрузке страницы
     loadCities();
+    loadEthnicities()
 
     // 🔹 Отправка формы
     document.getElementById("filterForm").addEventListener("submit", async (e) => {
@@ -115,11 +141,14 @@
 
       // Находим выбранный город по ID
       const selectedCity = citiesList.find(city => city.id == formData.city);
+
+      const selectedEthnicity = ethnicitiesList.find(ethnicity => ethnicity.id == formData.ethnicity);
       
       const payload = {
         action: 'filter_submit',
         ...formData,
         city_name: selectedCity ? selectedCity.ru : formData.city, // Добавляем название города
+        ethnicity_name: selectedEthnicity ? selectedEthnicity.ru : formData.ethnicity, // Добавляем название национальности
         user_id: tg.initDataUnsafe?.user?.id,
       };
 

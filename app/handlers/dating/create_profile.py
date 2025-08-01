@@ -57,21 +57,12 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
 
 
 def normalize_profile_data(data: dict) -> dict:
-    # Попытка получить координаты, если они не указаны, но указан город
-    # latitude = data.get("latitude")
-    # longitude = data.get("longitude")
-
-    # if (latitude is None or longitude is None) and data.get("city"):
-    #     coordinates = get_coordinates(data["city"])
-    #     if coordinates:
-    #         latitude, longitude = coordinates
-
     return {
         "gender": filters.gender_map.get(data.get("gender"), data.get("gender")),
         "marital_status": filters.marital_status_map.get(data.get("marital_status"), data.get("marital_status")),
         "education": filters.education_map.get(data.get("education"), data.get("education")),
         "goal": filters.goal_map.get(data.get("goal"), data.get("goal")),
-        "religion": filters.religion_map.get(data.get("religion"), data.get("religion")),
+        "religion_id": int(data.get("religion")),
         "religious_level": filters.religious_level_map.get(data.get("religious_level"), data.get("religious_level")),
         "has_children": filters.yes_no_map.get(data.get("has_children"), data.get("has_children")),
         "polygamy": filters.yes_no_map.get(data.get("polygamy"), data.get("polygamy")),
@@ -83,7 +74,7 @@ def normalize_profile_data(data: dict) -> dict:
         # "longitude": longitude,
         "height": int(data.get("height")) if data.get("height") is not None else None,
         "weight": int(data.get("weight")) if data.get("weight") is not None else None,
-        "ethnicity": data.get("ethnicity"),
+        "ethnicity_id": int(data.get("ethnicity")),
         "job": data.get("job"),
         "about": data.get("about"),
         "looking_for": data.get("looking_for"),

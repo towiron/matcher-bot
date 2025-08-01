@@ -1,110 +1,67 @@
-import random
-
-from loguru import logger
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from data.config import (
-    AGE_RANGE,
-    BLOCK_SIZE,
-    INITIAL_DISTANCE,
-    MAX_DISTANCE,
-    MIN_PROFILES,
-    RADIUS,
-    RADIUS_STEP,
-)
+from database.models.filter import FilterModel
 from database.models.profile import ProfileModel
+from typing import Optional
+from utils.logging import logger
 
 
-async def search_profiles(
-    session: AsyncSession,
-    profile: ProfileModel,
-) -> list:
-    """
-    Динамический поиск анкет: начинаем с малого радиуса и увеличиваем, пока не найдём достаточно анкет.
-    """
+async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[int]:
+    # Получаем фильтр пользователя
+    filter_obj: Optional[FilterModel] = await session.get(FilterModel, profile.id)
+    if not filter_obj:
+        return []
 
-    found_profiles = []
-    current_distance = INITIAL_DISTANCE
+    # Ищем противоположный пол
+    if profile.gender == "male":
+        target_gender = "female"
+    else:
+        target_gender = "male"
 
-    while current_distance <= MAX_DISTANCE and len(found_profiles) < MIN_PROFILES:
-        # Расчёт расстояния
-        distance_expr = (
-            func.acos(
-                func.greatest(
-                    func.least(
-                        func.cos(func.radians(profile.latitude))
-                        * func.cos(func.radians(ProfileModel.latitude))
-                        * func.cos(
-                            func.radians(ProfileModel.longitude) - func.radians(profile.longitude)
-                        )
-                        + func.sin(func.radians(profile.latitude))
-                        * func.sin(func.radians(ProfileModel.latitude)),
-                        1.0,
-                    ),
-                    -1.0,
-                )
-            )
-            * RADIUS
-        )
+    filters = [
+        ProfileModel.is_active == True,
+        ProfileModel.id != profile.id,
+        ProfileModel.gender == target_gender,
+    ]
 
-        stmt = (
-            select(ProfileModel.id, distance_expr.label("distance"))
-            .where(
-                and_(
-                    ProfileModel.is_active == True,
-                    distance_expr < current_distance,
-                    or_(ProfileModel.gender == profile.find_gender, profile.find_gender == "all"),
-                    or_(
-                        profile.gender == ProfileModel.find_gender,
-                        ProfileModel.find_gender == "all",
-                    ),
-                    ProfileModel.age.between(profile.age - AGE_RANGE, profile.age + AGE_RANGE),
-                    ProfileModel.id != profile.id,
-                )
-            )
-            .order_by(distance_expr)
-        )
+    # Применяем фильтр, только если поле указано
+    if filter_obj.city_id is not None:
+        filters.append(ProfileModel.city_id == filter_obj.city_id)
 
-        result = await session.execute(stmt)
-        found_profiles = result.fetchall()
+    if filter_obj.age_from is not None:
+        filters.append(ProfileModel.age >= filter_obj.age_from)
+    if filter_obj.age_to is not None:
+        filters.append(ProfileModel.age <= filter_obj.age_to)
 
-        # Если анкет мало — увеличиваем радиус и пробуем снова
-        current_distance += RADIUS_STEP
+    if filter_obj.height_from is not None:
+        filters.append(ProfileModel.height >= filter_obj.height_from)
+    if filter_obj.height_to is not None:
+        filters.append(ProfileModel.height <= filter_obj.height_to)
 
-    # Разделение на блоки и перемешивание
-    blocks = {}
-    for id, dist in found_profiles:
-        block_key = int(dist // BLOCK_SIZE)
-        blocks.setdefault(block_key, []).append(id)
+    if filter_obj.weight_from is not None:
+        filters.append(ProfileModel.weight >= filter_obj.weight_from)
+    if filter_obj.weight_to is not None:
+        filters.append(ProfileModel.weight <= filter_obj.weight_to)
 
-    for key in blocks:
-        random.shuffle(blocks[key])
+    if filter_obj.goal:
+        filters.append(ProfileModel.goal == filter_obj.goal)
 
-    id_list = [id for key in sorted(blocks.keys()) for id in blocks[key]]
+    if filter_obj.ethnicity_id is not None:
+        filters.append(ProfileModel.ethnicity_id == filter_obj.ethnicity_id)
 
-    logger.log(
-        "DATABASE",
-        f"{profile.id} начал поиск анкет, результат: {id_list}, радиус: {current_distance - RADIUS_STEP} км",
-    )
-    return id_list
+    if filter_obj.has_children is not None:
+        filters.append(ProfileModel.has_children == filter_obj.has_children)
 
+    if profile.polygamy is not None:
+        filters.append(ProfileModel.polygamy == profile.polygamy)
 
-import math
+    if profile.religion_id is not None:
+        filters.append(ProfileModel.religion_id == profile.religion_id)
 
+    stmt = select(ProfileModel.id).where(and_(*filters)).order_by(ProfileModel.created_at.desc())
+    result = await session.execute(stmt)
+    profile_ids = [row[0] for row in result.fetchall()]
 
-def haversine_distance(lat1, lon1, lat2, lon2):
-    """
-    Возвращает примерное расстояние между двумя точками (в километрах)
-    по координатам широты и долготы.
-    """
-    R = 6371  # Радиус Земли в километрах
-    phi1 = math.radians(lat1)
-    phi2 = math.radians(lat2)
-    d_phi = math.radians(lat2 - lat1)
-    d_lambda = math.radians(lon2 - lon1)
-
-    a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-    return round(R * c)
+    logger.log("DATABASE", f"{profile.id} поиск анкет по фильтру, найдено: {profile_ids}")
+    return profile_ids

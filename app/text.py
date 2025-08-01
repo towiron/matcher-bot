@@ -51,12 +51,16 @@ class MessageText:
     @property
     def SEARCH_MENU(self):
         return _("""
-🔍 Поиск по фильтру (1 шанс)  
+🔍 Поиск по фильтру
 🧠 Умный поиск (3 шанса)  
 
 🔄 Изменить фильтр
 ↩️ Назад
 """)
+
+    @property
+    def KB_BACK_TO_SEARCH(self):
+        return _("Меню поиска")
 
     @property
     def KB_CHANGE_FILTER(self):
@@ -273,7 +277,7 @@ The reason: {}
 
     @property
     def PROFILE_SURNAME(self):
-        return _("<b>Имя:</b> {} <i>(Видно только вам)</i>")
+        return _("<b>Фамилия:</b> {} <i>(Видно только вам)</i>")
 
     @property
     def PROFILE_AGE(self):
@@ -664,6 +668,14 @@ The reason: {}
     @property
     def KB_SEARCH_FILTER(self):
         return _("Фильтр поиска")
+
+    @property
+    def KB_GIVE_CHANCE(self):
+        return _("Шанс")
+
+    @property
+    def KB_NEXT(self):
+        return _("Следующий")
 
     @property
     def FILL_FILTER(self):

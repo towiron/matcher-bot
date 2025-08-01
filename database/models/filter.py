@@ -37,7 +37,7 @@ class FilterModel(BaseModel):
     goal: Mapped[str] = mapped_column(String(50), nullable=True)
 
     # Национальность
-    ethnicity: Mapped[str] = mapped_column(String(50), nullable=True)
+    ethnicity_id: Mapped[int] = mapped_column(ForeignKey("ethnicities.id"), nullable=True)
 
     # Наличие детей
     has_children: Mapped[bool] = mapped_column(nullable=True)
@@ -45,4 +45,5 @@ class FilterModel(BaseModel):
     # Связь с пользователем
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="filter")  # type: ignore
     city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
+    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel")  # type: ignore
 

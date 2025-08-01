@@ -8,7 +8,7 @@ from starlette.middleware.cors import CORSMiddleware
 from fastapi import Depends
 
 from database.connect import async_session
-from database.services import City
+from database.services import City, Ethnicity, Religion
 from utils.logging import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -46,11 +46,37 @@ async def cities_list(session: AsyncSession = Depends(get_session)):
     return [
         {
             "id": city.id,
-            "uz": city.name_uz,
-            "ru": city.name_ru,
-            "en": city.name_en,
+            "uz": city.uz,
+            "ru": city.ru,
+            "en": city.en,
         }
         for city in cities
+    ]
+
+@app.get("/ethnicities")
+async def ethnicities_list(session: AsyncSession = Depends(get_session)):
+    ethnicities = await Ethnicity.get_all(session)
+    return [
+        {
+            "id": ethnicity.id,
+            "uz": ethnicity.uz,
+            "ru": ethnicity.ru,
+            "en": ethnicity.en,
+        }
+        for ethnicity in ethnicities
+    ]
+
+@app.get("/religions")
+async def ethnicities_list(session: AsyncSession = Depends(get_session)):
+    religions = await Religion.get_all(session)
+    return [
+        {
+            "id": religion.id,
+            "uz": religion.uz,
+            "ru": religion.ru,
+            "en": religion.en,
+        }
+        for religion in religions
     ]
 
 

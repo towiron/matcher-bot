@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import FilterModel
-from database.services import City
+from database.services import City, Ethnicity
 from loader import bot
 from app.text import message_text as mt
 from app.keyboards.default.search import search_menu_kb
@@ -31,16 +31,27 @@ async def format_filter_text(session: AsyncSession, filter: FilterModel, user_la
     def safe(value):
         return "-" if value in (None, "", " ") else value
 
+    city_name = "-"
     city_obj = await City.get_by_id(session, id=filter.city_id)
-    city_name = safe(city_obj.name_en if city_obj else "-")
     if city_obj:
         match user_language:
             case "uz":
-                city_name = safe(city_obj.name_uz)
+                city_name = safe(city_obj.uz)
             case "en":
-                city_name = safe(city_obj.name_en)
+                city_name = safe(city_obj.en)
             case "ru":
-                city_name = safe(city_obj.name_ru)
+                city_name = safe(city_obj.ru)
+
+    ethnicity_name = "-"
+    ethnicity_obj = await Ethnicity.get_by_id(session, id=filter.ethnicity_id)
+    if ethnicity_obj:
+        match user_language:
+            case "uz":
+                ethnicity_name = ethnicity_obj.uz
+            case "en":
+                ethnicity_name = ethnicity_obj.en
+            case "ru":
+                ethnicity_name = ethnicity_obj.ru
 
     profile_text = f"""
 {mt.FILTER_HEADER}
@@ -54,7 +65,7 @@ async def format_filter_text(session: AsyncSession, filter: FilterModel, user_la
 {mt.FILTER_WEIGHT_TO.format(safe(filter.weight_to))}
 {mt.FILTER_HAS_CHILDREN.format("-" if filter.has_children is None else (mt.PROFILE_YES if filter.has_children else mt.PROFILE_NO))}
 {mt.FILTER_GOAL.format(goal_map.get(filter.goal, safe(filter.goal)))}
-{mt.FILTER_ETHNICITY.format(safe(filter.ethnicity))}"""
+{mt.FILTER_ETHNICITY.format(safe(ethnicity_name))}"""
 
     return profile_text
 

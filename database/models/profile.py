@@ -58,13 +58,13 @@ class ProfileModel(BaseModel):
     polygamy: Mapped[bool] = mapped_column(nullable=True)
 
     # Религия: например, 'Islam', 'Christianity', 'Other' и т.д.
-    religion: Mapped[str] = mapped_column(String(50), nullable=False)
+    religion_id: Mapped[int] = mapped_column(ForeignKey("religions.id"), nullable=False)
 
     # Уровень религиозности: 'low', 'medium', 'high' или NULL (если религия = 'Other')
     religious_level: Mapped[str] = mapped_column(String(20), nullable=True)
 
     # Национальность (основное значение, например, 'Uzbek')
-    ethnicity: Mapped[str] = mapped_column(String(50), nullable=False)
+    ethnicity_id: Mapped[int] = mapped_column(ForeignKey("ethnicities.id"), nullable=False)
 
     # Профессия или вид деятельности (опционально)
     job: Mapped[str] = mapped_column(String(100), nullable=True)
@@ -82,3 +82,5 @@ class ProfileModel(BaseModel):
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore
 
     city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
+    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel") # type: ignore
+    religion: Mapped["ReligionModel"] = relationship("ReligionModel") # type: ignore

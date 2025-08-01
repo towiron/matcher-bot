@@ -39,7 +39,7 @@ def normalize_filter_data(data: dict) -> dict:
         return int(value) if value not in (None, '', ' ') else None
 
     return {
-        "city_id": int(data.get("city")),
+        "city_id": to_int(data.get("city")),
         "age_from": to_int(data.get("age_from")),
         "age_to": to_int(data.get("age_to")),
         "height_from": to_int(data.get("height_from")),
@@ -52,7 +52,7 @@ def normalize_filter_data(data: dict) -> dict:
             else None
         ),
         "goal": filters.goal_map.get(data.get("goal"), data.get("goal")),
-        "ethnicity": data.get("ethnicity"),
+        "ethnicity_id": to_int(data.get("ethnicity")),
     }
 
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_FIND_MATCH))
