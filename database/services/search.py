@@ -1,8 +1,9 @@
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.filter import FilterModel
 from database.models.profile import ProfileModel
+from database.models.viewed_profile import ViewedProfileModel  # 👈 подключаем модель
 from typing import Optional
 from utils.logging import logger
 
@@ -14,15 +15,16 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
         return []
 
     # Ищем противоположный пол
-    if profile.gender == "male":
-        target_gender = "female"
-    else:
-        target_gender = "male"
+    target_gender = "female" if profile.gender == "male" else "male"
+
+    # 👇 Подзапрос на просмотренные анкеты
+    subq = select(ViewedProfileModel.viewed_user_id).where(ViewedProfileModel.viewer_id == profile.id)
 
     filters = [
         ProfileModel.is_active == True,
         ProfileModel.id != profile.id,
         ProfileModel.gender == target_gender,
+        ~ProfileModel.id.in_(subq),  # 👈 исключаем уже просмотренные
     ]
 
     # Применяем фильтр, только если поле указано

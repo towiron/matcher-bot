@@ -9,7 +9,7 @@ from app.routers import dating_router
 from app.states.default import Search
 from app.text import message_text as mt
 from database.models import UserModel
-from database.services import User, Match, Profile
+from database.services import User, Match, Profile, ViewedProfile
 from database.services.search import search_profiles
 from app.business.profile_service import display_filtered_profile
 from aiogram.enums.parse_mode import ParseMode
@@ -100,14 +100,29 @@ async def chance_profile(
 async def next_profile(
     session,
     message: types.Message,
-    profile_list: UserModel,
+    profile_list: list[int],
     user: UserModel,
     state: FSMContext,
 ):
-    profile_list.pop(0)
+    if not profile_list:
+        await message.answer(mt.EMPTY_PROFILE_SEARCH)
+        await state.clear()
+        await send_filter(session, message.from_user.id, user.filter, user.language)
+        return
+
+    shown_user_id = profile_list.pop(0)  # 👈 ID просмотренного профиля
+
+    # ✅ Добавляем запись о просмотре
+    await ViewedProfile.get_or_create(
+        session,
+        viewer_id=user.id,
+        viewed_user_id=shown_user_id,
+    )
+
     if profile_list:
-        profile = await Profile.get(session, profile_list[0])
         await state.update_data(ids=profile_list)
+
+        profile = await Profile.get(session, profile_list[0])
         await display_filtered_profile(session, user.id, profile, user.language)
     else:
         await message.answer(mt.EMPTY_PROFILE_SEARCH)
