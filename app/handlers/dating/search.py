@@ -2,15 +2,19 @@ from aiogram import F, types
 from aiogram.filters.state import StateFilter
 from aiogram.fsm.context import FSMContext
 
+from app.business.filter_service import send_filter
 from app.business.menu_service import menu
 from app.keyboards.default.base import search_kb
 from app.routers import dating_router
 from app.states.default import Search
 from app.text import message_text as mt
 from database.models import UserModel
-from database.services import User
+from database.services import User, Match, Profile
 from database.services.search import search_profiles
 from app.business.profile_service import display_filtered_profile
+from aiogram.enums.parse_mode import ParseMode
+
+from loader import _
 
 
 @dating_router.message(StateFilter(None), F.text == mt.KB_SEARCH_BY_FILTER)
@@ -40,3 +44,72 @@ async def _search_command(
         await message.answer(mt.INVALID_PROFILE_SEARCH)
         await menu(message.from_user.id)
 
+
+@dating_router.message(
+    StateFilter(Search.search),
+    F.text.in_((_(mt.KB_NEXT), _(mt.KB_GIVE_CHANCE), _(mt.KB_BACK_TO_SEARCH))),
+)
+async def _search_profile(
+    message: types.Message, state: FSMContext, user: UserModel, session
+) -> None:
+    """
+       Пользователь может взаимодействовать с анкетами, предложенными ботом,
+       ставя лайк или дизлайк.
+       Также доступна функция жалобы на анкеты, содержащие нежелательный контент.
+       Все жалобы отправляются в модераторскую группу, если она указана в настройках.
+       """
+    data = await state.get_data()
+    profile_list = data.get("ids", [])
+    another_user = await User.get_with_profile(session, profile_list[0])
+
+    if message.text == _(mt.KB_GIVE_CHANCE):
+        await chance_profile(
+            session=session,
+            message=message,
+            another_user=another_user,
+        )
+        return
+
+    elif message.text == _(mt.KB_BACK_TO_SEARCH):
+        await state.clear()
+        await send_filter(session, message.from_user.id, user.filter, user.language)
+        return
+
+    await next_profile(session, message, profile_list, user, state)
+
+async def chance_profile(
+    session,
+    message: types.Message,
+    another_user: UserModel,
+    mail_text: str | None = None,
+):
+    is_create = await Match.create(session, message.from_user.id, another_user.id, mail_text)
+
+    if is_create:
+        if another_user.username:
+            profile_link = f"https://t.me/{another_user.username}"
+        else:
+            profile_link = f"tg://user?id={another_user.id}"
+
+        text = mt.CHANCE_USER_LINK.format(link=profile_link)
+
+        await message.answer(text, parse_mode=ParseMode.HTML)
+    else:
+        await message.answer("что то пошло не так", parse_mode=ParseMode.HTML)
+
+async def next_profile(
+    session,
+    message: types.Message,
+    profile_list: UserModel,
+    user: UserModel,
+    state: FSMContext,
+):
+    profile_list.pop(0)
+    if profile_list:
+        profile = await Profile.get(session, profile_list[0])
+        await state.update_data(ids=profile_list)
+        await display_filtered_profile(session, user.id, profile, user.language)
+    else:
+        await message.answer(mt.EMPTY_PROFILE_SEARCH)
+        await state.clear()
+        await send_filter(session, message.from_user.id, user.filter, user.language)
