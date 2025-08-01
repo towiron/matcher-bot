@@ -15,9 +15,6 @@ class ProfileModel(BaseModel):
     # Имя (отображается другим пользователям)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
 
-    # Фамилия (не отображается другим пользователям)
-    surname: Mapped[str] = mapped_column(String(200), nullable=False)
-
     # Возраст (может храниться отдельно для оптимизации фильтрации)
     age: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -26,12 +23,6 @@ class ProfileModel(BaseModel):
 
     # Город проживания
     city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"), nullable=False)
-
-    # Географическая широта города (для геопоиска)
-    # latitude: Mapped[float] = mapped_column(nullable=False)
-
-    # Географическая долгота города
-#     longitude: Mapped[float] = mapped_column(nullable=False)
 
     # Рост пользователя в сантиметрах
     height: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -44,9 +35,6 @@ class ProfileModel(BaseModel):
 
     # Есть ли дети
     has_children: Mapped[bool] = mapped_column(nullable=False)
-
-    # Живут ли дети с пользователем (может быть null, если has_children = False)
-    children_lives_with_me: Mapped[bool] = mapped_column(nullable=True)
 
     # Образование: 'none', 'secondary', 'higher'
     education: Mapped[str] = mapped_column(String(50), nullable=False)

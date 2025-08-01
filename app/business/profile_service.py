@@ -134,7 +134,6 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
 {mt.PROFILE_HEADER}
 
 {mt.PROFILE_NAME.format(profile.name)}
-{mt.PROFILE_SURNAME.format(profile.surname)}
 {mt.PROFILE_AGE.format(profile.age)}
 {mt.PROFILE_GENDER.format(gender_map.get(profile.gender, profile.gender))}
 {mt.PROFILE_CITY.format(city_name)}
@@ -143,9 +142,6 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
 
 {mt.PROFILE_MARITAL_STATUS.format(marital_status_map.get(profile.marital_status, profile.marital_status))}
 {mt.PROFILE_HAS_CHILDREN.format(mt.PROFILE_YES if profile.has_children else mt.PROFILE_NO)}"""
-
-    if profile.has_children and profile.children_lives_with_me is not None:
-        profile_text += f"\n{mt.PROFILE_CHILDREN_LIVE_WITH_ME.format(mt.PROFILE_YES if profile.children_lives_with_me else mt.PROFILE_NO)}"
 
     profile_text += f"""
 {mt.PROFILE_EDUCATION.format(education_map.get(profile.education, profile.education))}
@@ -247,9 +243,6 @@ async def format_filtered_profile_text(session: AsyncSession, profile: ProfileMo
 
 {mt.PROFILE_MARITAL_STATUS.format(marital_status_map.get(profile.marital_status, profile.marital_status))}
 {mt.PROFILE_HAS_CHILDREN.format(mt.PROFILE_YES if profile.has_children else mt.PROFILE_NO)}"""
-
-    if profile.has_children and profile.children_lives_with_me is not None:
-        profile_text += f"\n{mt.PROFILE_CHILDREN_LIVE_WITH_ME.format(mt.PROFILE_YES if profile.children_lives_with_me else mt.PROFILE_NO)}"
 
     profile_text += f"""
 {mt.PROFILE_EDUCATION.format(education_map.get(profile.education, profile.education))}
