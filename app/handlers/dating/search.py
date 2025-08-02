@@ -72,7 +72,7 @@ async def _search_profile(
 
     elif message.text == _(mt.KB_BACK_TO_SEARCH):
         await state.clear()
-        await send_filter(session, message.from_user.id, user.filter, user)
+        await send_filter(session, message.from_user.id, user)
         return
 
     await next_profile(session, message, profile_list, user, state)

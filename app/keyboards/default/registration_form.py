@@ -31,11 +31,14 @@ def profile_menu_kb(language: str, profile: ProfileModel) -> ReplyKeyboardMarkup
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [
+                KeyboardButton(text=_(mt.KB_FIND_MATCH)),
+            ],
+            [
                 KeyboardButton(
                     text=_(mt.KB_FILL_PROFILE_AGAIN),
                     web_app=WebAppInfo(url=full_url)
                 ),
-                KeyboardButton(text=_(mt.KB_BACK))
+                KeyboardButton(text=_(mt.KB_BACK)),
             ]
         ],
         resize_keyboard=True
