@@ -1,7 +1,6 @@
 import json
 
-from aiogram import types, F
-from aiogram.filters import StateFilter
+from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
 from loader import _
 
@@ -12,12 +11,8 @@ import app.filters.create_profile_filtres as filters
 from app.routers import dating_router
 from database.models.user import UserModel
 from database.services import Profile
-from utils.geopy import get_coordinates
-
-from .profile import profile_command
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.text import message_text as mt
 from app.business.profile_service import send_profile
 from app.keyboards.default.registration_form import profile_menu_kb
 
@@ -50,7 +45,6 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
 
     await message.answer(_(mt.PRFILE_SUCCESSFULLY_CREATED), reply_markup=ReplyKeyboardRemove())
 
-    # Call business logic functions directly instead of the handler
     keyboard = profile_menu_kb(user.language, user.profile)
     await send_profile(session, message.from_user.id, user.profile, user.language)
     await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
