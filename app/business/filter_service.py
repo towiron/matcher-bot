@@ -1,14 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import FilterModel
+from database.models import FilterModel, UserModel
 from database.services import City, Ethnicity
 from loader import bot
 from app.text import message_text as mt
 from app.keyboards.default.search import search_menu_kb
 
-async def send_filter(session: AsyncSession, chat_id: int, filter: FilterModel, user_language: str = "ru") -> None:
+async def send_filter(session: AsyncSession, chat_id: int, user: UserModel) -> None:
     """Отправляет пользователю переданный в функцию профиль"""
-    profile_text = await format_filter_text(session, filter, user_language)
+    profile_text = await format_filter_text(session, user.filter, user.language)
 
     await bot.send_message(
         chat_id=chat_id,
@@ -16,7 +16,7 @@ async def send_filter(session: AsyncSession, chat_id: int, filter: FilterModel, 
         parse_mode="HTML",
     )
 
-    await bot.send_message(chat_id=chat_id, text=mt.SEARCH_MENU, reply_markup=search_menu_kb())
+    await bot.send_message(chat_id=chat_id, text=mt.SEARCH_MENU, reply_markup=search_menu_kb(user))
 
 
 async def format_filter_text(session: AsyncSession, filter: FilterModel, user_language: str) -> str:

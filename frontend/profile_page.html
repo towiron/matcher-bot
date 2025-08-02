@@ -91,9 +91,41 @@
     const ethnicityInput = document.getElementById("ethnicityInput");
     const religionInput = document.getElementById("religionInput");
 
+        // 🔹 Заполнение формы из query-параметров
+    const fillFormFromQuery = () => {
+      const map = {
+        name: "input[name='name']",
+        age: "input[name='age']",
+        gender: "select[name='gender']",
+        city_id: "#cityInput",
+        height: "input[name='height']",
+        weight: "input[name='weight']",
+        marital_status: "select[name='marital_status']",
+        has_children: "select[name='has_children']",
+        education: "select[name='education']",
+        goal: "select[name='goal']",
+        polygamy: "select[name='polygamy']",
+        religion_id: "#religionInput",
+        religious_level: "select[name='religious_level']",
+        ethnicity_id: "#ethnicityInput",
+        job: "input[name='job']",
+        about: "textarea[name='about']",
+        looking_for: "textarea[name='looking_for']"
+      };
+
+      for (const [param, selector] of Object.entries(map)) {
+        const value = urlParams.get(param);
+        if (value !== null && document.querySelector(selector)) {
+          document.querySelector(selector).value = value;
+        }
+      }
+    };
+
     let citiesList = [];
     let ethnicitiesList = [];
     let religionsList = [];
+
+
 
     // 🔹 Загрузка списка городов из API
     async function loadCities() {
@@ -162,9 +194,11 @@
     }
 
     // 🔹 Загружаем города при загрузке страницы
-    loadCities();
-    loadEthnicities();
-    loadReligions();
+    Promise.all([loadCities(), loadEthnicities(), loadReligions()])
+    .then(() => {
+      fillFormFromQuery(); // вызываем только после полной загрузки всех списков
+    });
+
 
 
 

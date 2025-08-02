@@ -32,7 +32,7 @@ async def _create_filter_command(message: types.Message, session, user: UserMode
     await session.refresh(user)
 
     await message.answer(text=_(mt.FILTER_SUCCESSFULLY_ADDED), reply_markup=ReplyKeyboardRemove())
-    await send_filter(session, message.from_user.id, user.filter, user.language)
+    await send_filter(session, message.from_user.id, user)
 
 def normalize_filter_data(data: dict) -> dict:
     def to_int(value):
@@ -61,7 +61,7 @@ async def _search_command(message: types.Message, session: AsyncSession, user: U
     if not user.filter:
         await message.answer(mt.FILL_FILTER, reply_markup=search_kb())
     else:
-        await send_filter(session, user.id, user.filter, user.language)
+        await send_filter(session, user.id, user)
 
 
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_MY_PROFILE))

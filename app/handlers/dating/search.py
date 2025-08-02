@@ -72,7 +72,7 @@ async def _search_profile(
 
     elif message.text == _(mt.KB_BACK_TO_SEARCH):
         await state.clear()
-        await send_filter(session, message.from_user.id, user.filter, user.language)
+        await send_filter(session, message.from_user.id, user.filter, user)
         return
 
     await next_profile(session, message, profile_list, user, state)
@@ -107,7 +107,7 @@ async def next_profile(
     if not profile_list:
         await message.answer(mt.EMPTY_PROFILE_SEARCH)
         await state.clear()
-        await send_filter(session, message.from_user.id, user.filter, user.language)
+        await send_filter(session, message.from_user.id, user)
         return
 
     shown_user_id = profile_list.pop(0)  # 👈 ID просмотренного профиля

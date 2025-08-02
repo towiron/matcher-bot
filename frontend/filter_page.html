@@ -83,50 +83,75 @@
 
     // 🔹 Загрузка списка городов из API
     async function loadCities() {
-      try {
-        const response = await fetch('/cities');
-        const cities = await response.json();
-        citiesList = cities;
-        
-        // Очищаем список, оставляя только первый элемент
-        cityInput.innerHTML = '<option value="">Выберите город</option>';
-        
-        // Добавляем города в выпадающий список
-        cities.forEach(city => {
-          const option = document.createElement('option');
-          option.value = city.id;
-          option.textContent = city[language] || city.ru; // Используем русское название
-          cityInput.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Ошибка загрузки городов:", error);
-      }
+  try {
+    const response = await fetch('/cities');
+    const cities = await response.json();
+    citiesList = cities;
+
+    cityInput.innerHTML = '<option value="">Выберите город</option>';
+
+    cities.forEach(city => {
+      const option = document.createElement('option');
+      option.value = city.id;
+      option.textContent = city[language] || city.ru;
+      cityInput.appendChild(option);
+    });
+
+    // Устанавливаем значение после загрузки опций
+    const cityFromUrl = urlParams.get("city");
+    if (cityFromUrl) {
+      cityInput.value = cityFromUrl;
     }
 
-    async function loadEthnicities() {
-      try {
-        const response = await fetch('/ethnicities');
-        const ethnicities = await response.json();
-        ethnicitiesList = ethnicities;
+  } catch (error) {
+    console.error("Ошибка загрузки городов:", error);
+  }
+}
 
-        // Очищаем список, оставляя только первый элемент
-        ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
+async function loadEthnicities() {
+  try {
+    const response = await fetch('/ethnicities');
+    const ethnicities = await response.json();
+    ethnicitiesList = ethnicities;
 
-        // Добавляем города в выпадающий список
-        ethnicities.forEach(ethnicity => {
-          const option = document.createElement('option');
-          option.value = ethnicity.id;
-          option.textContent = ethnicity[language] || ethnicity.ru; // Используем русское название
-          ethnicityInput.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Ошибка загрузки национальностей:", error);
-      }
+    ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
+
+    ethnicities.forEach(ethnicity => {
+      const option = document.createElement('option');
+      option.value = ethnicity.id;
+      option.textContent = ethnicity[language] || ethnicity.ru;
+      ethnicityInput.appendChild(option);
+    });
+
+    // Устанавливаем значение после загрузки опций
+    const ethFromUrl = urlParams.get("ethnicity");
+    if (ethFromUrl) {
+      ethnicityInput.value = ethFromUrl;
     }
+
+  } catch (error) {
+    console.error("Ошибка загрузки национальностей:", error);
+  }
+}
+
 
     // 🔹 Загружаем города при загрузке страницы
-    loadCities();
-    loadEthnicities()
+    (async () => {
+    await loadCities();
+    await loadEthnicities();
+
+    // Остальные значения полей (инпутов) можно задавать сразу
+    document.getElementsByName("age_from")[0].value = urlParams.get("age_from") || "";
+    document.getElementsByName("age_to")[0].value = urlParams.get("age_to") || "";
+    document.getElementsByName("height_from")[0].value = urlParams.get("height_from") || "";
+    document.getElementsByName("height_to")[0].value = urlParams.get("height_to") || "";
+    document.getElementsByName("weight_from")[0].value = urlParams.get("weight_from") || "";
+    document.getElementsByName("weight_to")[0].value = urlParams.get("weight_to") || "";
+    document.getElementsByName("goal")[0].value = urlParams.get("goal") || "";
+    document.getElementsByName("has_children")[0].value = urlParams.get("has_children") || "";
+  })();
+
+
 
     // 🔹 Отправка формы
     document.getElementById("filterForm").addEventListener("submit", async (e) => {

@@ -15,7 +15,7 @@ from app.keyboards.default.registration_form import profile_menu_kb
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_MY_PROFILE))
 async def profile_command(message: types.Message, user: UserModel, session: AsyncSession) -> None:
     """Отправляет профиль пользователя"""
-    keyboard = profile_menu_kb(user.language)
+    keyboard = profile_menu_kb(user.language, user.profile)
     await send_profile(session, message.from_user.id, user.profile, user.language)
     await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
 

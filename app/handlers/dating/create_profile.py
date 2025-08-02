@@ -51,7 +51,7 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
     await message.answer(_(mt.PRFILE_SUCCESSFULLY_CREATED), reply_markup=ReplyKeyboardRemove())
 
     # Call business logic functions directly instead of the handler
-    keyboard = profile_menu_kb(user.language)
+    keyboard = profile_menu_kb(user.language, user.profile)
     await send_profile(session, message.from_user.id, user.profile, user.language)
     await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
 
