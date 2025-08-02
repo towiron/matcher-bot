@@ -59,7 +59,6 @@ async def create_fake_user(session: AsyncSession):
     profile = ProfileModel(
         id=user.id,
         name=fake.first_name_male() if gender == "male" else fake.first_name_female(),
-        surname=fake.last_name(),
         age=random.randint(20, 40),
         gender=gender,
         city_id=city.id,
@@ -67,7 +66,6 @@ async def create_fake_user(session: AsyncSession):
         weight=random.randint(50, 90),
         marital_status=random.choice(MARITAL_STATUSES),
         has_children=random.choice([True, False]),
-        children_lives_with_me=random.choice([True, False]) if random.random() < 0.7 else None,
         education=random.choice(EDUCATIONS),
         goal=random.choice(GOALS),
         polygamy=random.choice([True, False, None]),
