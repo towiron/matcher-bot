@@ -63,12 +63,20 @@ async def _search_profile(
     another_user = await User.get_with_profile(session, profile_list[0])
 
     if message.text == _(mt.KB_GIVE_CHANCE):
-        await chance_profile(
-            session=session,
-            message=message,
-            another_user=another_user,
-        )
-        return
+        try:
+            await User.use_one_chance(session, user, another_user.id)
+            user_balance = await User.get_chance_balance(user)
+            await message.answer(f"Ты потратил 1 шанс, осталось: 💎 {user_balance} шанс(ов).")
+            await chance_profile(
+                session=session,
+                message=message,
+                another_user=another_user,
+            )
+            return
+        except ValueError:
+            await message.answer("❌ У вас закончились шансы.")
+            return
+
 
     elif message.text == _(mt.KB_BACK_TO_SEARCH):
         await state.clear()

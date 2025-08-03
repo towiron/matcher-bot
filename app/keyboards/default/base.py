@@ -22,7 +22,8 @@ profile_kb: ReplyKeyboardMarkup = kb_gen(
 
 menu_kb: ReplyKeyboardMarkup = kb_gen(
     [_(mt.KB_FIND_MATCH)],
-    [_(mt.KB_MY_PROFILE), _(mt.KB_DISABLE_PROFILE)]
+    [_(mt.KB_MY_PROFILE), _(mt.KB_MY_CHANCES)],
+    [_(mt.KB_DISABLE_PROFILE)],
 )
 
 search_kb: ReplyKeyboardMarkup = kb_gen(

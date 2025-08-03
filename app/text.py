@@ -23,6 +23,7 @@ class MessageText:
         return _("""
 🔍 Найти пару.
 👤 Мой профиль.
+💎 Мои шансы.
 
 ❌ Я больше не хочу никого искать.
 """)
@@ -61,6 +62,10 @@ class MessageText:
     @property
     def KB_BACK_TO_SEARCH(self):
         return _("Меню поиска")
+
+    @property
+    def KB_MY_CHANCES(self):
+        return _("💎 Мои шансы")
 
     @property
     def KB_CHANGE_FILTER(self):

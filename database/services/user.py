@@ -1,9 +1,13 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
+from data.config import STARTER_CHANCE_COUNT, CHANCE_COST
 from database.services.base import BaseService
 from utils.logging import logger
+from ..models import BalanceTopUpModel, BalanceUsageModel
+from ..models.balance_top_up import TopUpSource
+from ..models.balance_usage import UsageReason
 
 from ..models.user import UserModel, UserStatus
 from .match import Match
@@ -46,12 +50,24 @@ class User(BaseService):
 
     @staticmethod
     async def create(
-        session: AsyncSession, id: int, username: str = None, language: str = None
+            session: AsyncSession, id: int, username: str = None, language: str = None
     ) -> UserModel:
-        """Создает нового пользователя"""
+        """Создает нового пользователя и записывает стартовые шансы"""
         logger.log("DATABASE", f"New user: {id} (@{username}) {language}")
-        session.add(UserModel(id=id, username=username, language=language))
+
+        user = UserModel(id=id, username=username, language=language)
+        session.add(user)
+
+        session.add(BalanceTopUpModel(
+            user_id=id,
+            amount=STARTER_CHANCE_COUNT,
+            paid_sum=CHANCE_COST * STARTER_CHANCE_COUNT,  # 👈 добавляем оплаченные "условные" суммы
+            source=TopUpSource.Initial,
+            payload="starter_chances"
+        ))
+
         await session.commit()
+        return user
 
     @staticmethod
     async def increment_referral_count(
@@ -120,3 +136,58 @@ class User(BaseService):
         )
 
         logger.log("DATABASE", f"Пользователь {id} был разблокирован.")
+
+    @staticmethod
+    async def use_one_chance(
+            session: AsyncSession,
+            user: UserModel,
+            target_id: int = None,
+    ) -> None:
+        """Списывает 1 шанс у пользователя и сохраняет в историю"""
+        balance = user.balance - CHANCE_COST
+
+        if balance < 0:
+            raise ValueError("Недостаточно шансов для просмотра")
+
+        user.balance -= CHANCE_COST
+
+        session.add(BalanceUsageModel(
+            user_id=user.id,
+            amount=1,
+            reason=UsageReason.ViewProfileManual,
+            target_id=str(target_id) if target_id else None
+        ))
+
+        await session.commit()
+
+    @staticmethod
+    async def get_chance_balance(user: UserModel,) -> int:
+        """Возвращает текущий баланс в шансах"""
+        chances = user.balance // CHANCE_COST
+        return chances
+
+
+    @staticmethod
+    async def add_chances_from_payment(
+        session: AsyncSession,
+        user: UserModel,
+        paid_sum: int,
+        source: str = TopUpSource.Click,
+        payload: str = None
+    ) -> None:
+        """
+        Пополняет баланс пользователя на указанное количество шансов.
+        Сохраняет информацию в таблицу пополнений.
+        """
+        user.balance += paid_sum
+        chance_count = paid_sum // CHANCE_COST
+
+        session.add(BalanceTopUpModel(
+            user_id=user.id,
+            amount=chance_count,
+            paid_sum=paid_sum,
+            source=source,
+            payload=payload
+        ))
+
+        await session.commit()

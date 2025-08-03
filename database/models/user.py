@@ -31,3 +31,12 @@ class UserModel(BaseModel):
     filter: Mapped["FilterModel"] = relationship(  # type: ignore
         "FilterModel", uselist=False, back_populates="user"
     )
+
+    top_ups: Mapped[list["BalanceTopUpModel"]] = relationship( # type: ignore
+        "BalanceTopUpModel", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    usages: Mapped[list["BalanceUsageModel"]] = relationship( # type: ignore
+        "BalanceUsageModel", back_populates="user", cascade="all, delete-orphan"
+    )
+

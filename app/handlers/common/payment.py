@@ -2,6 +2,9 @@ from aiogram import types, F
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice
 
 from data.config import CLICK_LIVE_TOKEN
+from database.models import UserModel
+from database.models.balance_top_up import TopUpSource
+from database.services import User
 from loader import _
 
 from app.routers import common_router
@@ -41,6 +44,20 @@ async def pre_checkout_handler(query: types.PreCheckoutQuery):
 
 
 @common_router.message(F.successful_payment)
-async def on_successful_payment(message: types.Message):
-    count = message.successful_payment.invoice_payload.split(":")[1]
-    await message.answer(f"✅ Оплата прошла успешно! Вы купили {count} шанс(ов).")
+async def on_successful_payment(message: types.Message, user: UserModel, session):
+    payload = message.successful_payment.invoice_payload  # 'buy:3'
+    chance_count = int(payload.split(":")[1])
+    paid_sum = message.successful_payment.total_amount // 100  # копейки → сума
+
+    await User.add_chances_from_payment(
+        session=session,
+        user=user,
+        paid_sum=paid_sum,
+        payload=payload,
+        source=TopUpSource.Click,
+    )
+
+    await message.answer(f"✅ Оплата прошла успешно! Вы купили {chance_count} шанс(ов).")
+    total_balance = await User.get_chance_balance(user)
+    await message.answer(f"На вашем балансе {total_balance} шанс(ов).")
+
