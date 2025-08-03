@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from app.business.filter_service import send_filter
 from app.business.menu_service import menu
-from app.keyboards.default.base import search_kb
+from app.keyboards.default.base import search_kb, search_kb_after_chance, payment_kb
 from app.routers import dating_router
 from app.states.default import Search
 from app.text import message_text as mt
@@ -66,17 +66,17 @@ async def _search_profile(
         try:
             await User.use_one_chance(session, user, another_user.id)
             user_balance = await User.get_chance_balance(user)
-            await message.answer(f"Ты потратил 1 шанс, осталось: 💎 {user_balance} шанс(ов).")
+
             await chance_profile(
                 session=session,
                 message=message,
                 another_user=another_user,
+                user_balance=user_balance,
             )
             return
         except ValueError:
-            await message.answer("❌ У вас закончились шансы.")
+            await message.answer("❌ У вас закончились шансы.", reply_markup=payment_kb)
             return
-
 
     elif message.text == _(mt.KB_BACK_TO_SEARCH):
         await state.clear()
@@ -89,21 +89,29 @@ async def chance_profile(
     session,
     message: types.Message,
     another_user: UserModel,
+    user_balance: int,
     mail_text: str | None = None,
-):
+) -> types.Message:
     is_create = await Match.create(session, message.from_user.id, another_user.id, mail_text)
 
-    if is_create:
-        if another_user.username:
-            profile_link = f"https://t.me/{another_user.username}"
-        else:
-            profile_link = f"tg://user?id={another_user.id}"
+    if not is_create:
+        return await message.answer("Что-то пошло не так", parse_mode=ParseMode.HTML)
 
-        text = mt.CHANCE_USER_LINK.format(link=profile_link)
+    profile_link = (
+        f"https://t.me/{another_user.username}"
+        if another_user.username
+        else f"tg://user?id={another_user.id}"
+    )
 
-        await message.answer(text, parse_mode=ParseMode.HTML)
-    else:
-        await message.answer("что то пошло не так", parse_mode=ParseMode.HTML)
+    text = (
+        "💌 Ты дал(а) шанс этому человеку!\n"
+        "Посмотри ещё раз его анкету — вдруг это начало чего-то особенного?\n"
+        f"👉 <a href=\"{profile_link}\">Открыть профиль</a>\n\n"
+        f"💎 Ты потратил <b>1</b> шанс, осталось: <b>{user_balance}</b> шанс(ов)."
+    )
+
+    return await message.answer(text, parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance)
+
 
 async def next_profile(
     session,
@@ -135,4 +143,4 @@ async def next_profile(
     else:
         await message.answer(mt.EMPTY_PROFILE_SEARCH)
         await state.clear()
-        await send_filter(session, message.from_user.id, user.filter, user.language)
+        await send_filter(session, message.from_user.id, user)

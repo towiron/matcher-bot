@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.filter import FilterModel
 from database.models.profile import ProfileModel
-from database.models.viewed_profile import ViewedProfileModel  # 👈 подключаем модель
+from database.models.viewed_profile import ViewedProfileModel
+from database.models.match import MatchModel
 from typing import Optional
 from utils.logging import logger
 
@@ -14,20 +15,23 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
     if not filter_obj:
         return []
 
-    # Ищем противоположный пол
     target_gender = "female" if profile.gender == "male" else "male"
 
-    # 👇 Подзапрос на просмотренные анкеты
-    subq = select(ViewedProfileModel.viewed_user_id).where(ViewedProfileModel.viewer_id == profile.id)
+    viewed_subq = select(ViewedProfileModel.viewed_user_id).where(
+        ViewedProfileModel.viewer_id == profile.id
+    )
+    matched_subq = select(MatchModel.receiver_id).where(
+        MatchModel.sender_id == profile.id
+    )
 
     filters = [
         ProfileModel.is_active == True,
         ProfileModel.id != profile.id,
         ProfileModel.gender == target_gender,
-        ~ProfileModel.id.in_(subq),  # 👈 исключаем уже просмотренные
+        ~ProfileModel.id.in_(viewed_subq),
+        ~ProfileModel.id.in_(matched_subq),
     ]
 
-    # Применяем фильтр, только если поле указано
     if filter_obj.city_id is not None:
         filters.append(ProfileModel.city_id == filter_obj.city_id)
 
@@ -61,7 +65,11 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
     if profile.religion_id is not None:
         filters.append(ProfileModel.religion_id == profile.religion_id)
 
-    stmt = select(ProfileModel.id).where(and_(*filters)).order_by(ProfileModel.created_at.desc())
+    stmt = (
+        select(ProfileModel.id)
+        .where(and_(*filters))
+        .order_by(ProfileModel.created_at.desc())
+    )
     result = await session.execute(stmt)
     profile_ids = [row[0] for row in result.fetchall()]
 

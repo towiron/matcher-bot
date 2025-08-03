@@ -1,5 +1,6 @@
 from aiogram import F, types
 from aiogram.filters.state import StateFilter
+from aiogram.fsm.context import FSMContext
 
 from loader import _
 
@@ -19,6 +20,7 @@ async def profile_command(message: types.Message, user: UserModel, session: Asyn
     await send_profile(session, message.from_user.id, user.profile, user.language)
     await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
 
-@dating_router.message(StateFilter(None), F.text == _(mt.KB_BACK))
-async def _return_to_menu(message: types.Message) -> None:
+@dating_router.message(F.text == _(mt.KB_BACK))
+async def _return_to_menu(message: types.Message, state: FSMContext) -> None:
+    await state.clear()  # ✅ Очистка состояния
     await menu(message.from_user.id)

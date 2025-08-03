@@ -23,7 +23,7 @@ class MessageText:
         return _("""
 🔍 Найти пару.
 👤 Мой профиль.
-💎 Мои шансы.
+💎 Пополнить шансы.
 
 ❌ Я больше не хочу никого искать.
 """)
@@ -31,6 +31,7 @@ class MessageText:
     @property
     def PROFILE_MENU(self):
         return _("""
+🔍 Найти пару. 
 🔄 Заполнить профиль заново
 ↩️ Назад
 """)
@@ -53,7 +54,6 @@ class MessageText:
     def SEARCH_MENU(self):
         return _("""
 🔍 Поиск по фильтру
-🧠 Умный поиск (3 шанса)  
 
 🔄 Изменить фильтр
 ↩️ Назад
@@ -62,10 +62,6 @@ class MessageText:
     @property
     def KB_BACK_TO_SEARCH(self):
         return _("Меню поиска")
-
-    @property
-    def KB_MY_CHANCES(self):
-        return _("💎 Мои шансы")
 
     @property
     def KB_CHANGE_FILTER(self):
@@ -689,6 +685,10 @@ The reason: {}
     @property
     def KB_NEXT(self):
         return _("Следующий")
+
+    @property
+    def KB_BUY_CHANCES(self):
+        return _("💎 Пополнить шансы")
 
     @property
     def FILL_FILTER(self):

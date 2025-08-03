@@ -32,9 +32,9 @@ def search_menu_kb(user: UserModel) -> ReplyKeyboardMarkup:
                 KeyboardButton(
                     text=_(mt.KB_SEARCH_BY_FILTER),
                 ),
-                KeyboardButton(
-                    text=_(mt.KB_SEARCH_BY_AI),
-                ),
+                # KeyboardButton(
+                #     text=_(mt.KB_SEARCH_BY_AI),
+                # ),
             ],
             [
                 KeyboardButton(

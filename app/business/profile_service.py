@@ -1,3 +1,4 @@
+from app.keyboards.default.base import search_kb
 from app.keyboards.inline.admin import block_user_ikb
 from app.text import message_text as mt
 from data.config import MODERATOR_GROUP
@@ -27,6 +28,7 @@ async def display_filtered_profile(session: AsyncSession, chat_id: int, profile:
         chat_id=chat_id,
         text=text,
         parse_mode="HTML",
+        reply_markup=search_kb
     )
 
 

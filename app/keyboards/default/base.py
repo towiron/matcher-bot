@@ -16,18 +16,24 @@ start_kb: ReplyKeyboardMarkup = kb_gen(
     ["/start"],
 )
 
-profile_kb: ReplyKeyboardMarkup = kb_gen(
-    [_(mt.KB_FILL_PROFILE_AGAIN), mt.KB_BACK],
-)
-
 menu_kb: ReplyKeyboardMarkup = kb_gen(
     [_(mt.KB_FIND_MATCH)],
-    [_(mt.KB_MY_PROFILE), _(mt.KB_MY_CHANCES)],
+    [_(mt.KB_MY_PROFILE), _(mt.KB_BUY_CHANCES)],
     [_(mt.KB_DISABLE_PROFILE)],
 )
 
 search_kb: ReplyKeyboardMarkup = kb_gen(
-    [_(mt.KB_GIVE_CHANCE), _(mt.KB_NEXT)],
+    [_(mt.KB_NEXT), _(mt.KB_GIVE_CHANCE)],
+    [_(mt.KB_BACK_TO_SEARCH)],
+)
+
+payment_kb: ReplyKeyboardMarkup = kb_gen(
+    [_(mt.KB_BUY_CHANCES)],
+    [_(mt.KB_BACK)],
+)
+
+search_kb_after_chance: ReplyKeyboardMarkup = kb_gen(
+    [_(mt.KB_NEXT)],
     [_(mt.KB_BACK_TO_SEARCH)],
 )
 
