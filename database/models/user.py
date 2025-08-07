@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Integer, String
+from sqlalchemy import BigInteger, Integer, String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
@@ -23,6 +23,8 @@ class UserModel(BaseModel):
     language: Mapped[str] = mapped_column(String(10), server_default="en")
     balance: Mapped[int] = mapped_column(Integer, server_default=str(DEFAULT_BALANCE))
     status: Mapped[int] = mapped_column(Integer, server_default="1")
+    accepted_offer: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
+
 
     profile: Mapped["ProfileModel"] = relationship(  # type: ignore
         "ProfileModel", uselist=False, back_populates="user"

@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -191,3 +191,19 @@ class User(BaseService):
         ))
 
         await session.commit()
+
+    @staticmethod
+    async def update_offer_accepted(
+            session: AsyncSession,
+            user_id: int,
+            value: bool = True,
+    ) -> None:
+        """Обновляет флаг принятия пользовательской оферты"""
+        await session.execute(
+            update(UserModel)
+            .where(UserModel.id == user_id)
+            .values(accepted_offer=value)
+        )
+        await session.commit()
+
+        logger.log("DATABASE", f"Пользователь {user_id} {'принял' if value else 'отклонил'} оферту")
