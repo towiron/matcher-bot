@@ -26,11 +26,8 @@
       </select>
       <input type="number" name="height" placeholder="Рост (см)" required />
       <input type="number" name="weight" placeholder="Вес (кг)" required />
-      <select name="marital_status" required>
+      <select name="marital_status" id="maritalStatusInput" required>
         <option value="">Семейное положение</option>
-        <option value="single">Не женат / Не замужем</option>
-        <option value="divorced">В разводе</option>
-        <option value="widowed">Вдовец / Вдова</option>
       </select>
       <select name="has_children" required>
         <option value="">Есть ли дети?</option>
@@ -52,9 +49,9 @@
         <option value="marriage">Брак</option>
       </select>
       <select name="polygamy">
-        <option value="">Вы приемлете полигамию?</option>
-        <option value="true">Да</option>
-        <option value="false">Нет</option>
+        <option value="">Какой тип отношений вы приемлете?</option>
+        <option value="true">Полигамия</option>
+        <option value="false">Моногамия</option>
       </select>
       <select name="religion" id="religionInput" required>
         <option value="">Выберите религию</option>
@@ -71,27 +68,32 @@
         <option value="">Выберите национальность</option>
       </select>
       <input type="text" name="job" placeholder="Профессия (по желанию)" />
-      <textarea name="about" placeholder="О себе (до 300 символов)" maxlength="300"></textarea>
-      <textarea name="looking_for" placeholder="Кого ты ищешь? (до 300 символов)" maxlength="300"></textarea>
+      <textarea name="about" placeholder="просим вас заполнить максимально подробно что бы мы могли вам качественно подобрать счастье 🫠" maxlength="300"></textarea>
+      <textarea name="looking_for" placeholder="просим описать максимально подробно что бы твое счастье могло тебя найти" maxlength="300"></textarea>
 
       <button type="submit">✅ Отправить</button>
     </form>
   </div>
 
-  <!-- ВСТАВЛЕННЫЙ СКРИПТ -->
+  <!-- СКРИПТ -->
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const language = urlParams.get("language") || "ru"; // fallback
-
+    const language = urlParams.get("language") || "ru";
 
     const cityInput = document.getElementById("cityInput");
     const ethnicityInput = document.getElementById("ethnicityInput");
     const religionInput = document.getElementById("religionInput");
+    const maritalStatusInput = document.getElementById("maritalStatusInput");
 
-        // 🔹 Заполнение формы из query-параметров
+    let citiesList = [];
+    let ethnicitiesList = [];
+    let religionsList = [];
+    let maritalStatusesList = [];
+
+    // 🔹 Заполнение формы из query-параметров
     const fillFormFromQuery = () => {
       const map = {
         name: "input[name='name']",
@@ -100,7 +102,7 @@
         city_id: "#cityInput",
         height: "input[name='height']",
         weight: "input[name='weight']",
-        marital_status: "select[name='marital_status']",
+        marital_status_id: "#maritalStatusInput",
         has_children: "select[name='has_children']",
         education: "select[name='education']",
         goal: "select[name='goal']",
@@ -121,27 +123,18 @@
       }
     };
 
-    let citiesList = [];
-    let ethnicitiesList = [];
-    let religionsList = [];
-
-
-
-    // 🔹 Загрузка списка городов из API
+    // 🔹 Загрузка городов
     async function loadCities() {
       try {
         const response = await fetch('/cities');
         const cities = await response.json();
         citiesList = cities;
-        
-        // Очищаем список, оставляя только первый элемент
+
         cityInput.innerHTML = '<option value="">Выберите город</option>';
-        
-        // Добавляем города в выпадающий список
         cities.forEach(city => {
           const option = document.createElement('option');
           option.value = city.id;
-          option.textContent = city[language] || city.ru; // Используем русское название
+          option.textContent = city[language] || city.ru;
           cityInput.appendChild(option);
         });
       } catch (error) {
@@ -149,21 +142,22 @@
       }
     }
 
-    // 🔹 Загрузка списка национальностей из API
+    // 🔹 Загрузка национальностей
     async function loadEthnicities() {
       try {
         const response = await fetch('/ethnicities');
         const ethnicities = await response.json();
         ethnicitiesList = ethnicities;
 
-        // Очищаем список, оставляя только первый элемент
         ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
 
-        // Добавляем города в выпадающий список
+        const gender = document.querySelector("select[name='gender']").value || "male";
+        const key = `${language}_${gender}`;
+
         ethnicities.forEach(ethnicity => {
           const option = document.createElement('option');
           option.value = ethnicity.id;
-          option.textContent = ethnicity[language] || ethnicity.ru; // Используем русское название
+          option.textContent = ethnicity[key] || ethnicity.ru_male;
           ethnicityInput.appendChild(option);
         });
       } catch (error) {
@@ -171,21 +165,18 @@
       }
     }
 
-    // 🔹 Загрузка списка религий из API
+    // 🔹 Загрузка религий
     async function loadReligions() {
       try {
         const response = await fetch('/religions');
         const religions = await response.json();
         religionsList = religions;
 
-        // Очищаем список, оставляя только первый элемент
         religionInput.innerHTML = '<option value="">Выберите религию</option>';
-
-        // Добавляем религии в выпадающий список
         religions.forEach(religion => {
           const option = document.createElement('option');
           option.value = religion.id;
-          option.textContent = religion[language] || religion.ru; // Используем русское название
+          option.textContent = religion[language] || religion.ru;
           religionInput.appendChild(option);
         });
       } catch (error) {
@@ -193,19 +184,48 @@
       }
     }
 
-    // 🔹 Загружаем города при загрузке страницы
-    Promise.all([loadCities(), loadEthnicities(), loadReligions()])
-    .then(() => {
-      fillFormFromQuery(); // вызываем только после полной загрузки всех списков
+    // 🔹 Загрузка семейного положения
+    async function loadMaritalStatuses() {
+      try {
+        const response = await fetch('/marital_statuses');
+        const statuses = await response.json();
+        maritalStatusesList = statuses;
+
+        maritalStatusInput.innerHTML = '<option value="">Семейное положение</option>';
+
+        const gender = document.querySelector("select[name='gender']").value || "male";
+        const key = `${language}_${gender}`;
+
+        statuses.forEach(status => {
+          const option = document.createElement('option');
+          option.value = status.id;
+          option.textContent = status[key] || status.ru_male;
+          maritalStatusInput.appendChild(option);
+        });
+      } catch (error) {
+        console.error("Ошибка загрузки семейного положения:", error);
+      }
+    }
+
+    // 🔹 Перезагрузка данных при смене пола
+    document.querySelector("select[name='gender']").addEventListener("change", () => {
+      loadEthnicities();
+      loadMaritalStatuses();
     });
 
-
-
+    // 🔹 Инициализация
+    Promise.all([
+      loadCities(),
+      loadEthnicities(),
+      loadReligions(),
+      loadMaritalStatuses()
+    ]).then(() => {
+      fillFormFromQuery();
+    });
 
     // 🔹 Отправка формы
     document.getElementById("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const formData = Object.fromEntries(new FormData(e.target).entries());
 
       formData.has_children = formData.has_children === "true";
@@ -213,17 +233,16 @@
         formData.polygamy = formData.polygamy === "true";
       }
 
-      // Находим выбранный город по ID
       const selectedCity = citiesList.find(city => city.id == formData.city);
       const selectedEthnicity = ethnicitiesList.find(ethnicity => ethnicity.id == formData.ethnicity);
-      const selectedReligion = ethnicitiesList.find(religion => religion.id == formData.religion);
+      const selectedReligion = religionsList.find(religion => religion.id == formData.religion);
 
       const payload = {
         action: 'profile_submit',
         ...formData,
-        city_name: selectedCity ? selectedCity.ru : formData.city, // Добавляем название города
-        ethnicity_name: selectedEthnicity ? selectedEthnicity.ru : formData.ethnicity, // Добавляем название национальности
-        religion_name: selectedReligion ? selectedReligion.ru : formData.religion, // Добавляем название религии
+        city_name: selectedCity ? selectedCity.ru : formData.city,
+        ethnicity_name: selectedEthnicity ? selectedEthnicity.ru_male : formData.ethnicity,
+        religion_name: selectedReligion ? selectedReligion.ru : formData.religion,
         user_id: tg.initDataUnsafe?.user?.id
       };
 
@@ -234,4 +253,3 @@
   </script>
 </body>
 </html>
-

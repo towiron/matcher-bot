@@ -11,6 +11,7 @@ from database.connect import async_session
 from database.models.city import CityModel
 from database.models.ethnicity import EthnicityModel
 from database.models.religion import ReligionModel
+from database.models.marital_status import MaritalStatusModel
 
 async def seed_table(session: AsyncSession, model, entries: list, table_name: str):
     result = await session.execute(select(model))
@@ -56,28 +57,114 @@ async def seed_religions(session: AsyncSession):
 
 async def seed_ethnicities(session: AsyncSession):
     ethnicities = [
-        EthnicityModel(uz="O'zbek", ru="Узбек/Узбечка", en="Uzbek"),
-        EthnicityModel(uz="Rus", ru="Русский/Русская", en="Russian"),
-        EthnicityModel(uz="Qozoq", ru="Казах/Казашка", en="Kazakh"),
-        EthnicityModel(uz="Qoraqalpoq", ru="Каракалпак/Каракалпачка", en="Karakalpak"),
-        EthnicityModel(uz="Tojik", ru="Таджик/Таджичка", en="Tajik"),
-        EthnicityModel(uz="Qirgʻiz", ru="Киргиз/Киргизка", en="Kyrgyz"),
-        EthnicityModel(uz="Turkman", ru="Туркмен/Туркменка", en="Turkmen"),
-        EthnicityModel(uz="Tatar", ru="Татарин/Татарка", en="Tatar"),
-        EthnicityModel(uz="Uygʻur", ru="Уйгур/Уйгурка", en="Uyghur"),
-        EthnicityModel(uz="Yahudiy", ru="Еврей/Еврейка", en="Jewish"),
-        EthnicityModel(uz="Nemis", ru="Немец/Немка", en="German"),
-        EthnicityModel(uz="Arman", ru="Армянин/Армянка", en="Armenian"),
-        EthnicityModel(uz="Koreys", ru="Кореец/Кореянка", en="Korean"),
-        EthnicityModel(uz="Ukrain", ru="Украинец/Украинка", en="Ukrainian"),
+        EthnicityModel(
+            uz_male="O'zbek", uz_female="O'zbek",
+            ru_male="Узбек", ru_female="Узбечка",
+            en_male="Uzbek", en_female="Uzbek"
+        ),
+        EthnicityModel(
+            uz_male="Rus", uz_female="Rus",
+            ru_male="Русский", ru_female="Русская",
+            en_male="Russian", en_female="Russian"
+        ),
+        EthnicityModel(
+            uz_male="Qozoq", uz_female="Qozoq",
+            ru_male="Казах", ru_female="Казашка",
+            en_male="Kazakh", en_female="Kazakh"
+        ),
+        EthnicityModel(
+            uz_male="Qoraqalpoq'", uz_female="Qoraqalpoq'",
+            ru_male="Каракалпак", ru_female="Каракалпачка",
+            en_male="Karakalpak", en_female="Karakalpak"
+        ),
+        EthnicityModel(
+            uz_male="Tojik", uz_female="Tojik",
+            ru_male="Таджик", ru_female="Таджичка",
+            en_male="Tajik", en_female="Tajik"
+        ),
+        EthnicityModel(
+            uz_male="Qirgʻiz", uz_female="Qirgʻiz",
+            ru_male="Киргиз", ru_female="Киргизка",
+            en_male="Kyrgyz", en_female="Kyrgyz"
+        ),
+        EthnicityModel(
+            uz_male="Turkman", uz_female="Turkman",
+            ru_male="Туркмен", ru_female="Туркменка",
+            en_male="Turkmen", en_female="Turkmen"
+        ),
+        EthnicityModel(
+            uz_male="Tatar", uz_female="Tatar",
+            ru_male="Татарин", ru_female="Татарка",
+            en_male="Tatar", en_female="Tatar"
+        ),
+        EthnicityModel(
+            uz_male="Uygʻur", uz_female="Uygʻur",
+            ru_male="Уйгур", ru_female="Уйгурка",
+            en_male="Uyghur", en_female="Uyghur"
+        ),
+        EthnicityModel(
+            uz_male="Yahudiy", uz_female="Yahudiy",
+            ru_male="Еврей", ru_female="Еврейка",
+            en_male="Jewish", en_female="Jewish"
+        ),
+        EthnicityModel(
+            uz_male="Nemis", uz_female="Nemis",
+            ru_male="Немец", ru_female="Немка",
+            en_male="German", en_female="German"
+        ),
+        EthnicityModel(
+            uz_male="Arman", uz_female="Arman",
+            ru_male="Армянин", ru_female="Армянка",
+            en_male="Armenian", en_female="Armenian"
+        ),
+        EthnicityModel(
+            uz_male="Koreys", uz_female="Koreys",
+            ru_male="Кореец", ru_female="Кореянка",
+            en_male="Korean", en_female="Korean"
+        ),
+        EthnicityModel(
+            uz_male="Ukrain", uz_female="Ukrain",
+            ru_male="Украинец", ru_female="Украинка",
+            en_male="Ukrainian", en_female="Ukrainian"
+        ),
     ]
+
     await seed_table(session, EthnicityModel, ethnicities, "ethnicities")
+
+
+async def seed_marital_statuses(session: AsyncSession):
+    statuses = [
+        MaritalStatusModel(
+            uz_male="Bo‘ydoq", uz_female="Turmush qurmagan",
+            ru_male="Не женат", ru_female="Не замужем",
+            en_male="Single", en_female="Single"
+        ),
+        MaritalStatusModel(
+            uz_male="Uylangan", uz_female="Turmushga chiqqan",
+            ru_male="Женат", ru_female="Замужем",
+            en_male="Married", en_female="Married"
+        ),
+        MaritalStatusModel(
+            uz_male="Ajrashgan", uz_female="Ajrashgan",
+            ru_male="В разводе", ru_female="В разводе",
+            en_male="Divorced", en_female="Divorced"
+        ),
+        MaritalStatusModel(
+            uz_male="Beva", uz_female="Beva",
+            ru_male="Вдовец", ru_female="Вдова",
+            en_male="Widower", en_female="Widow"
+        ),
+    ]
+
+    await seed_table(session, MaritalStatusModel, statuses, "marital_statuses")
+
 
 async def main():
     async with async_session() as session:
         await seed_cities(session)
         await seed_ethnicities(session)
         await seed_religions(session)
+        await seed_marital_statuses(session)
 
 if __name__ == "__main__":
     import asyncio

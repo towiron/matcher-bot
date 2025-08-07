@@ -31,7 +31,7 @@ class ProfileModel(BaseModel):
     weight: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Семейное положение: 'single', 'divorced', 'widowed'
-    marital_status: Mapped[str] = mapped_column(String(50), nullable=False)
+    marital_status_id: Mapped[int] = mapped_column(ForeignKey("marital_statuses.id"), nullable=False)
 
     # Есть ли дети
     has_children: Mapped[bool] = mapped_column(nullable=False)
@@ -71,4 +71,5 @@ class ProfileModel(BaseModel):
 
     city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
     ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel") # type: ignore
+    marital_status: Mapped["MaritalStatusModel"] = relationship("MaritalStatusModel")  # type: ignore
     religion: Mapped["ReligionModel"] = relationship("ReligionModel") # type: ignore

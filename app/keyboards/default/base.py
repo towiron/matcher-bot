@@ -23,7 +23,7 @@ menu_kb: ReplyKeyboardMarkup = kb_gen(
 )
 
 search_kb: ReplyKeyboardMarkup = kb_gen(
-    [_(mt.KB_NEXT), _(mt.KB_GIVE_CHANCE)],
+    [ _(mt.KB_GIVE_CHANCE), _(mt.KB_NEXT)],
     [_(mt.KB_BACK_TO_SEARCH)],
 )
 

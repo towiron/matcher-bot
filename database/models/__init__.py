@@ -8,3 +8,4 @@ from .religion import ReligionModel
 from .viewed_profile import ViewedProfileModel
 from .balance_top_up import BalanceTopUpModel
 from .balance_usage import BalanceUsageModel
+from .marital_status import MaritalStatusModel

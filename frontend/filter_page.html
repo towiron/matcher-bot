@@ -108,31 +108,37 @@
   }
 }
 
-async function loadEthnicities() {
-  try {
-    const response = await fetch('/ethnicities');
-    const ethnicities = await response.json();
-    ethnicitiesList = ethnicities;
+    const gender = urlParams.get("gender") || "male";  // пол пользователя
 
-    ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
+    async function loadEthnicities() {
+      try {
+        const response = await fetch('/ethnicities');
+        const ethnicities = await response.json();
+        ethnicitiesList = ethnicities;
 
-    ethnicities.forEach(ethnicity => {
-      const option = document.createElement('option');
-      option.value = ethnicity.id;
-      option.textContent = ethnicity[language] || ethnicity.ru;
-      ethnicityInput.appendChild(option);
-    });
+        ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
 
-    // Устанавливаем значение после загрузки опций
-    const ethFromUrl = urlParams.get("ethnicity");
-    if (ethFromUrl) {
-      ethnicityInput.value = ethFromUrl;
+        const displayGender = gender === "male" ? "female" : "male"; // для показа противоположного пола
+        const fieldKey = `${language}_${displayGender}`; // например: ru_female, en_male и т.д.
+
+        ethnicities.forEach(ethnicity => {
+          const option = document.createElement('option');
+          option.value = ethnicity.id;
+          option.textContent = ethnicity[fieldKey] || ethnicity.ru_female;
+          ethnicityInput.appendChild(option);
+        });
+
+        // Автозаполнение из URL
+        const ethFromUrl = urlParams.get("ethnicity");
+        if (ethFromUrl) {
+          ethnicityInput.value = ethFromUrl;
+        }
+
+      } catch (error) {
+        console.error("Ошибка загрузки национальностей:", error);
+      }
     }
 
-  } catch (error) {
-    console.error("Ошибка загрузки национальностей:", error);
-  }
-}
 
 
     // 🔹 Загружаем города при загрузке страницы

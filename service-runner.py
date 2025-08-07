@@ -9,6 +9,7 @@ from fastapi import Depends
 
 from database.connect import async_session
 from database.services import City, Ethnicity, Religion
+from database.services.marital_status import MaritalStatus
 from utils.logging import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -59,15 +60,18 @@ async def ethnicities_list(session: AsyncSession = Depends(get_session)):
     return [
         {
             "id": ethnicity.id,
-            "uz": ethnicity.uz,
-            "ru": ethnicity.ru,
-            "en": ethnicity.en,
+            "uz_male": ethnicity.uz_male,
+            "uz_female": ethnicity.uz_female,
+            "ru_male": ethnicity.ru_male,
+            "ru_female": ethnicity.ru_female,
+            "en_male": ethnicity.en_male,
+            "en_female": ethnicity.en_female,
         }
         for ethnicity in ethnicities
     ]
 
 @app.get("/religions")
-async def ethnicities_list(session: AsyncSession = Depends(get_session)):
+async def religions_list(session: AsyncSession = Depends(get_session)):
     religions = await Religion.get_all(session)
     return [
         {
@@ -77,6 +81,22 @@ async def ethnicities_list(session: AsyncSession = Depends(get_session)):
             "en": religion.en,
         }
         for religion in religions
+    ]
+
+@app.get("/marital_statuses")
+async def marital_statuses_list(session: AsyncSession = Depends(get_session)):
+    statuses = await MaritalStatus.get_all(session)
+    return [
+        {
+            "id": status.id,
+            "uz_male": status.uz_male,
+            "uz_female": status.uz_female,
+            "ru_male": status.ru_male,
+            "ru_female": status.ru_female,
+            "en_male": status.en_male,
+            "en_female": status.en_female,
+        }
+        for status in statuses
     ]
 
 

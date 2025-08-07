@@ -53,7 +53,7 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
 def normalize_profile_data(data: dict) -> dict:
     return {
         "gender": filters.gender_map.get(data.get("gender"), data.get("gender")),
-        "marital_status": filters.marital_status_map.get(data.get("marital_status"), data.get("marital_status")),
+        "marital_status_id": int(data.get("marital_status")),
         "education": filters.education_map.get(data.get("education"), data.get("education")),
         "goal": filters.goal_map.get(data.get("goal"), data.get("goal")),
         "religion_id": int(data.get("religion")),

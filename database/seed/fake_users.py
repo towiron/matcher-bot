@@ -17,13 +17,12 @@ from database.models.profile import ProfileModel
 from database.models.filter import FilterModel
 from database.models.city import CityModel
 from database.models.ethnicity import EthnicityModel
-
+from database.models.marital_status import MaritalStatusModel
 from database.connect import async_session
 
 fake = Faker("ru_RU")
 
 GENDERS = ["male", "female"]
-MARITAL_STATUSES = ["single", "divorced", "widowed"]
 EDUCATIONS = ["secondary", "higher"]
 GOALS = ["friendship", "communication", "marriage"]
 RELIGIOUS_LEVELS = ["low", "medium", "high"]
@@ -34,15 +33,18 @@ async def create_fake_user(session: AsyncSession):
     cities = (await session.scalars(select(CityModel))).all()
     ethnicities = (await session.scalars(select(EthnicityModel))).all()
     religions = (await session.scalars(select(ReligionModel))).all()
+    marital_statuses = (await session.scalars(select(MaritalStatusModel))).all()
 
-    if not cities or not ethnicities or not religions:
-        print("❌ Таблицы cities, ethnicities и religions должны быть заполнены предварительно.")
+    if not all([cities, ethnicities, religions, marital_statuses]):
+        print("❌ Убедитесь, что все справочники (города, национальности, религии, семейные статусы) заполнены.")
         return
 
     city = random.choice(cities)
     ethnicity = random.choice(ethnicities)
-    gender = random.choice(GENDERS)
     religion = random.choice(religions)
+    marital_status = random.choice(marital_statuses)
+
+    gender = random.choice(GENDERS)
 
     religious_level = random.choice(RELIGIOUS_LEVELS)
     if religion.en.lower() in ["other", "atheism", "prefer not to say"]:
@@ -64,7 +66,7 @@ async def create_fake_user(session: AsyncSession):
         city_id=city.id,
         height=random.randint(160, 190),
         weight=random.randint(50, 90),
-        marital_status=random.choice(MARITAL_STATUSES),
+        marital_status_id=marital_status.id,  # ✅ now correct
         has_children=random.choice([True, False]),
         education=random.choice(EDUCATIONS),
         goal=random.choice(GOALS),

@@ -59,7 +59,7 @@ def build_profile_query(profile: ProfileModel, language: str) -> str:
         "city_id": profile.city_id,
         "height": profile.height,
         "weight": profile.weight,
-        "marital_status": profile.marital_status,
+        "marital_status_id": profile.marital_status_id,
         "has_children": str(profile.has_children).lower(),  # True → "true"
         "education": profile.education,
         "goal": profile.goal,

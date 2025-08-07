@@ -3,8 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import BaseModel
 
-class EthnicityModel(BaseModel):
-    __tablename__ = "ethnicities"
+class MaritalStatusModel(BaseModel):
+    __tablename__ = "marital_statuses"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
