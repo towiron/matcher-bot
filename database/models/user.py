@@ -1,4 +1,7 @@
-from sqlalchemy import BigInteger, Integer, String, Boolean
+from datetime import date
+from typing import Optional
+
+from sqlalchemy import BigInteger, Integer, String, Boolean, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
@@ -24,6 +27,9 @@ class UserModel(BaseModel):
     balance: Mapped[int] = mapped_column(Integer, server_default=str(DEFAULT_BALANCE))
     status: Mapped[int] = mapped_column(Integer, server_default="1")
     accepted_offer: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
+
+    last_active_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    daily_streak: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
 
 
     profile: Mapped["ProfileModel"] = relationship(  # type: ignore

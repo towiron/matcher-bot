@@ -8,6 +8,7 @@ class TopUpSource:
     Payme = "payme"
     Uzum = "uzum"
     Initial = "initial"
+    Internal = "internal"
 
 
 class BalanceTopUpModel(BaseModel):
