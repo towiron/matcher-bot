@@ -6,6 +6,5 @@ from .city import CityModel
 from .ethnicity import EthnicityModel
 from .religion import ReligionModel
 from .viewed_profile import ViewedProfileModel
-from .balance_top_up import BalanceTopUpModel
-from .balance_usage import BalanceUsageModel
 from .marital_status import MaritalStatusModel
+from .balance_entry import BalanceEntryModel

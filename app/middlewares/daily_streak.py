@@ -7,10 +7,11 @@ from aiogram.types import Update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.config import CHANCE_COST
-from database.models import BalanceTopUpModel
-from database.models.balance_top_up import TopUpSource
 from database.models.user import UserModel, UserStatus
 from database.services import User
+
+from database.services.balance import Balance
+from database.models.enums import EntryKind, Source
 
 _TZ = pytz.timezone("Asia/Tashkent")
 
@@ -30,10 +31,7 @@ def _to_tashkent_date(dt) -> Optional[date]:
 
 
 def _extract_user_and_chat(update: Update) -> Tuple[Optional[int], Optional[int], Optional[str], Optional[str]]:
-    """
-    Достаёт (user_id, chat_id, username, language) из Update.
-    Для остальных типов апдейтов возвращает (None, None, None, None).
-    """
+    """Достаёт (user_id, chat_id, username, language) из Update."""
     if update.message:
         u = update.message.from_user
         return (
@@ -58,9 +56,8 @@ class DailyStreakMiddleware(BaseMiddleware):
     """
     Правила:
     - День регистрации: бонус НЕ даём, но отмечаем активность (last_active_date=today) и ставим daily_streak=1.
-    - В любой другой день: при первой активности за сутки — daily_streak (+1 или =1) и выдаём 1 шанс.
-    - Идёмпотентность за счёт сравнения last_active_date с сегодняшней датой.
-    - Уведомляем пользователя, только если бонус реально выдан.
+    - В другие дни: при первой активности за сутки — стрик (+1/1) и выдаём +1 шанс через леджер.
+    - Уведомляем пользователя только если бонус реально выдан.
     """
 
     async def __call__(self, handler: Callable, event: Update, data: dict) -> Any:
@@ -103,15 +100,13 @@ class DailyStreakMiddleware(BaseMiddleware):
         # 5) уведомление, если бонус реально выдан
         if got_bonus and chat_id:
             text = (
-                f"🎁 Вы получили ежедневный бонус: 1 шанс!\n"
-                f"🔥 Ваш текущий стрик: {user.daily_streak} дн."
+                "🎁 Вы получили ежедневный бонус: 1 шанс!\n"
+                f"🔥 Вы активны уже {user.daily_streak} дней подряд!"
             )
-
             try:
                 await bot.send_message(chat_id, text)
             except Exception:
-                # логировать по желанию, но пайплайн не роняем
-                pass
+                pass  # не роняем пайплайн
 
         data["user"] = user
         return await handler(event, data)
@@ -130,17 +125,18 @@ class DailyStreakMiddleware(BaseMiddleware):
             user.daily_streak = 1
 
         user.last_active_date = today
+        await session.flush()
 
-        # ежедневный бонус: +1 шанс (в суммах = CHANCE_COST)
-        add_sum = CHANCE_COST
-        user.balance += add_sum
-        session.add(BalanceTopUpModel(
-            user_id=user.id,
-            amount=1,                  # 1 шанс
-            paid_sum=add_sum,          # на твоей модели баланс в суммах
-            source=TopUpSource.Initial,  # можешь заменить на TopUpSource.Internal, если есть
+        # ежедневный бонус: +1 шанс через леджер (BONUS/Internal)
+        await Balance.credit(
+            session=session,
+            user=user,
+            delta_chances=1,
+            kind=EntryKind.BONUS,
+            source=Source.Internal,
+            amount_sum=CHANCE_COST,   # опционально для отчётов; можно 0
             payload="bonus:daily",
-        ))
+        )
 
-        await session.commit()
+        # commit сделает Balance.credit
         return True
