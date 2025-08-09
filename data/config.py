@@ -51,6 +51,9 @@ NEW_USER_ALERT_TO_GROUP: bool = env.bool("NEW_USER_ALERT_TO_GROUP", default=True
 ADMINS: list = env.list("ADMINS", default=None, subcast=int)
 MODERATOR_GROUP: int = env.int("MODERATOR_GROUP_ID", default=None)
 
+# AI
+OPENAI_API_KEY: str = env.str("OPENAI_API_KEY", default=None)
+
 # PAYMENT
 CLICK_LIVE_TOKEN: str = env.str("CLICK_LIVE_TOKEN", default=None)
 PAYME_LIVE_TOKEN: str = env.str("PAYME_LIVE_TOKEN", default=None)

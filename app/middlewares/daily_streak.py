@@ -79,7 +79,18 @@ class DailyStreakMiddleware(BaseMiddleware):
         # 2) фильтры
         if user.status == UserStatus.Banned:
             return
-        if user.profile and not user.profile.is_active:
+        
+        # Исправление: безопасная проверка активности профиля
+        # Избегаем проблем с ленивой загрузкой, делая прямой запрос к БД
+        from sqlalchemy import select
+        from database.models.profile import ProfileModel
+        
+        profile_result = await session.execute(
+            select(ProfileModel.is_active).where(ProfileModel.id == user.id)
+        )
+        profile_active = profile_result.scalar_one_or_none()
+        
+        if profile_active is False:  # Явно проверяем False, не None
             return
 
         today = _today_tashkent()

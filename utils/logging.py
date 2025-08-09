@@ -22,6 +22,13 @@ logger.level("MESSAGE", no=15, color="<blue>", icon="✍️")
 logger.level("CALLBACK", no=15, color="<blue>", icon="📩")
 logger.level("DATABASE", no=17, color="<magenta>", icon="💾")
 
+# Уровни для умного поиска
+logger.level("AI_MATCH", no=19, color="<cyan>", icon="🤝")          # чуть выше DATABASE(17)
+logger.level("AI_MATCH_DEBUG", no=20, color="<blue>", icon="🔍")    # между AI_MATCH(19) и AI_MATCH_REASONS(21)
+logger.level("AI_MATCH_REASONS", no=21, color="<magenta>", icon="🧠") # между INFO(20) и SUCCESS(25)
+logger.level("AI_MATCH_ERROR", no=35, color="<red>", icon="❌")       # между WARNING(30) и ERROR(40)
+
+
 getLogger("aiogram").addFilter(
     lambda r: r.getMessage().find("Field 'database_user' doesn't exist in") == -1
 )
