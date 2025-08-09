@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPri
 
 from app.business.menu_service import menu
 from app.keyboards.default.base import menu_kb
-from data.config import CLICK_LIVE_TOKEN, CHANCE_COST
+from data.config import CLICK_LIVE_TOKEN, PAYME_LIVE_TOKEN, CHANCE_COST
 from database.models import UserModel
 from loader import _
 from app.routers import common_router
@@ -26,7 +26,7 @@ PLANS_BY_SUM = {p["sum"]: p for p in PLANS}
 # Провайдеры и токены оплаты
 PAYMENT_PROVIDER_TOKENS = {
     "click": CLICK_LIVE_TOKEN,
-    # "payme": PAYME_LIVE_TOKEN,
+    "payme": PAYME_LIVE_TOKEN,
     # "uzum": UZUM_LIVE_TOKEN,
 }
 
@@ -58,7 +58,7 @@ async def choose_provider(message: types.Message, user: UserModel):
     )
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💳 Click", callback_data="provider:click")],
-        # [InlineKeyboardButton(text="💳 Payme", callback_data="provider:payme")],
+        [InlineKeyboardButton(text="💳 Payme", callback_data="provider:payme")],
         # [InlineKeyboardButton(text="💳 Uzum", callback_data="provider:uzum")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="buy:back")]
     ])
@@ -95,7 +95,7 @@ async def choose_sum(callback: types.CallbackQuery):
 async def back_to_providers(callback: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="💳 Click", callback_data="provider:click")],
-        # [InlineKeyboardButton(text="💳 Payme", callback_data="provider:payme")],
+        [InlineKeyboardButton(text="💳 Payme", callback_data="provider:payme")],
         # [InlineKeyboardButton(text="💳 Uzum", callback_data="provider:uzum")],
         [InlineKeyboardButton(text="🔙 Назад", callback_data="buy:back")]
     ])

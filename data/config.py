@@ -53,6 +53,7 @@ MODERATOR_GROUP: int = env.int("MODERATOR_GROUP_ID", default=None)
 
 # PAYMENT
 CLICK_LIVE_TOKEN: str = env.str("CLICK_LIVE_TOKEN", default=None)
+PAYME_LIVE_TOKEN: str = env.str("PAYME_LIVE_TOKEN", default=None)
 
 TIME_ZONE = "UTC"
 
