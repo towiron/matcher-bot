@@ -50,23 +50,58 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
     await message.answer(mt.PROFILE_MENU, reply_markup=keyboard)
 
 
+def _to_int(v):
+    try:
+        return int(v) if v is not None else None
+    except (TypeError, ValueError):
+        return None
+
+def _to_bool_or_none(v):
+    if v is True or v is False:
+        return v
+    if isinstance(v, str):
+        if v.lower() in ("true", "1", "yes", "да"): return True
+        if v.lower() in ("false", "0", "no", "нет"): return False
+        if v == "": return None
+    return None
+
+def _none_if_empty(v):
+    return None if (v is None or (isinstance(v, str) and v.strip() == "")) else v
+
 def normalize_profile_data(data: dict) -> dict:
+    # если у вас действительно нужны мапы на «допустимые» значения — оставьте ИХ,
+    # но на вход им подавайте строки, а не bool/int
+    gender = data.get("gender")
+    education = data.get("education")
+    goal = data.get("goal")
+    religious_level = _none_if_empty(data.get("religious_level"))
+
+    # Пример безопасных мапов (если нужны):
+    if hasattr(filters, "gender_map"):
+        gender = filters.gender_map.get(gender, gender)
+    if hasattr(filters, "education_map"):
+        education = filters.education_map.get(education, education)
+    if hasattr(filters, "goal_map"):
+        goal = filters.goal_map.get(goal, goal)
+    if hasattr(filters, "religious_level_map") and religious_level is not None:
+        religious_level = filters.religious_level_map.get(religious_level, religious_level)
+
     return {
-        "gender": filters.gender_map.get(data.get("gender"), data.get("gender")),
-        "marital_status_id": int(data.get("marital_status")),
-        "education": filters.education_map.get(data.get("education"), data.get("education")),
-        "goal": filters.goal_map.get(data.get("goal"), data.get("goal")),
-        "religion_id": int(data.get("religion")),
-        "religious_level": filters.religious_level_map.get(data.get("religious_level"), data.get("religious_level")),
-        "has_children": filters.yes_no_map.get(data.get("has_children"), data.get("has_children")),
-        "polygamy": filters.yes_no_map.get(data.get("polygamy"), data.get("polygamy")),
-        "name": data.get("name"),
-        "age": int(data.get("age")) if data.get("age") is not None else None,
-        "city_id": int(data.get("city")) if data.get("city") is not None else None,
-        "height": int(data.get("height")) if data.get("height") is not None else None,
-        "weight": int(data.get("weight")) if data.get("weight") is not None else None,
-        "ethnicity_id": int(data.get("ethnicity")),
-        "job": data.get("job"),
-        "about": data.get("about"),
-        "looking_for": data.get("looking_for"),
+        "name": _none_if_empty(data.get("name")),
+        "age": _to_int(data.get("age")),
+        "gender": gender,
+        "city_id": _to_int(data.get("city")),
+        "height": _to_int(data.get("height")),
+        "weight": _to_int(data.get("weight")),
+        "marital_status_id": _to_int(data.get("marital_status")),
+        "has_children": bool(data.get("has_children")) if isinstance(data.get("has_children"), bool) else _to_bool_or_none(data.get("has_children")),
+        "education": education,
+        "goal": goal,
+        "polygamy": _to_bool_or_none(data.get("polygamy")),   # nullable=True
+        "religion_id": _to_int(data.get("religion")),
+        "religious_level": religious_level,                   # nullable=True
+        "ethnicity_id": _to_int(data.get("ethnicity")),
+        "job": _none_if_empty(data.get("job")),
+        "about": _none_if_empty(data.get("about")),
+        "looking_for": _none_if_empty(data.get("looking_for")),
     }
