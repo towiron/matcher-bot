@@ -15,9 +15,6 @@ class ProfileModel(BaseModel):
     # Имя (отображается другим пользователям)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
 
-    # Фамилия (не отображается другим пользователям)
-    surname: Mapped[str] = mapped_column(String(200), nullable=False)
-
     # Возраст (может храниться отдельно для оптимизации фильтрации)
     age: Mapped[int] = mapped_column(Integer, nullable=False)
 
@@ -25,13 +22,7 @@ class ProfileModel(BaseModel):
     gender: Mapped[str] = mapped_column(String(20), nullable=False)
 
     # Город проживания
-    city: Mapped[str] = mapped_column(String(200), nullable=False)
-
-    # Географическая широта города (для геопоиска)
-    latitude: Mapped[float] = mapped_column(nullable=False)
-
-    # Географическая долгота города
-    longitude: Mapped[float] = mapped_column(nullable=False)
+    city_id: Mapped[int] = mapped_column(ForeignKey("cities.id"), nullable=False)
 
     # Рост пользователя в сантиметрах
     height: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -40,13 +31,10 @@ class ProfileModel(BaseModel):
     weight: Mapped[int] = mapped_column(Integer, nullable=False)
 
     # Семейное положение: 'single', 'divorced', 'widowed'
-    marital_status: Mapped[str] = mapped_column(String(50), nullable=False)
+    marital_status_id: Mapped[int] = mapped_column(ForeignKey("marital_statuses.id"), nullable=False)
 
     # Есть ли дети
     has_children: Mapped[bool] = mapped_column(nullable=False)
-
-    # Живут ли дети с пользователем (может быть null, если has_children = False)
-    children_lives_with_me: Mapped[bool] = mapped_column(nullable=True)
 
     # Образование: 'none', 'secondary', 'higher'
     education: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -58,16 +46,22 @@ class ProfileModel(BaseModel):
     polygamy: Mapped[bool] = mapped_column(nullable=True)
 
     # Религия: например, 'Islam', 'Christianity', 'Other' и т.д.
-    religion: Mapped[str] = mapped_column(String(50), nullable=False)
+    religion_id: Mapped[int] = mapped_column(ForeignKey("religions.id"), nullable=False)
 
     # Уровень религиозности: 'low', 'medium', 'high' или NULL (если религия = 'Other')
     religious_level: Mapped[str] = mapped_column(String(20), nullable=True)
 
     # Национальность (основное значение, например, 'Uzbek')
-    ethnicity: Mapped[str] = mapped_column(String(50), nullable=False)
+    ethnicity_id: Mapped[int] = mapped_column(ForeignKey("ethnicities.id"), nullable=False)
 
     # Профессия или вид деятельности (опционально)
     job: Mapped[str] = mapped_column(String(100), nullable=True)
+
+    # О себе
+    about: Mapped[str] = mapped_column(String(300), nullable=True)
+
+    # Кого пользователь ищет
+    looking_for: Mapped[str] = mapped_column(String(300), nullable=True)
 
     # Активен ли профиль (может использоваться для временного скрытия)
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -75,20 +69,7 @@ class ProfileModel(BaseModel):
     # Связь с пользователем
     user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore
 
-    # Ограничения на уровне базы данных
-    # __table_args__ = (
-    #     # Пол может быть только 'male' или 'female'
-    #     CheckConstraint("gender IN ('male', 'female')", name="gender_check"),
-    #
-    #     # Допустимые значения для семейного положения
-    #     CheckConstraint("marital_status IN ('single', 'divorced', 'widowed')", name="marital_status_check"),
-    #
-    #     # Допустимые значения для образования
-    #     CheckConstraint("education IN ('none', 'secondary', 'higher')", name="education_check"),
-    #
-    #     # Допустимые цели знакомства
-    #     CheckConstraint("goal IN ('friendship', 'communication', 'marriage')", name="goal_check"),
-    #
-    #     # Религиозность может быть NULL или одним из допустимых уровней
-    #     CheckConstraint("religious_level IS NULL OR religious_level IN ('low', 'medium', 'high')", name="religious_level_check"),
-    # )
+    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
+    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel") # type: ignore
+    marital_status: Mapped["MaritalStatusModel"] = relationship("MaritalStatusModel")  # type: ignore
+    religion: Mapped["ReligionModel"] = relationship("ReligionModel") # type: ignore

@@ -10,11 +10,14 @@ from .database import DatabaseMiddleware
 from .dating import DatingMiddleware
 from .log import LoggingMiddleware
 from .voide import VoideMiddleware
-
+from .daily_streak import DailyStreakMiddleware   # 👈 добавь это
 
 def setup_middlewares(dp: Dispatcher) -> None:
+    # 1) Глобальные update-mw — порядок важен!
     dp.update.middleware(DatabaseMiddleware(async_session))
+    dp.update.middleware(DailyStreakMiddleware())
 
+    # 2) Роутер-специфичные mw
     common_router.message.middleware(LoggingMiddleware())
     common_router.callback_query.middleware(LoggingMiddleware())
     common_router.message.middleware(CommonMiddleware())

@@ -23,6 +23,7 @@ class MessageText:
         return _("""
 🔍 Найти пару.
 👤 Мой профиль.
+💎 Пополнить шансы.
 
 ❌ Я больше не хочу никого искать.
 """)
@@ -30,6 +31,7 @@ class MessageText:
     @property
     def PROFILE_MENU(self):
         return _("""
+🔍 Найти пару. 
 🔄 Заполнить профиль заново
 ↩️ Назад
 """)
@@ -49,12 +51,37 @@ class MessageText:
         return _("🔍 Выполняется поиск...")
 
     @property
+    def SEARCH_MENU(self):
+        return _("""
+🔍 Поиск по фильтру
+
+🔄 Изменить фильтр
+↩️ Назад
+""")
+
+    @property
+    def KB_BACK_TO_SEARCH(self):
+        return _("Меню поиска")
+
+    @property
+    def KB_CHANGE_FILTER(self):
+        return _("🔄 Изменить фильтр")
+
+    @property
+    def KB_SEARCH_BY_FILTER(self):
+        return _("🔍 Поиск по фильтру")
+
+    @property
+    def KB_SEARCH_BY_AI(self):
+        return _("🧠 Умный поиск")
+
+    @property
     def ARCHIVE_SEARCH(self):
         return _("Твоя анкета понравилась {} людям! Давай посмотрим, кто это:")
 
     @property
     def INVALID_PROFILE_SEARCH(self):
-        return _("Подходящих анкет не найдено. Попробуй выбрать другой город. 🌍")
+        return _("Подходящих анкет не найдено. Попробуй изменить фильтр 😊")
 
     @property
     def EMPTY_PROFILE_SEARCH(self):
@@ -171,6 +198,14 @@ The reason: {}
 """
 
     @property
+    def CHANCE_USER_LINK(self):
+        return _("""
+💌 Ты дал(а) шанс этому человеку!
+Посмотри ещё раз его анкету — вдруг это начало чего-то особенного?
+👉 <a href="{link}">Открыть профиль</a>
+""")
+
+    @property
     def EMPTY_PROFILE(self):
         return _(f"""
     ✨ Чтобы продолжить пользоваться ботом, тебе нужно создать профиль!
@@ -195,6 +230,51 @@ The reason: {}
 🏙 Популярный город: {}
 """)
 
+    # ОПИСАНИЕ ФИЛЬТРА
+    @property
+    def FILTER_HEADER(self):
+        return _("<b>Ваш фильтр:</b>")
+
+    @property
+    def FILTER_CITY(self):
+        return _("<b>Город:</b> {}")
+
+    @property
+    def FILTER_AGE_FROM(self):
+        return _("<b>Возраст от:</b> {}")
+
+    @property
+    def FILTER_AGE_TO(self):
+        return _("<b>Возраст до:</b> {}")
+
+    @property
+    def FILTER_HEIGHT_FROM(self):
+        return _("<b>Рост(см) от:</b> {}")
+
+    @property
+    def FILTER_HEIGHT_TO(self):
+        return _("<b>Рост(см) до:</b> {}")
+
+    @property
+    def FILTER_WEIGHT_FROM(self):
+        return _("<b>Вес(кг) от:</b> {}")
+
+    @property
+    def FILTER_WEIGHT_TO(self):
+        return _("<b>Вес(кг) до:</b> {}")
+
+    @property
+    def FILTER_HAS_CHILDREN(self):
+        return _("<b>Есть ли дети:</b> {}")
+
+    @property
+    def FILTER_GOAL(self):
+        return _("<b>Цель:</b> {}")
+
+    @property
+    def FILTER_ETHNICITY(self):
+        return _("<b>Национальность:</b> {}")
+
     # ОПИСАНИЕ ПРОФИЛЯ
     @property
     def PROFILE_HEADER(self):
@@ -206,7 +286,7 @@ The reason: {}
 
     @property
     def PROFILE_SURNAME(self):
-        return _("<b>Имя:</b> {} <i>(Видно только вам)</i>")
+        return _("<b>Фамилия:</b> {} <i>(Видно только вам)</i>")
 
     @property
     def PROFILE_AGE(self):
@@ -267,6 +347,14 @@ The reason: {}
     @property
     def PROFILE_ETHNICITY(self):
         return _("<b>Национальность:</b> {}")
+
+    @property
+    def PROFILE_ABOUT(self):
+        return _("<b>О себе:</b> {}")
+
+    @property
+    def PROFILE_LOOKING_FOR(self):
+        return _("<b>Кого ищу:</b> {}")
 
     @property
     def PROFILE_NOT_SPECIFIED(self):
@@ -427,6 +515,10 @@ The reason: {}
     def PRFILE_SUCCESSFULLY_CREATED(self):
         return _("✅ Ваш профиль успешно создан!")
 
+    @property
+    def FILTER_SUCCESSFULLY_ADDED(self):
+        return _("✅ Фильтр успешно установлен!")
+
     # КЛАВИАТУРА
     @property
     def KB_FILL_PROFILE_AGAIN(self):
@@ -447,10 +539,6 @@ The reason: {}
     @property
     def KB_DISABLE_PROFILE(self):
         return _("❌ Я больше не хочу никого искать")
-
-    @property
-    def KB_GENDER_MALE(self):
-        return _("Парень")
 
     @property
     def KB_GENDER_MALE(self):
@@ -586,6 +674,26 @@ The reason: {}
     def KB_STAT_PROFILE(self):
         return _("Статистика профилей")
 
+    @property
+    def KB_SEARCH_FILTER(self):
+        return _("Фильтр поиска")
+
+    @property
+    def KB_GIVE_CHANCE(self):
+        return _("Шанс")
+
+    @property
+    def KB_NEXT(self):
+        return _("Следующий")
+
+    @property
+    def KB_BUY_CHANCES(self):
+        return _("💎 Пополнить шансы")
+
+    @property
+    def FILL_FILTER(self):
+        return _("""
+Пожалуйста, заполните фильтр перед использованием функции поиска.""")
 
 
 message_text = MessageText()

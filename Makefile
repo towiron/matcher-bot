@@ -1,4 +1,4 @@
-.PHONY: infra-start infra-stop db-clear refresh-migrations
+.PHONY: infra-start infra-stop db-clear refresh-migrations local
 .SILENT:
 
 # Infrastructure
@@ -21,3 +21,12 @@ db-clear:
 refresh-migrations:
 	@alembic revision --autogenerate -m "Initial migration"
 	@alembic upgrade head
+
+local:
+	@python database/seed/seed.py
+	@python bot-runner.py
+
+generate-users:
+	@count=$(or $(count), 1); \
+	echo "👥 Генерация $$count пользователей..."; \
+	python database/seed/fake_users.py --count=$$count

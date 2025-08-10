@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Фильтры поиска</title>
+  <link rel="stylesheet" href="static/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Фильтры поиска</h1>
+    <form id="filterForm">
+      <select name="city" id="cityInput">
+        <option value="">Выберите город</option>
+      </select>
+      <div class="range-group">
+        <label>Возраст:</label>
+        <div class="range-inputs">
+          <input type="number" name="age_from" placeholder="От" min="18" max="100" />
+          <span>-</span>
+          <input type="number" name="age_to" placeholder="До" min="18" max="100" />
+        </div>
+      </div>
+
+      <div class="range-group">
+        <label>Рост (см):</label>
+        <div class="range-inputs">
+          <input type="number" name="height_from" placeholder="От" min="140" max="220" />
+          <span>-</span>
+          <input type="number" name="height_to" placeholder="До" min="140" max="220" />
+        </div>
+      </div>
+
+      <div class="range-group">
+        <label>Вес (кг):</label>
+        <div class="range-inputs">
+          <input type="number" name="weight_from" placeholder="От" min="40" max="200" />
+          <span>-</span>
+          <input type="number" name="weight_to" placeholder="До" min="40" max="200" />
+        </div>
+      </div>
+
+      <select name="has_children">
+        <option value="">Есть ли дети?</option>
+        <option value="true">Да</option>
+        <option value="false">Нет</option>
+        <option value="any">Не важно</option>
+      </select>
+
+      <select name="goal">
+        <option value="">Цель знакомства</option>
+        <option value="friendship">Дружба</option>
+        <option value="communication">Общение</option>
+        <option value="serious_relationship">Серьезные отношения</option>
+        <option value="marriage">Брак</option>
+        <option value="any">Не важно</option>
+      </select>
+
+       <select name="ethnicity" id="ethnicityInput">
+        <option value="">Выберите национальность</option>
+      </select>
+
+      <button type="submit">✅ Применить фильтр</button>
+    </form>
+  </div>
+  <!-- ВСТАВЛЕННЫЙ СКРИПТ -->
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const language = urlParams.get("language") || "ru"; // fallback
+
+    const cityInput = document.getElementById("cityInput");
+    const ethnicityInput = document.getElementById("ethnicityInput");
+
+    let citiesList = [];
+    let ethnicitiesList = [];
+
+    // 🔹 Загрузка списка городов из API
+    async function loadCities() {
+  try {
+    const response = await fetch('/cities');
+    const cities = await response.json();
+    citiesList = cities;
+
+    cityInput.innerHTML = '<option value="">Выберите город</option>';
+
+    cities.forEach(city => {
+      const option = document.createElement('option');
+      option.value = city.id;
+      option.textContent = city[language] || city.ru;
+      cityInput.appendChild(option);
+    });
+
+    // Устанавливаем значение после загрузки опций
+    const cityFromUrl = urlParams.get("city");
+    if (cityFromUrl) {
+      cityInput.value = cityFromUrl;
+    }
+
+  } catch (error) {
+    console.error("Ошибка загрузки городов:", error);
+  }
+}
+
+    const gender = urlParams.get("gender") || "male";  // пол пользователя
+
+    async function loadEthnicities() {
+      try {
+        const response = await fetch('/ethnicities');
+        const ethnicities = await response.json();
+        ethnicitiesList = ethnicities;
+
+        ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
+
+        const displayGender = gender === "male" ? "female" : "male"; // для показа противоположного пола
+        const fieldKey = `${language}_${displayGender}`; // например: ru_female, en_male и т.д.
+
+        ethnicities.forEach(ethnicity => {
+          const option = document.createElement('option');
+          option.value = ethnicity.id;
+          option.textContent = ethnicity[fieldKey] || ethnicity.ru_female;
+          ethnicityInput.appendChild(option);
+        });
+
+        // Автозаполнение из URL
+        const ethFromUrl = urlParams.get("ethnicity");
+        if (ethFromUrl) {
+          ethnicityInput.value = ethFromUrl;
+        }
+
+      } catch (error) {
+        console.error("Ошибка загрузки национальностей:", error);
+      }
+    }
+
+
+
+    // 🔹 Загружаем города при загрузке страницы
+    (async () => {
+    await loadCities();
+    await loadEthnicities();
+
+    // Остальные значения полей (инпутов) можно задавать сразу
+    document.getElementsByName("age_from")[0].value = urlParams.get("age_from") || "";
+    document.getElementsByName("age_to")[0].value = urlParams.get("age_to") || "";
+    document.getElementsByName("height_from")[0].value = urlParams.get("height_from") || "";
+    document.getElementsByName("height_to")[0].value = urlParams.get("height_to") || "";
+    document.getElementsByName("weight_from")[0].value = urlParams.get("weight_from") || "";
+    document.getElementsByName("weight_to")[0].value = urlParams.get("weight_to") || "";
+    document.getElementsByName("goal")[0].value = urlParams.get("goal") || "";
+    document.getElementsByName("has_children")[0].value = urlParams.get("has_children") || "";
+  })();
+
+
+
+    // 🔹 Отправка формы
+    document.getElementById("filterForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      formData.has_children = formData.has_children === "true";
+      if (formData.polygamy) {
+        formData.polygamy = formData.polygamy === "true";
+      }
+
+      // Находим выбранный город по ID
+      const selectedCity = citiesList.find(city => city.id == formData.city);
+
+      const selectedEthnicity = ethnicitiesList.find(ethnicity => ethnicity.id == formData.ethnicity);
+      
+      const payload = {
+        action: 'filter_submit',
+        ...formData,
+        city_name: selectedCity ? selectedCity.ru : formData.city, // Добавляем название города
+        ethnicity_name: selectedEthnicity ? selectedEthnicity.ru : formData.ethnicity, // Добавляем название национальности
+        user_id: tg.initDataUnsafe?.user?.id,
+      };
+
+      console.log("Отправка данных в бота:", payload);
+      tg.sendData(JSON.stringify(payload));
+      alert("Данные отправлены!");
+    });
+  </script>
+</body>
+</html> 

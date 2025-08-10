@@ -51,19 +51,23 @@ NEW_USER_ALERT_TO_GROUP: bool = env.bool("NEW_USER_ALERT_TO_GROUP", default=True
 ADMINS: list = env.list("ADMINS", default=None, subcast=int)
 MODERATOR_GROUP: int = env.int("MODERATOR_GROUP_ID", default=None)
 
+# AI
+OPENAI_API_KEY: str = env.str("OPENAI_API_KEY", default=None)
+
+# PAYMENT
+CLICK_LIVE_TOKEN: str = env.str("CLICK_LIVE_TOKEN", default=None)
+PAYME_LIVE_TOKEN: str = env.str("PAYME_LIVE_TOKEN", default=None)
+
 TIME_ZONE = "UTC"
 
 I18N_DOMAIN = "bot"
 
 # ---< Search >---
-AGE_RANGE: int = env.int("AGE_RANGE", default=4)
-INITIAL_DISTANCE: float = env.float("INITIAL_DISTANCE", default=200.0)  # Стартовый радиус
-MAX_DISTANCE: float = env.float("MAX_DISTANCE", default=10000.0)        # Максимальный радиус
-RADIUS_STEP: float = env.float("RADIUS_STEP", default=200.0)           # Шаг увеличения радиуса
-MIN_PROFILES: int = env.int("MIN_PROFILES", default=100)              # Мин. кол-во анкет
-RADIUS: int = env.int("RADIUS", default=6371)                          # Радиус Земли
-BLOCK_SIZE: float = env.float("BLOCK_SIZE", default=50.0)             # Размер блока
+CHANCE_COST: int = env.int("CHANCE_COST", default=0)
+STARTER_CHANCE_COUNT: int = env.int("STARTER_CHANCE_COUNT", default=0)
 
+# WEB APP
+WEB_APP_URL: str = env.str("WEB_APP_URL", default=None)
 
 # ---< Path\Dir >---
 IMAGES_DIR: Path = DIR / "images"
