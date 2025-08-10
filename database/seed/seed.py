@@ -26,6 +26,7 @@ async def seed_table(session: AsyncSession, model, entries: list, table_name: st
 async def seed_cities(session: AsyncSession):
     cities = [
         CityModel(uz="Toshkent",    ru="Ташкент",    en="Tashkent"),
+        CityModel(uz="Toshkent viloyati",    ru="Ташкентская область",    en="Tashkent region"),
         CityModel(uz="Samarqand",   ru="Самарканд",  en="Samarkand"),
         CityModel(uz="Buxoro",      ru="Бухара",     en="Bukhara"),
         CityModel(uz="Xiva",        ru="Хива",       en="Khiva"),

@@ -1,0 +1,35 @@
+FROM python:3.11-slim
+
+ARG POETRY_VERSION=2.0.1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_VIRTUALENVS_IN_PROJECT=false
+
+WORKDIR /app
+
+# Системные зависимости для сборки колёс
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Обновим базовые инструменты и поставим нужную версию Poetry
+RUN pip install --upgrade pip setuptools wheel \
+ && pip install "poetry==${POETRY_VERSION}"
+
+# Сначала только файлы зависимостей — для кэширования слоя
+COPY pyproject.toml poetry.lock ./
+
+# Жёстко отключим venv и уберём возможные следы
+RUN poetry config virtualenvs.create false && rm -rf /app/.venv
+
+# Теперь копируем весь проект (важно: .dockerignore должен исключать .venv)
+COPY . .
+
+# Установка зависимостей (новый синтаксис для Poetry 2)
+RUN poetry install --only main --no-interaction --no-ansi
+
+# Логи (если нужно)
+RUN mkdir -p logs
+
+CMD ["python", "bot-runner.py"]
