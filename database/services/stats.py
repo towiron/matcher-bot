@@ -91,7 +91,7 @@ class Stats:
             func.count(ProfileModel.id).label("count"),
             func.sum(case((ProfileModel.gender == "male", 1), else_=0)).label("male_count"),
             func.sum(case((ProfileModel.gender == "female", 1), else_=0)).label("female_count"),
-            func.sum(case((ProfileModel.is_active == False, 1), else_=0)).label("inactive_profile"),
+            func.sum(case((ProfileModel.is_active, 1), else_=0)).label("inactive_profile"),
             func.avg(ProfileModel.age).label("average_age"),
         )
         result = await session.execute(stmt)

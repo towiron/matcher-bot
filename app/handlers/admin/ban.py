@@ -66,8 +66,8 @@ async def _complaint_user_callback(
     )
 
 
-def check_args_type(type: type, data_list: str) -> list | bool:
+def check_args_type(type_: type, data_list: str) -> list | bool:
     try:
-        return list(map(type, re.split(r"[ ,]+", data_list)))
-    except:
+        return list(map(type_, re.split(r"[ ,]+", data_list)))
+    except (ValueError, TypeError):
         return False

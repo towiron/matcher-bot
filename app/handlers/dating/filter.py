@@ -16,7 +16,6 @@ from app.text import message_text as mt
 from database.models import UserModel
 from database.services import Filter
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.keyboards.default.search import search_kb, search_menu_kb
 
 
 @dating_router.message(WebAppActionFilter("filter_submit"))

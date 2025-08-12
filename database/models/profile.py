@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, CheckConstraint, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
@@ -67,9 +67,8 @@ class ProfileModel(BaseModel):
     is_active: Mapped[bool] = mapped_column(default=True)
 
     # Связь с пользователем
-    user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore
-
-    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
-    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel") # type: ignore
-    marital_status: Mapped["MaritalStatusModel"] = relationship("MaritalStatusModel")  # type: ignore
-    religion: Mapped["ReligionModel"] = relationship("ReligionModel") # type: ignore
+    user: Mapped["UserModel"] = relationship("UserModel", back_populates="profile")  # type: ignore # noqa: F821
+    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore # noqa: F821
+    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel") # type: ignore # noqa: F821
+    marital_status: Mapped["MaritalStatusModel"] = relationship("MaritalStatusModel")  # type: ignore # noqa: F821
+    religion: Mapped["ReligionModel"] = relationship("ReligionModel") # type: ignore # noqa: F821

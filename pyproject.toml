@@ -20,6 +20,10 @@ uvicorn = "^0.35.0"
 faker = "^37.5.3"
 python-multipart = "^0.0.20"
 openai = "^1.99.6"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.12.8"
+
 [project]
 name = "matcher"
 requires-python = ">=3.10,<4.0"
@@ -27,3 +31,12 @@ requires-python = ">=3.10,<4.0"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+src = ["."]
+line-length = 100
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "B"]
+ignore = ["E501"]  # если действительно хочешь игнорировать длину строк

@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, ForeignKey, Integer, String, Boolean
+from sqlalchemy import BigInteger, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
@@ -43,7 +43,7 @@ class FilterModel(BaseModel):
     has_children: Mapped[bool] = mapped_column(nullable=True)
 
     # Связь с пользователем
-    user: Mapped["UserModel"] = relationship("UserModel", back_populates="filter")  # type: ignore
-    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore
-    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel")  # type: ignore
+    user: Mapped["UserModel"] = relationship("UserModel", back_populates="filter")  # type: ignore # noqa: F821
+    city: Mapped["CityModel"] = relationship("CityModel") # type: ignore # noqa: F821
+    ethnicity: Mapped["EthnicityModel"] = relationship("EthnicityModel")  # type: ignore # noqa: F821
 

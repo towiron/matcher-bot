@@ -61,7 +61,6 @@ class StatsGraph:
         sizes = list(gender_count.values())
         total_users = sum(sizes)
 
-        colors = ["#2980b9", "#e74c3c"]
         lighter_colors = ["#85c1e9", "#f5b7b1"]
         explode = (0.08, 0.08)
 

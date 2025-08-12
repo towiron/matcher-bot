@@ -189,15 +189,6 @@ The reason: {}
 """)
 
     @property
-    def REPORT_TO_USER(self):
-        return """
-User <code>{}</code> (@{}) sent a complaint
-about a user profile:<code>{}</code> (@{})
-
-The reason: {}
-"""
-
-    @property
     def CHANCE_USER_LINK(self):
         return _("""
 💌 Ты дал(а) шанс этому человеку!
@@ -207,7 +198,7 @@ The reason: {}
 
     @property
     def EMPTY_PROFILE(self):
-        return _(f"""
+        return _("""
     ✨ Чтобы продолжить пользоваться ботом, тебе нужно создать профиль!
     """)
 

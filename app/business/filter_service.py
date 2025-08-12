@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import FilterModel, UserModel
+from database.models import UserModel
 from database.services import City, Ethnicity
 from loader import bot
 from app.text import message_text as mt

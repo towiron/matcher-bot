@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Annotated
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -10,7 +10,6 @@ from fastapi import Depends
 from database.connect import async_session
 from database.services import City, Ethnicity, Religion
 from database.services.marital_status import MaritalStatus
-from utils.logging import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -42,7 +41,7 @@ async def profile_page():
         return content
 
 @app.get("/cities")
-async def cities_list(session: AsyncSession = Depends(get_session)):
+async def cities_list(session: Annotated[AsyncSession, Depends(get_session)]):
     cities = await City.get_all(session)
     return [
         {
@@ -55,7 +54,7 @@ async def cities_list(session: AsyncSession = Depends(get_session)):
     ]
 
 @app.get("/ethnicities")
-async def ethnicities_list(session: AsyncSession = Depends(get_session)):
+async def ethnicities_list(session: Annotated[AsyncSession, Depends(get_session)]):
     ethnicities = await Ethnicity.get_all(session)
     return [
         {
@@ -71,7 +70,7 @@ async def ethnicities_list(session: AsyncSession = Depends(get_session)):
     ]
 
 @app.get("/religions")
-async def religions_list(session: AsyncSession = Depends(get_session)):
+async def religions_list(session: Annotated[AsyncSession, Depends(get_session)]):
     religions = await Religion.get_all(session)
     return [
         {
@@ -84,7 +83,7 @@ async def religions_list(session: AsyncSession = Depends(get_session)):
     ]
 
 @app.get("/marital_statuses")
-async def marital_statuses_list(session: AsyncSession = Depends(get_session)):
+async def marital_statuses_list(session: Annotated[AsyncSession, Depends(get_session)]):
     statuses = await MaritalStatus.get_all(session)
     return [
         {

@@ -22,10 +22,10 @@ class UserModel(BaseModel):
     daily_streak: Mapped[int] = mapped_column(Integer, server_default="0", nullable=False)
 
     # Леджер движений
-    ledger: Mapped[list["BalanceEntryModel"]] = relationship(
+    ledger: Mapped[list["BalanceEntryModel"]] = relationship( # type ignore # noqa: F821
         "BalanceEntryModel", back_populates="user", cascade="all, delete-orphan"
     )
 
     # 1:1 связи
-    profile: Mapped["ProfileModel"] = relationship("ProfileModel", uselist=False, back_populates="user")
-    filter:  Mapped["FilterModel"]  = relationship("FilterModel",  uselist=False, back_populates="user")
+    profile: Mapped["ProfileModel"] = relationship("ProfileModel", uselist=False, back_populates="user") # type: ignore # noqa: F821
+    filter:  Mapped["FilterModel"]  = relationship("FilterModel",  uselist=False, back_populates="user") # type: ignore # noqa: F821

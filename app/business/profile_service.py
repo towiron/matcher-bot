@@ -1,3 +1,5 @@
+from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest, TelegramNetworkError, TelegramAPIError
+
 from app.keyboards.default.base import search_kb
 from app.keyboards.inline.admin import block_user_ikb
 from app.text import message_text as mt
@@ -37,30 +39,56 @@ async def display_filtered_profile(session: AsyncSession, chat_id: int, profile:
 async def complaint_to_profile(
     session: AsyncSession, complainant: UserModel, reason: str, complaint_user: UserModel
 ) -> None:
-    """Отправляет в группу модераторов анкету пользователя
-    на которого пришла жалоба"""
-    if MODERATOR_GROUP:
-        try:
-            await send_profile(session, MODERATOR_GROUP, complaint_user.profile, complaint_user.language)
+    """Отправляет в группу модераторов анкету пользователя, на которого пришла жалоба."""
+    if not MODERATOR_GROUP:
+        return
 
-            text = mt.REPORT_TO_USER.format(
-                complainant.id,
-                complainant.username,
-                complaint_user.id,
-                complaint_user.username,
-                reason,
-            )
+    if not complaint_user.profile:
+        logger.warning(f"Жалоба на {complaint_user.id}, но профиль отсутствует.")
+        return
 
-            await bot.send_message(
-                chat_id=MODERATOR_GROUP,
-                text=text,
-                reply_markup=block_user_ikb(
-                    id=complaint_user.id,
-                    username=complaint_user.username,
-                ),
-            )
-        except:
-            logger.error("Сообщение в модераторскую группу не отправленно")
+    # 1) сначала отправляем сам профиль
+    try:
+        await send_profile(session, MODERATOR_GROUP, complaint_user.profile, complaint_user.language)
+    except TelegramForbiddenError:
+        logger.error("Нет доступа к модераторской группе (бот заблокирован/удалён).")
+        return
+    except TelegramBadRequest as e:
+        logger.error(f"BadRequest при отправке профиля: {e!r}")
+        return
+    except TelegramNetworkError as e:
+        logger.warning(f"Сетевая ошибка при отправке профиля: {e!r}")
+        return
+    except TelegramAPIError as e:
+        logger.exception(f"Ошибка Telegram API при отправке профиля: {e!r}")
+        return
+
+    # 2) затем текст с кнопкой блокировки
+    text = mt.REPORT_TO_USER.format(
+        complainant.id,
+        complainant.username,
+        complaint_user.id,
+        complaint_user.username,
+        reason,
+    )
+
+    try:
+        await bot.send_message(
+            chat_id=MODERATOR_GROUP,
+            text=text,
+            reply_markup=block_user_ikb(
+                id=complaint_user.id,
+                username=complaint_user.username,
+            ),
+        )
+    except TelegramForbiddenError:
+        logger.error("Нет доступа к модераторской группе (бот заблокирован/удалён).")
+    except TelegramBadRequest as e:
+        logger.error(f"BadRequest при отправке в модераторскую группу: {e!r}")
+    except TelegramNetworkError as e:
+        logger.warning(f"Сетевая ошибка при отправке в модераторскую группу: {e!r}")
+    except TelegramAPIError as e:
+        logger.exception(f"Ошибка Telegram API при отправке в модераторскую группу: {e!r}")
 
 
 async def format_profile_text(session: AsyncSession, profile: ProfileModel, user_language: str = "ru") -> str:
@@ -70,12 +98,6 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
     gender_map = {
         "male": mt.KB_GENDER_MALE,
         "female": mt.KB_GENDER_FEMALE,
-    }
-
-    marital_status_map = {
-        "single": mt.KB_MARITAL_STATUS_SINGLE,
-        "divorced": mt.KB_MARITAL_STATUS_DIVORCED,
-        "widowed": mt.KB_MARITAL_STATUS_WIDOWED,
     }
 
     education_map = {

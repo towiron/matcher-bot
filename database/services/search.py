@@ -32,7 +32,7 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
     )
 
     filters = [
-        ProfileModel.is_active == True,
+        ProfileModel.is_active,
         ProfileModel.id != profile.id,
         ProfileModel.gender == target_gender,
         ~ProfileModel.id.in_(viewed_subq),
@@ -157,7 +157,8 @@ def _build_prompt_with_reasons(user_about, user_looking_for, cands, lang: str = 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def _chat_call_get_json(prompt: str, *, retries: int = 2, temp: float = 0.1, max_tokens: int = 1500, lang: str = "ru") -> str:
-    import time, random
+    import time
+    import random
     import json
     delay = 0.6
     last_err = None
@@ -225,7 +226,7 @@ def _chat_call_get_json(prompt: str, *, retries: int = 2, temp: float = 0.1, max
                 time.sleep(delay + random.random() * 0.2)
                 delay *= 2
             else:
-                raise last_err
+                raise last_err from None
 
     # Если все попытки не удались, возвращаем простой JSON с пустыми результатами
     return '{"results": []}'
@@ -278,7 +279,7 @@ async def search_profiles_by_ai_with_reasons(
         except json.JSONDecodeError as json_err:
             logger.log("AI_MATCH_JSON_ERROR", f"user={user_profile_id} JSON decode error: {json_err}")
             logger.log("AI_MATCH_FULL_RESPONSE", f"user={user_profile_id} full response: {raw}")
-            raise ValueError(f"invalid_json_response: {json_err}")
+            raise ValueError(f"invalid_json_response: {json_err}") from json_err
 
         results = data.get("results", [])
         

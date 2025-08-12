@@ -18,9 +18,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from data.config import database
-from database.models import MatchModel, ProfileModel, UserModel, FilterModel, CityModel, EthnicityModel, ReligionModel, ViewedProfileModel, MaritalStatusModel, BalanceEntryModel
-from database.models.base import BaseModel
+from data.config import database # noqa: E402
+from database.models.base import BaseModel # noqa: E402
 
 if database.URL.startswith("sqlite"):
     config.set_main_option("sqlalchemy.url", database.URL.replace("sqlite+aiosqlite", "sqlite"))

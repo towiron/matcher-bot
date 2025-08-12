@@ -59,11 +59,17 @@ def _to_int(v):
 def _to_bool_or_none(v):
     if v is True or v is False:
         return v
+
     if isinstance(v, str):
-        if v.lower() in ("true", "1", "yes", "да"): return True
-        if v.lower() in ("false", "0", "no", "нет"): return False
-        if v == "": return None
+        if v.lower() in ("true", "1", "yes", "да"):
+            return True
+        if v.lower() in ("false", "0", "no", "нет"):
+            return False
+        if v == "":
+            return None
+
     return None
+
 
 def _none_if_empty(v):
     return None if (v is None or (isinstance(v, str) and v.strip() == "")) else v

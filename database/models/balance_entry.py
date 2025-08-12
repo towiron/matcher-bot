@@ -25,4 +25,4 @@ class BalanceEntryModel(BaseModel):
     payload: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     target_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
-    user: Mapped["UserModel"] = relationship("UserModel", back_populates="ledger")
+    user: Mapped["UserModel"] = relationship("UserModel", back_populates="ledger") # noqa: F821

@@ -9,7 +9,7 @@ if __name__ == "__main__":
 import random
 import argparse
 import re
-from typing import Optional, Tuple, Iterable
+from typing import Optional, Tuple
 
 from faker import Faker
 from sqlalchemy import select

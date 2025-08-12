@@ -2,7 +2,6 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.filters.kb_filter import BlockUserCallback, StatsCallback
-from loader import _
 
 
 def stats_ikb(text: str) -> InlineKeyboardMarkup:

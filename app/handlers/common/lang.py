@@ -1,7 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.filters.state import StateFilter
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 
 from app.keyboards.default.registration_form import create_profile_kb
 from app.keyboards.inline.lang import LangCallback, lang_ikb
@@ -11,7 +10,6 @@ from database.models import UserModel
 from database.services import User
 from app.business.menu_service import menu
 from loader import _
-from data.config import WEB_APP_URL
 
 
 @common_router.message(StateFilter(None), Command("language"))

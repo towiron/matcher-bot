@@ -1,25 +1,7 @@
-import html
-from ast import Match
-from cProfile import Profile
 
-from aiogram import F, types
-from aiogram.filters.state import StateFilter
-from aiogram.fsm.context import FSMContext
 
-from loader import _
 
-from app.business.profile_service import complaint_to_profile
-from app.constans import EFFECTS_DICTIONARY
-from app.keyboards.default.base import match_kb
-from app.keyboards.default.report import report_kb
-from app.routers import dating_router
-from app.states.default import LikeResponse
-from app.text import message_text as mt
-from database.models import UserModel
-from database.services import Match, Profile, User
-from loader import bot
 
-from ..common.cancel import cancel_command
 
 
 # @dating_router.message(StateFilter(None), F.text == "📭")

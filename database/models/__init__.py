@@ -1,10 +1,10 @@
-from .match import MatchModel
-from .profile import ProfileModel
-from .user import UserModel
-from .filter import FilterModel
-from .city import CityModel
-from .ethnicity import EthnicityModel
-from .religion import ReligionModel
-from .viewed_profile import ViewedProfileModel
-from .marital_status import MaritalStatusModel
-from .balance_entry import BalanceEntryModel
+from .match import MatchModel # noqa: F401
+from .profile import ProfileModel # noqa: F401
+from .user import UserModel # noqa: F401
+from .filter import FilterModel # noqa: F401
+from .city import CityModel # noqa: F401
+from .ethnicity import EthnicityModel # noqa: F401
+from .religion import ReligionModel # noqa: F401
+from .viewed_profile import ViewedProfileModel # noqa: F401
+from .marital_status import MaritalStatusModel # noqa: F401
+from .balance_entry import BalanceEntryModel # noqa: F401
