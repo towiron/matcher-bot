@@ -54,8 +54,9 @@ class MessageText:
     def SEARCH_MENU(self):
         return _("""
 🔍 Поиск по фильтру
+🧠 Умный поиск(3 💎)
 
-🔄 Изменить фильтр
+✏️ Изменить фильтр
 ↩️ Назад
 """)
 
@@ -77,7 +78,7 @@ class MessageText:
 
     @property
     def KB_SEARCH_BY_AI(self):
-        return _("🧠 Умный поиск")
+        return _("🧠 Умный поиск (3 💎)")
 
     @property
     def ARCHIVE_SEARCH(self):
@@ -675,7 +676,7 @@ The reason: {}
 
     @property
     def KB_GIVE_CHANCE(self):
-        return _("Шанс")
+        return _("Шанс (1 💎)")
 
     @property
     def KB_NEXT(self):

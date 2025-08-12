@@ -10,7 +10,6 @@ from loader import _
 
 import app.filters.create_profile_filtres as filters
 
-from app.keyboards.default.base import search_kb
 from app.routers import dating_router
 from app.text import message_text as mt
 from database.models import UserModel
@@ -54,13 +53,6 @@ def normalize_filter_data(data: dict) -> dict:
         "goal": filters.goal_map.get(data.get("goal"), data.get("goal")),
         "ethnicity_id": to_int(data.get("ethnicity")),
     }
-@dating_router.message(StateFilter(None), F.text == _(mt.KB_FIND_MATCH))
-async def _search_command(message: types.Message, session: AsyncSession, user: UserModel) -> None:
-    """Бот подбирает анкеты, соответствующие предпочтениям пользователя, и предлагает их"""
-    if not user.filter:
-        await message.answer(mt.FILL_FILTER, reply_markup=search_kb())
-    else:
-        await send_filter(session, user.id, user)
 
 
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_MY_PROFILE))
