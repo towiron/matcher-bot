@@ -25,13 +25,23 @@ class Profile(BaseService):
 
     @classmethod
     async def create_or_update(cls, session: AsyncSession, **kwargs):
-        """Создает профиль пользователя, если профиль есть - удаляет его"""
-        obj = await cls.get_by_id(session, kwargs["id"])
+        """Создаёт профиль пользователя, если профиль есть — обновляет его."""
+        user_id = kwargs["id"]  # <- берём реальный id, не builtin
+
+        obj = await cls.get_by_id(session, user_id)
         if obj:
             for key, value in kwargs.items():
                 setattr(obj, key, value)
             await session.commit()
             return obj, False
+
         obj = await cls.create(session, **kwargs)
-        logger.log("DATABASE", f"{id}: создал анкету")
+        # на всякий случай убеждаемся, что id загружен
+        if getattr(obj, "id", None) is None:
+            await session.flush()
+            await session.refresh(obj)
+
+        # Можно логировать и user_id, и profile_id
+        logger.log("DATABASE", f"user={user_id}: создал анкету")
         return obj, True
+

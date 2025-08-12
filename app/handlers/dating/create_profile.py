@@ -40,7 +40,6 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
         id=user.id,
         **profile,
     )
-
     await session.refresh(user)
 
     await message.answer(_(mt.PRFILE_SUCCESSFULLY_CREATED), reply_markup=ReplyKeyboardRemove())

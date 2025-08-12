@@ -7,6 +7,7 @@ from app.business.filter_service import send_filter
 from app.business.menu_service import menu
 from app.business.profile_service import display_filtered_profile
 from app.keyboards.default.base import search_kb, search_kb_after_chance, payment_kb
+from app.keyboards.default.search import build_filter_kb
 from app.routers import dating_router
 from app.states.default import Search
 from app.text import message_text as mt
@@ -14,13 +15,24 @@ from app.text import message_text as mt
 from database.models import UserModel
 from database.services import User, Match, Profile, ViewedProfile
 from database.services.search import search_profiles, search_profiles_by_ai_with_reasons
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from utils.logging import logger
 from loader import _
 
 
+@dating_router.message(StateFilter(None), F.text == _(mt.KB_FIND_MATCH))
+async def _search_command(message: types.Message, session: AsyncSession, user: UserModel) -> None:
+    """Бот подбирает анкеты, соответствующие предпочтениям пользователя, и предлагает их"""
+    if not user.filter:
+        await message.answer(mt.FILL_FILTER, reply_markup=build_filter_kb(user))
+    else:
+        await send_filter(session, user.id, user)
+
+
+
 @dating_router.message(StateFilter(None), F.text == mt.KB_SEARCH_BY_FILTER)
-async def _search_command(
+async def _search_command_by_filter(
     message: types.Message, state: FSMContext, user: UserModel, session
 ) -> None:
     """Бот подбирает анкеты, соответствующие предпочтениям пользователя, и предлагает их (обычный режим)."""

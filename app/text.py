@@ -64,8 +64,12 @@ class MessageText:
         return _("Меню поиска")
 
     @property
+    def KB_CREATE_FILTER(self):
+        return _("✨ Создать фильтр")
+
+    @property
     def KB_CHANGE_FILTER(self):
-        return _("🔄 Изменить фильтр")
+        return _("✏️ Изменить фильтр")
 
     @property
     def KB_SEARCH_BY_FILTER(self):
@@ -685,6 +689,10 @@ The reason: {}
     def FILL_FILTER(self):
         return _("""
 Пожалуйста, заполните фильтр перед использованием функции поиска.""")
+
+    @property
+    def FILL_PROFILE_FIRST(self):
+        return _("Заполните профиль сначала")
 
 
 message_text = MessageText()

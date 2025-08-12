@@ -23,6 +23,7 @@ openai = "^1.99.6"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.8"
+pyright = "^1.1.403"
 
 [project]
 name = "matcher"

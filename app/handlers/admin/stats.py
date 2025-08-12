@@ -39,7 +39,6 @@ async def _stats_command(message: types.Message, session) -> None:
 async def _stats_callback(callback: types.CallbackQuery, callback_data: StatsCallback, session) -> None:
     """Отправляет администратору график и статистику"""
 
-    # Локализованные значения
     user_text = _(mt.KB_STAT_USER)
     profile_text = _(mt.KB_STAT_PROFILE)
 
@@ -60,6 +59,7 @@ async def _stats_callback(callback: types.CallbackQuery, callback_data: StatsCal
         stats_graph.create_gender_pie_chart(gender_data)
         match_stats = await Stats.match_stats(session)
         profile_stats = await Stats.profile_stats(session)
+
         text = _(mt.PROFILE_STATS).format(
             profile_stats["count"],
             profile_stats["inactive_profile"],
@@ -71,5 +71,15 @@ async def _stats_callback(callback: types.CallbackQuery, callback_data: StatsCal
         )
         kb_text = user_text
 
+    else:
+        # Неизвестный тип — просто ответим и выйдем
+        await callback.answer(_("Неизвестный тип статистики"))
+        return
+
     media = types.InputMediaPhoto(media=types.FSInputFile(GRAPH_FILE_PATH), caption=text)
-    await callback.message.edit_media(media=media, reply_markup=stats_ikb(kb_text))
+
+    # На случай InaccessibleMessage
+    if isinstance(callback.message, types.Message):
+        await callback.message.edit_media(media=media, reply_markup=stats_ikb(kb_text))
+    else:
+        await callback.send_photo(callback.from_user.id, types.FSInputFile(GRAPH_FILE_PATH), caption=text, reply_markup=stats_ikb(kb_text))

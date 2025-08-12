@@ -25,6 +25,25 @@ def search_kb() -> ReplyKeyboardMarkup:
     )
     return kb
 
+def build_filter_kb(user: UserModel) -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(
+                    text=_(mt.KB_CREATE_FILTER),
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?language={user.language}")
+                ),
+            ],
+            [
+                KeyboardButton(
+                    text=_(mt.KB_BACK),
+                )
+            ]
+        ],
+        resize_keyboard=True
+    )
+    return kb
+
 def search_menu_kb(user: UserModel) -> ReplyKeyboardMarkup:
     kb = ReplyKeyboardMarkup(
         keyboard=[
