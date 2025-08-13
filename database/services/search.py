@@ -156,14 +156,25 @@ def _build_prompt_with_reasons(user_about, user_looking_for, cands, lang: str = 
 # Универсальный вызов через Chat Completions — стабильно работает даже на старых SDK
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-def _chat_call_get_json(prompt: str, *, retries: int = 2, temp: float = 0.1, max_tokens: int = 1500, lang: str = "ru") -> str:
+# --- замените вашу версию на эту ---
+def _chat_call_get_json(
+    prompt: str,
+    *,
+    retries: int = 2,
+    temp: float = 0.1,
+    max_tokens: int = 1500,
+    lang: str = "ru"
+) -> str:
+    """
+    Никогда не бросает исключений. На любые проблемы логирует и возвращает '{"results": []}'.
+    """
     import time
     import random
-    import json
-    delay = 0.6
-    last_err = None
+    import json as _json
 
-    # текст для system под нужный язык
+    delay = 0.6
+    safe_empty = '{"results": []}'
+
     system_text = {
         "ru": "You are a helpful assistant. Reply strictly in Russian. Provide detailed but concise responses.",
         "en": "You are a helpful assistant. Reply strictly in English. Provide detailed but concise responses.",
@@ -181,55 +192,77 @@ def _chat_call_get_json(prompt: str, *, retries: int = 2, temp: float = 0.1, max
                 max_tokens=max_tokens,
                 response_format={"type": "json_object"},
             )
-            text = (resp.choices[0].message.content or "").strip()
-            if text:
-                # Проверяем, что это валидный JSON
-                try:
-                    json.loads(text)
-                    # Увеличиваем лимит длины ответа для более детальных объяснений
-                    if len(text) > 3000:  # Увеличиваем с 2000 до 3000
-                        logger.log("AI_MATCH_WARNING", f"Response too long ({len(text)} chars), retrying...")
-                        continue
-                    return text
-                except json.JSONDecodeError:
-                    pass
-            raise ValueError("empty_content")
-        except TypeError as e:
-            last_err = e
-        except Exception as e:
-            last_err = e
 
-        try:
-            resp = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_text},
-                    {"role": "user", "content": prompt + "\n\nReturn STRICT JSON only. No extra text."},
-                ],
-                temperature=temp,
-                max_tokens=max_tokens,
-            )
             text = (resp.choices[0].message.content or "").strip()
-            if text:
-                try:
-                    json.loads(text)
-                    if len(text) > 3000:
-                        logger.log("AI_MATCH_WARNING", f"Response too long ({len(text)} chars), retrying...")
-                        continue
-                    return text
-                except json.JSONDecodeError:
-                    pass
-            raise ValueError("empty_content")
-        except Exception as e:
-            last_err = e
-            if attempt < retries:
-                time.sleep(delay + random.random() * 0.2)
-                delay *= 2
-            else:
-                raise last_err from None
+            if not text:
+                raise ValueError("empty_content")
 
-    # Если все попытки не удались, возвращаем простой JSON с пустыми результатами
-    return '{"results": []}'
+            # проверка JSON
+            try:
+                _json.loads(text)
+            except _json.JSONDecodeError as e:
+                raise ValueError(f"json_decode_error_primary: {e}") from e
+
+            if len(text) > 3000:
+                logger.log("AI_MATCH_WARNING", f"Response too long ({len(text)} chars) on attempt={attempt}")
+                # попробуем еще раз, без исключения
+                if attempt < retries:
+                    time.sleep(delay + random.random() * 0.2)
+                    delay *= 2
+                    continue
+                else:
+                    return safe_empty
+
+            return text
+
+        except Exception as e:
+            logger.log("AI_MATCH_TRY_ERROR", f"attempt={attempt} err={e!r}")
+
+            # вторая попытка без response_format
+            try:
+                resp = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": system_text},
+                        {"role": "user", "content": prompt + "\n\nReturn STRICT JSON only. No extra text."},
+                    ],
+                    temperature=temp,
+                    max_tokens=max_tokens,
+                )
+                text = (resp.choices[0].message.content or "").strip()
+                if not text:
+                    raise ValueError("empty_content_fallback")
+
+                try:
+                    _json.loads(text)
+                except _json.JSONDecodeError as e2:
+                    raise ValueError(f"json_decode_error_fallback: {e2}") from e2
+
+                if len(text) > 3000:
+                    logger.log("AI_MATCH_WARNING", f"Response too long ({len(text)} chars) on fallback attempt={attempt}")
+                    if attempt < retries:
+                        time.sleep(delay + random.random() * 0.2)
+                        delay *= 2
+                        continue
+                    else:
+                        return safe_empty
+
+                return text
+
+            except Exception as e2:
+                logger.log("AI_MATCH_TRY_ERROR_FALLBACK", f"attempt={attempt} err={e2!r}")
+                if attempt < retries:
+                    time.sleep(delay + random.random() * 0.2)
+                    delay *= 2
+                    continue
+                else:
+                    # последняя точка — не бросаем исключение
+                    logger.log("AI_MATCH_GIVE_UP", f"give up after {attempt+1} attempts")
+                    return safe_empty
+
+    # теоретически недостижимо, но пусть будет
+    return safe_empty
+
 
 # ---------- main function ----------
 
@@ -267,23 +300,25 @@ async def search_profiles_by_ai_with_reasons(
     prompt = _build_prompt_with_reasons(ua, ulf, cands, language)
 
     try:
-        # Увеличиваем max_tokens для более детальных ответов
-        raw = _chat_call_get_json(prompt, retries=2, temp=0.1, max_tokens=1500, lang=language)
-        
-        # Увеличиваем лимит логирования для полного JSON
-        logger.log("AI_MATCH", f"raw[:1500]={raw[:1500]!r}")  # увеличиваем с 1000 до 1500
-        
-        # Дополнительная проверка JSON
+        raw = _chat_call_get_json(
+            prompt,
+            retries=2,
+            temp=0.1,
+            max_tokens=1500,
+            lang=language
+        )
+
+        logger.log("AI_MATCH", f"raw[:1500]={raw[:1500]!r}")
+
+        # осторожный парс без рейза наружу
         try:
             data = json.loads(raw)
         except json.JSONDecodeError as json_err:
             logger.log("AI_MATCH_JSON_ERROR", f"user={user_profile_id} JSON decode error: {json_err}")
             logger.log("AI_MATCH_FULL_RESPONSE", f"user={user_profile_id} full response: {raw}")
-            raise ValueError(f"invalid_json_response: {json_err}") from json_err
+            data = {"results": []}  # мягкий фолбэк
 
         results = data.get("results", [])
-        
-        # Логируем количество найденных результатов
         logger.log("AI_MATCH_DEBUG", f"user={user_profile_id} parsed {len(results)} results")
 
         allowed_ids = {pid for pid, _, _ in cands}
@@ -294,25 +329,28 @@ async def search_profiles_by_ai_with_reasons(
                 if pid not in allowed_ids:
                     continue
                 score = float(item.get("score", 0))
-                reason = str(item.get("reason", "")).strip()[:400]  # увеличиваем с 300 до 400 символов
+                reason = str(item.get("reason", "")).strip()[:400]
                 cleaned.append((score, pid, reason))
-            except Exception:
+            except Exception as item_err:
+                logger.log("AI_MATCH_ITEM_SKIP", f"user={user_profile_id} err={item_err!r} item={item!r}")
                 continue
 
-        cleaned.sort(reverse=True)  # по score убыв.
+        cleaned.sort(reverse=True)
         top = cleaned[:max_results]
         ids = [pid for _, pid, _ in top]
         reasons = {pid: reason for _, pid, reason in top}
 
         if not ids:
-            raise ValueError("model_returned_empty_results")
+            # мягкий фолбэк, без исключений
+            ids = [pid for pid, _, _ in cands][:max_results]
+            reasons = {pid: "Фолбэк: модель вернула пустой список." for pid in ids}
+            logger.log("AI_MATCH_EMPTY", f"user={user_profile_id} fallback ids={ids}")
 
         logger.log("AI_MATCH_REASONS", f"user={user_profile_id} top={ids} reasons={reasons}")
         return ids, reasons
 
     except Exception as e:
-        # Фолбэк при любой ошибке модели/парсинга
         ids = [pid for pid, _, _ in cands][:max_results]
-        reasons = {pid: f"Фолбэк из-за ошибки ИИ: {e!s}" for pid in ids}
+        reasons = {pid: f"Фолбэк из-за непредвиденной ошибки: {e!s}"}
         logger.log("AI_MATCH_ERROR", f"user={user_profile_id} error: {e}")
         return ids, reasons

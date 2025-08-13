@@ -28,6 +28,11 @@ logger.level("AI_MATCH_DEBUG", no=20, color="<blue>", icon="🔍")    # межд
 logger.level("AI_MATCH_REASONS", no=21, color="<magenta>", icon="🧠") # между INFO(20) и SUCCESS(25)
 logger.level("AI_MATCH_ERROR", no=35, color="<red>", icon="❌")       # между WARNING(30) и ERROR(40)
 
+logger.level("BALANCE_DEBUG", no=22, color="<yellow>", icon="💰")    # между AI_MATCH_REASONS(21) и WARNING(30)
+logger.level("BALANCE_DEBIT", no=23, color="<red>", icon="��")       # списание шансов
+logger.level("BALANCE_CREDIT", no=24, color="<green>", icon="💎")    # пополнение шансов
+logger.level("BALANCE_ERROR", no=35, color="<red>", icon="❌")       # ошибки баланса
+
 
 getLogger("aiogram").addFilter(
     lambda r: r.getMessage().find("Field 'database_user' doesn't exist in") == -1

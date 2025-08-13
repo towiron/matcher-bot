@@ -1,27 +1,27 @@
 name: matcher
 
 services:
-#  matcher_postgres:
-#    image: postgres:15
-#    container_name: matcher_postgres
-#    restart: "no"
-#    env_file:
-#      - .env
-#    networks:
-#      - matcher_network
-#    environment:
-#      POSTGRES_DB: ${DB_NAME}
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_PASSWORD: ${DB_PASS}
-#    ports:
-#      - "${DB_PORT:-5432}:5432"
-#    volumes:
-#      - ./temp/postgres/data:/var/lib/postgresql/data
-#    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U admin -d fhir" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  matcher_postgres:
+    image: postgres:15
+    container_name: matcher_postgres
+    restart: "no"
+    env_file:
+      - .env
+    networks:
+      - matcher_network
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./temp/postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d fhir" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   matcher_redis:
     image: redis:7
@@ -35,49 +35,49 @@ services:
       - ./temp/redis/data:/data
 
 
-  matcher_bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
-    container_name: matcher_bot
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    env_file:
-      - .env
-    networks:
-      - matcher_network
-    depends_on:
-      - matcher_redis
-    volumes:
-      - ./logs:/app/logs
-      - ./images:/app/images
-    environment:
-      - REDIS_HOST=redis
-      - PYTHONPATH=/app
-
-  matcher_service:
-    build:
-      context: .
-      dockerfile: Dockerfile.service
-    container_name: matcher_service
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    env_file:
-      - .env
-    networks:
-      - matcher_network
-    depends_on:
-      - matcher_redis
-    ports:
-      - "${SERVICE_PORT:-8000}:8000"
-    volumes:
-      - ./frontend:/app/frontend
-      - ./logs:/app/logs
-    environment:
-      - REDIS_HOST=redis
-      - PYTHONPATH=/app
+#  matcher_bot:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.bot
+#    container_name: matcher_bot
+#    restart: unless-stopped
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    env_file:
+#      - .env
+#    networks:
+#      - matcher_network
+#    depends_on:
+#      - matcher_redis
+#    volumes:
+#      - ./logs:/app/logs
+#      - ./images:/app/images
+#    environment:
+#      - REDIS_HOST=redis
+#      - PYTHONPATH=/app
+#
+#  matcher_service:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.service
+#    container_name: matcher_service
+#    restart: unless-stopped
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    env_file:
+#      - .env
+#    networks:
+#      - matcher_network
+#    depends_on:
+#      - matcher_redis
+#    ports:
+#      - "${SERVICE_PORT:-8000}:8000"
+#    volumes:
+#      - ./frontend:/app/frontend
+#      - ./logs:/app/logs
+#    environment:
+#      - REDIS_HOST=redis
+#      - PYTHONPATH=/app
 
 networks:
   matcher_network:

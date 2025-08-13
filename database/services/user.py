@@ -138,6 +138,20 @@ class User(BaseService):
             target_id=str(target_id) if target_id else None,
         )
 
+
+    @staticmethod
+    async def use_ai_search(
+            session: AsyncSession, user: UserModel, target_id: int | None = None
+    ) -> None:
+        """Списывает 3 шанса (через леджер)."""
+        await Balance.debit(
+            session=session,
+            user=user,
+            delta_chances=3,
+            reason="ai_search",
+            target_id=str(target_id) if target_id else None,
+        )
+
     @staticmethod
     async def get_chance_balance(user: UserModel) -> int:
         """Возвращает текущий баланс в шансах (кеш на пользователе)."""
