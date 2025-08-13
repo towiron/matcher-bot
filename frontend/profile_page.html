@@ -12,77 +12,92 @@
 </head>
 <body>
   <div class="container">
-    <h1>📝 Заполните профиль</h1>
+    <h1 data-i18n="title">📝 Заполните профиль</h1>
     <form id="profileForm">
-      <input type="text" name="name" placeholder="Имя" required />
-      <input type="number" name="age" placeholder="Возраст" required min="18" />
-      <select name="gender" required>
-        <option value="">Пол</option>
-        <option value="male">Парень</option>
-        <option value="female">Девушка</option>
-      </select>
-      <select name="city" id="cityInput" required>
-        <option value="">Выберите город</option>
-      </select>
-       <input type="number" name="height" placeholder="Рост (см)" required min="120" max="230" />
-      <input type="number" name="weight" placeholder="Вес (кг)" required min="30" max="250" />
-      <select name="marital_status" id="maritalStatusInput" required>
-        <option value="">Семейное положение</option>
-      </select>
-      <select name="has_children" required>
-        <option value="">Есть ли дети?</option>
-        <option value="true">Да</option>
-        <option value="false">Нет</option>
-      </select>
-      <select name="education" required>
-        <option value="">Образование</option>
-        <option value="primary">Начальное</option>
-        <option value="secondary">Среднее</option>
-        <option value="incomplete_higher">Неоконченное высшее</option>
-        <option value="higher">Высшее</option>
-      </select>
-      <select name="goal" required>
-        <option value="">Цель знакомства</option>
-        <option value="friendship">Дружба</option>
-        <option value="communication">Общение</option>
-        <option value="serious_relationship">Серьезные отношения</option>
-        <option value="marriage">Брак</option>
-      </select>
-      <select name="polygamy">
-        <option value="">Какой тип отношений вы приемлете?</option>
-        <option value="true">Полигамия</option>
-        <option value="false">Моногамия</option>
-      </select>
-      <select name="religion" id="religionInput" required>
-        <option value="">Выберите религию</option>
-      </select>
-      <select name="religious_level">
-        <option value="">Насколько вы религиозны?</option>
-        <option value="none">Не религиозен(а)</option>
-        <option value="low">Немного</option>
-        <option value="medium">Средне</option>
-        <option value="high">Очень</option>
-        <option value="strict">Следую всем нормам</option>
-      </select>
-      <select name="ethnicity" id="ethnicityInput" required>
-        <option value="">Выберите национальность</option>
-      </select>
-      <input type="text" name="job" placeholder="Профессия (по желанию)" />
-      <textarea name="about" placeholder="О себе (просим вас заполнить максимально подробно что бы мы могли вам качественно подобрать счастье 🫠)" maxlength="300"></textarea>
-      <textarea name="looking_for" placeholder="Кого ищите? (просим описать максимально подробно что бы ваше счастье могло вас найти)" maxlength="300"></textarea>
+      <input type="text" name="name" data-ph="name" placeholder="Имя" required />
+      <input type="number" name="age" data-ph="age" placeholder="Возраст" required min="18" />
 
-      <button type="submit">✅ Отправить</button>
+      <select name="gender" required>
+        <option data-i18n="gender" value="">Пол</option>
+        <option data-i18n="male" value="male">Парень</option>
+        <option data-i18n="female" value="female">Девушка</option>
+      </select>
+
+      <select name="city" id="cityInput" required>
+        <option data-i18n="city" value="">Выберите город</option>
+      </select>
+
+      <input type="number" name="height" data-ph="height" placeholder="Рост (см)" required min="120" max="230" />
+      <input type="number" name="weight" data-ph="weight" placeholder="Вес (кг)" required min="30" max="250" />
+
+      <select name="marital_status" id="maritalStatusInput" required>
+        <option data-i18n="marital_status" value="">Семейное положение</option>
+      </select>
+
+      <select name="has_children" required>
+        <option data-i18n="has_children" value="">Есть ли дети?</option>
+        <option data-i18n="yes" value="true">Да</option>
+        <option data-i18n="no" value="false">Нет</option>
+      </select>
+
+      <select name="education" required>
+        <option data-i18n="education" value="">Образование</option>
+        <option data-i18n="primary" value="primary">Начальное</option>
+        <option data-i18n="secondary" value="secondary">Среднее</option>
+        <option data-i18n="incomplete_higher" value="incomplete_higher">Неоконченное высшее</option>
+        <option data-i18n="higher" value="higher">Высшее</option>
+      </select>
+
+      <select name="goal" required>
+        <option data-i18n="goal" value="">Цель знакомства</option>
+        <option data-i18n="friendship" value="friendship">Дружба</option>
+        <option data-i18n="communication" value="communication">Общение</option>
+        <option data-i18n="serious_relationship" value="serious_relationship">Серьезные отношения</option>
+        <option data-i18n="marriage" value="marriage">Брак</option>
+      </select>
+
+      <select name="polygamy">
+        <option data-i18n="polygamy" value="">Какой тип отношений вы приемлете?</option>
+        <option data-i18n="polygamy_true" value="true">Полигамия</option>
+        <option data-i18n="polygamy_false" value="false">Моногамия</option>
+      </select>
+
+      <select name="religion" id="religionInput" required>
+        <option data-i18n="religion" value="">Выберите религию</option>
+      </select>
+
+      <select name="religious_level">
+        <option data-i18n="religious_level" value="">Насколько вы религиозны?</option>
+        <option data-i18n="none" value="none">Не религиозен(а)</option>
+        <option data-i18n="low" value="low">Немного</option>
+        <option data-i18n="medium" value="medium">Средне</option>
+        <option data-i18n="high" value="high">Очень</option>
+        <option data-i18n="strict" value="strict">Следую всем нормам</option>
+      </select>
+
+      <select name="ethnicity" id="ethnicityInput" required>
+        <option data-i18n="ethnicity" value="">Выберите национальность</option>
+      </select>
+
+      <input type="text" name="job" data-ph="job" placeholder="Профессия (по желанию)" />
+      <textarea name="about" data-ph="about" placeholder="О себе (просим вас заполнить максимально подробно что бы мы могли вам качественно подобрать счастье 🫠)" maxlength="300"></textarea>
+      <textarea name="looking_for" data-ph="looking_for" placeholder="Кого ищите? (просим описать максимально подробно что бы ваше счастье могло вас найти)" maxlength="300"></textarea>
+
+      <button type="submit" data-i18n="submit">✅ Отправить</button>
     </form>
   </div>
 
   <!-- СКРИПТ -->
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    // Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    tg?.expand();
 
+    // Язык из query (?language=ru|uz|en)
     const urlParams = new URLSearchParams(window.location.search);
-    const language = urlParams.get("language") || "ru";
+    const language = (urlParams.get("language") || "ru").toLowerCase();
 
+    // Списки из бэка
     const cityInput = document.getElementById("cityInput");
     const ethnicityInput = document.getElementById("ethnicityInput");
     const religionInput = document.getElementById("religionInput");
@@ -93,8 +108,159 @@
     let religionsList = [];
     let maritalStatusesList = [];
 
-    // 🔹 Заполнение формы из query-параметров
-    const fillFormFromQuery = () => {
+    // ===== i18n словарь =====
+    const i18n = {
+      ru: {
+        title: "📝 Заполните профиль",
+        name: "Имя",
+        age: "Возраст",
+        gender: "Пол",
+        male: "Парень",
+        female: "Девушка",
+        city: "Выберите город",
+        height: "Рост (см)",
+        weight: "Вес (кг)",
+        marital_status: "Семейное положение",
+        has_children: "Есть ли дети?",
+        yes: "Да",
+        no: "Нет",
+        education: "Образование",
+        primary: "Начальное",
+        secondary: "Среднее",
+        incomplete_higher: "Неоконченное высшее",
+        higher: "Высшее",
+        goal: "Цель знакомства",
+        friendship: "Дружба",
+        communication: "Общение",
+        serious_relationship: "Серьезные отношения",
+        marriage: "Брак",
+        polygamy: "Какой тип отношений вы приемлете?",
+        polygamy_true: "Полигамия",
+        polygamy_false: "Моногамия",
+        religion: "Выберите религию",
+        religious_level: "Насколько вы религиозны?",
+        none: "Не религиозен(а)",
+        low: "Немного",
+        medium: "Средне",
+        high: "Очень",
+        strict: "Следую всем нормам",
+        ethnicity: "Выберите национальность",
+        job: "Профессия (по желанию)",
+        about: "О себе (просим вас заполнить максимально подробно, чтобы мы могли вам качественно подобрать счастье 🫠)",
+        looking_for: "Кого ищите? (опишите максимально подробно)",
+        submit: "✅ Отправить",
+        msg_sent: "Данные отправлены!",
+        msg_error: "Ошибка. Проверьте подключение."
+      },
+      uz: {
+        title: "📝 Profilni to‘ldiring",
+        name: "Ism",
+        age: "Yosh",
+        gender: "Jins",
+        male: "Yigit",
+        female: "Qiz",
+        city: "Shaharni tanlang",
+        height: "Bo‘yi (sm)",
+        weight: "Vazni (kg)",
+        marital_status: "Oilaviy holati",
+        has_children: "Farzandingiz bormi?",
+        yes: "Ha",
+        no: "Yo‘q",
+        education: "Ma'lumoti",
+        primary: "Boshlang‘ich",
+        secondary: "O‘rta",
+        incomplete_higher: "Tugallanmagan oliy",
+        higher: "Oliy",
+        goal: "Tanishuv maqsadi",
+        friendship: "Do‘stlik",
+        communication: "Muloqot",
+        serious_relationship: "Jiddiy munosabat",
+        marriage: "Nikoh",
+        polygamy: "Qaysi turdagi munosabatni qabul qilasiz?",
+        polygamy_true: "Ko‘p xotinlilik",
+        polygamy_false: "Yakkaxotinlilik",
+        religion: "Dinningizni tanlang",
+        religious_level: "Qanchalik dindorsiz?",
+        none: "Dindor emasman",
+        low: "Biroz",
+        medium: "O‘rtacha",
+        high: "Juda",
+        strict: "Barcha qoidalarga amal qilaman",
+        ethnicity: "Millatingizni tanlang",
+        job: "Kasb (ixtiyoriy)",
+        about: "O‘zingiz haqingizda batafsil yozing (sifatli moslik uchun) 🫠",
+        looking_for: "Kimni qidirmoqdasiz? (batafsil yozing)",
+        submit: "✅ Yuborish",
+        msg_sent: "Ma'lumotlar yuborildi!",
+        msg_error: "Xato. Internetni tekshiring."
+      },
+      en: {
+        title: "📝 Complete your profile",
+        name: "Name",
+        age: "Age",
+        gender: "Gender",
+        male: "Male",
+        female: "Female",
+        city: "Select a city",
+        height: "Height (cm)",
+        weight: "Weight (kg)",
+        marital_status: "Marital status",
+        has_children: "Do you have children?",
+        yes: "Yes",
+        no: "No",
+        education: "Education",
+        primary: "Primary",
+        secondary: "Secondary",
+        incomplete_higher: "Incomplete higher",
+        higher: "Higher",
+        goal: "Dating goal",
+        friendship: "Friendship",
+        communication: "Communication",
+        serious_relationship: "Serious relationship",
+        marriage: "Marriage",
+        polygamy: "What type of relationship do you accept?",
+        polygamy_true: "Polygamy",
+        polygamy_false: "Monogamy",
+        religion: "Choose a religion",
+        religious_level: "How religious are you?",
+        none: "Not religious",
+        low: "A little",
+        medium: "Moderate",
+        high: "Very",
+        strict: "Follow all norms",
+        ethnicity: "Select nationality",
+        job: "Job (optional)",
+        about: "About me (please be as detailed as possible so we can match you well) 🫠",
+        looking_for: "Who are you looking for? (be detailed)",
+        submit: "✅ Submit",
+        msg_sent: "Data sent!",
+        msg_error: "Error. Check your connection."
+      }
+    };
+
+    const T = (key) => (i18n[language] && i18n[language][key]) || i18n.ru[key] || key;
+
+    // Применить переводы к статическим текстам и плейсхолдерам
+    function applyTranslationsStatic() {
+      // Заголовок и все элементы с data-i18n
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = T(el.getAttribute("data-i18n"));
+      });
+      // Плейсхолдеры
+      document.querySelectorAll("[data-ph]").forEach(el => {
+        el.placeholder = T(el.getAttribute("data-ph"));
+      });
+      // Атрибут lang на html
+      document.documentElement.setAttribute("lang", language);
+      // Title
+      document.title = T("title");
+    }
+
+    // Чтение пола для зависимых списков
+    const getGender = () => document.querySelector("select[name='gender']").value || "male";
+
+    // Заполнение формы из query-параметров (если нужно вернуть пользователя к редактированию)
+    function fillFormFromQuery() {
       const map = {
         name: "input[name='name']",
         age: "input[name='age']",
@@ -114,141 +280,147 @@
         about: "textarea[name='about']",
         looking_for: "textarea[name='looking_for']"
       };
-
       for (const [param, selector] of Object.entries(map)) {
-        const value = urlParams.get(param);
-        if (value !== null && document.querySelector(selector)) {
-          document.querySelector(selector).value = value;
+        const val = urlParams.get(param);
+        if (val !== null) {
+          const el = document.querySelector(selector);
+          if (el) el.value = val;
         }
       }
-    };
+    }
 
-    // 🔹 Загрузка городов
+    // ===== Загрузка данных и отрисовка опций с учетом языка/пола =====
     async function loadCities() {
       try {
         const response = await fetch('/cities');
         const cities = await response.json();
         citiesList = cities;
 
-        cityInput.innerHTML = '<option value="">Выберите город</option>';
+        cityInput.innerHTML = `<option value="">${T("city")}</option>`;
         cities.forEach(city => {
           const option = document.createElement('option');
           option.value = city.id;
-          option.textContent = city[language] || city.ru;
+          option.textContent = city[language] || city.ru || city.en || city.uz || String(city.id);
           cityInput.appendChild(option);
         });
-      } catch (error) {
-        console.error("Ошибка загрузки городов:", error);
+      } catch (e) {
+        console.error("Ошибка загрузки городов:", e);
       }
     }
 
-    // 🔹 Загрузка национальностей
-    async function loadEthnicities() {
-      try {
-        const response = await fetch('/ethnicities');
-        const ethnicities = await response.json();
-        ethnicitiesList = ethnicities;
-
-        ethnicityInput.innerHTML = '<option value="">Выберите национальность</option>';
-
-        const gender = document.querySelector("select[name='gender']").value || "male";
-        const key = `${language}_${gender}`;
-
-        ethnicities.forEach(ethnicity => {
-          const option = document.createElement('option');
-          option.value = ethnicity.id;
-          option.textContent = ethnicity[key] || ethnicity.ru_male;
-          ethnicityInput.appendChild(option);
-        });
-      } catch (error) {
-        console.error("Ошибка загрузки национальностей:", error);
-      }
-    }
-
-    // 🔹 Загрузка религий
     async function loadReligions() {
       try {
         const response = await fetch('/religions');
         const religions = await response.json();
         religionsList = religions;
 
-        religionInput.innerHTML = '<option value="">Выберите религию</option>';
-        religions.forEach(religion => {
+        religionInput.innerHTML = `<option value="">${T("religion")}</option>`;
+        religions.forEach(r => {
           const option = document.createElement('option');
-          option.value = religion.id;
-          option.textContent = religion[language] || religion.ru;
+          option.value = r.id;
+          option.textContent = r[language] || r.ru || r.en || r.uz || String(r.id);
           religionInput.appendChild(option);
         });
-      } catch (error) {
-        console.error("Ошибка загрузки религий:", error);
+      } catch (e) {
+        console.error("Ошибка загрузки религий:", e);
       }
     }
 
-    // 🔹 Загрузка семейного положения
+    function keyByLangGender(base) {
+      // base: объект с полями *_male / *_female
+      const g = getGender(); // male|female
+      const key = `${language}_${g}`;
+      return base[key] || base[`ru_${g}`] || base[`en_${g}`] || base[`uz_${g}`];
+    }
+
+    async function loadEthnicities() {
+      try {
+        const response = await fetch('/ethnicities');
+        const ethnicities = await response.json();
+        ethnicitiesList = ethnicities;
+
+        ethnicityInput.innerHTML = `<option value="">${T("ethnicity")}</option>`;
+        ethnicities.forEach(e => {
+          const option = document.createElement('option');
+          option.value = e.id;
+          option.textContent = keyByLangGender(e) || String(e.id);
+          ethnicityInput.appendChild(option);
+        });
+      } catch (e) {
+        console.error("Ошибка загрузки национальностей:", e);
+      }
+    }
+
     async function loadMaritalStatuses() {
       try {
         const response = await fetch('/marital_statuses');
         const statuses = await response.json();
         maritalStatusesList = statuses;
 
-        maritalStatusInput.innerHTML = '<option value="">Семейное положение</option>';
-
-        const gender = document.querySelector("select[name='gender']").value || "male";
-        const key = `${language}_${gender}`;
-
-        statuses.forEach(status => {
+        maritalStatusInput.innerHTML = `<option value="">${T("marital_status")}</option>`;
+        statuses.forEach(s => {
           const option = document.createElement('option');
-          option.value = status.id;
-          option.textContent = status[key] || status.ru_male;
+          option.value = s.id;
+          option.textContent = keyByLangGender(s) || String(s.id);
           maritalStatusInput.appendChild(option);
         });
-      } catch (error) {
-        console.error("Ошибка загрузки семейного положения:", error);
+      } catch (e) {
+        console.error("Ошибка загрузки семейного положения:", e);
       }
     }
 
-    // 🔹 Перезагрузка данных при смене пола
+    // Перерисовать зависимые списки при смене пола
     document.querySelector("select[name='gender']").addEventListener("change", () => {
+      // Перерисовываем национальности и семейное положение (подписи зависят от пола)
       loadEthnicities();
       loadMaritalStatuses();
     });
 
-    // 🔹 Инициализация
-    Promise.all([
-      loadCities(),
-      loadEthnicities(),
-      loadReligions(),
-      loadMaritalStatuses()
-    ]).then(() => {
+    // Инициализация
+    (async function init() {
+      applyTranslationsStatic();
+      await Promise.all([loadCities(), loadReligions(), loadEthnicities(), loadMaritalStatuses()]);
       fillFormFromQuery();
-    });
+      // После автозаполнения стоит снова обновить заголовки опций (на случай, если браузер подменил option[0])
+      applyTranslationsStatic();
+    })();
 
-    // 🔹 Отправка формы
+    // Отправка формы
     document.getElementById("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = Object.fromEntries(new FormData(e.target).entries());
 
+      // Приведение типов
       formData.has_children = formData.has_children === "true";
-      if (formData.polygamy) {
-        formData.polygamy = formData.polygamy === "true";
-      }
+      if (formData.polygamy) formData.polygamy = formData.polygamy === "true";
 
-      const selectedCity = citiesList.find(city => city.id == formData.city);
-      const selectedEthnicity = ethnicitiesList.find(ethnicity => ethnicity.id == formData.ethnicity);
-      const selectedReligion = religionsList.find(religion => religion.id == formData.religion);
+      // Подписи выбранных значений для передачи в бот
+      const selectedCity = citiesList.find(c => String(c.id) === String(formData.city));
+      const selectedRel = religionsList.find(r => String(r.id) === String(formData.religion));
+      const selectedEth = ethnicitiesList.find(x => String(x.id) === String(formData.ethnicity));
+      const selectedMs = maritalStatusesList.find(x => String(x.id) === String(formData.marital_status));
+      const g = getGender();
+      const langGenderKey = `${language}_${g}`;
 
       const payload = {
         action: 'profile_submit',
         ...formData,
-        city_name: selectedCity ? selectedCity.ru : formData.city,
-        ethnicity_name: selectedEthnicity ? selectedEthnicity.ru_male : formData.ethnicity,
-        religion_name: selectedReligion ? selectedReligion.ru : formData.religion,
-        user_id: tg.initDataUnsafe?.user?.id
+        city_name: selectedCity ? (selectedCity[language] || selectedCity.ru || selectedCity.en || selectedCity.uz) : formData.city,
+        religion_name: selectedRel ? (selectedRel[language] || selectedRel.ru || selectedRel.en || selectedRel.uz) : formData.religion,
+        ethnicity_name: selectedEth ? (selectedEth[langGenderKey] || selectedEth[`ru_${g}`] || selectedEth[`en_${g}`] || selectedEth[`uz_${g}`]) : formData.ethnicity,
+        marital_status_name: selectedMs ? (selectedMs[langGenderKey] || selectedMs[`ru_${g}`] || selectedMs[`en_${g}`] || selectedMs[`uz_${g}`]) : formData.marital_status,
+        ui_language: language,
+        user_id: tg?.initDataUnsafe?.user?.id
       };
 
-      console.log("Отправка данных в бота:", payload);
-      tg.sendData(JSON.stringify(payload));
-      alert("Данные отправлены!");
+      try {
+        console.log("Отправка данных в бота:", payload);
+        tg?.sendData(JSON.stringify(payload));
+        alert(T("msg_sent"));
+      } catch (err) {
+        console.error(err);
+        alert(T("msg_error"));
+      }
     });
   </script>
 </body>

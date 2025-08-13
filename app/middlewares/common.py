@@ -30,8 +30,10 @@ class CommonMiddleware(BaseMiddleware):
         # Проверка принятия оферты
         is_start_command = isinstance(message, Message) and message.text and message.text.startswith("/start")
         is_offer_callback = isinstance(message, CallbackQuery) and message.data and message.data.startswith("offer_")
+        is_lang_callback = isinstance(message, CallbackQuery) and message.data and message.data.startswith("lang:")
+        is_lang_command = isinstance(message, Message) and message.text and message.text in ["/lang", "/language"]
 
-        if not user.accepted_offer and not (is_start_command or is_offer_callback):
+        if not user.accepted_offer and not (is_start_command or is_offer_callback or is_lang_callback or is_lang_command):
             msg = message.message if isinstance(message, CallbackQuery) else message
             await msg.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
             return
