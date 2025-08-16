@@ -311,7 +311,27 @@ async def _show_next_profile(
     await ViewedProfile.get_or_create(session, viewer_id=user.id, viewed_user_id=shown_user_id)
 
     if not ids:
-        await message.answer(mt.EMPTY_PROFILE_SEARCH)
+        # === КОНЕЦ ПАЧКИ ===
+        if data.mode == "ai":
+            # Проверяем, есть ли ещё кандидаты по обычному фильтру (значит можно снова запустить умный поиск)
+            remaining_candidates = await search_profiles(session, user.profile)
+
+            if remaining_candidates:
+                await message.answer(
+                    "🧠 Кандидаты умного поиска закончились!\n\n"
+                    "Но у нас есть ещё интересные люди! Нажмите снова «🧠 Умный поиск (3 💎)», "
+                    "и я подберу новую подборку 😊",
+                    reply_markup=search_menu_kb(user=user),
+                )
+            else:
+                await message.answer(
+                    "🧠 Кандидаты умного поиска закончились!\n\n"
+                    "Попробуйте обычный поиск по фильтру — возможно, там найдутся интересные люди 😊",
+                    reply_markup=search_menu_kb(user=user),
+                )
+        else:
+            await message.answer(mt.EMPTY_PROFILE_SEARCH)
+
         await state.clear()
         await send_filter(session, message.from_user.id, user)
         return
@@ -321,6 +341,7 @@ async def _show_next_profile(
     data.ids = ids
     await data.save(state)
 
+    # === ВАЖНО: никаких списаний тут! Только показ следующего ===
     if data.mode == "ai":
         reason_text = data.ai_reasons.get(str(next_id))
         if reason_text:

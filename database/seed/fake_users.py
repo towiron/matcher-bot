@@ -22,9 +22,9 @@ from database.connect import async_session
 
 fake = Faker("ru_RU")
 
-GENDERS = ["male", "female"]
+GENDERS = ["female"]
 EDUCATIONS = ["secondary", "higher"]
-GOALS = ["friendship", "communication", "marriage"]
+GOALS = ["serious_relationship"]
 RELIGIOUS_LEVELS = ["low", "medium", "high"]
 LANGUAGES = ["ru"]
 
@@ -60,23 +60,23 @@ async def create_fake_user(session: AsyncSession):
 
     profile = ProfileModel(
         id=user.id,
-        name=fake.first_name_male() if gender == "male" else fake.first_name_female(),
-        age=random.randint(20, 40),
+        name=fake.first_name_female(),
+        age=random.randint(20, 25),
         gender=gender,
         city_id=city.id,
         height=random.randint(160, 190),
         weight=random.randint(50, 90),
         marital_status_id=marital_status.id,  # ✅ now correct
-        has_children=random.choice([True, False]),
+        has_children=False,
         education=random.choice(EDUCATIONS),
         goal=random.choice(GOALS),
-        polygamy=random.choice([True, False, None]),
-        religion_id=religion.id,
-        religious_level=religious_level,
-        ethnicity_id=ethnicity.id,
+        polygamy=False,
+        religion_id=1,
+        religious_level="none",
+        ethnicity_id=1,
         job=fake.job(),
-        about=fake.sentence(nb_words=12),
-        looking_for="Хочу найти человека для общения",
+        about="Творческая личность, люблю пить кофе по утрам, слушаю джаз и рисую",
+        looking_for="Хочу найти доброе человека",
         is_active=True
     )
     session.add(profile)
