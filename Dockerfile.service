@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 ARG POETRY_VERSION=2.0.1
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -28,8 +28,14 @@ COPY . .
 
 # Установка зависимостей (новый синтаксис для Poetry 2)
 RUN poetry install --only main --no-interaction --no-ansi
+RUN pip install --no-cache-dir gunicorn
+
 
 # Логи (если нужно)
 RUN mkdir -p logs
 
-CMD ["uvicorn", "service-runner:app", "--host", "0.0.0.0", "--port", "8000"]
+# === Продовый запуск через gunicorn ===
+CMD ["gunicorn", "--chdir", "api", "service_runner:app", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--bind", "0.0.0.0:8000"]

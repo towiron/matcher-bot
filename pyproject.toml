@@ -29,7 +29,6 @@ pyright = "^1.1.403"
 name = "matcher"
 requires-python = ">=3.10,<4.0"
 
-
 [build-system]
 build-backend = "poetry.core.masonry.api"
 
@@ -41,3 +40,18 @@ fix = true
 [tool.ruff.lint]
 select = ["E", "F", "B"]
 ignore = ["E501"]  # если действительно хочешь игнорировать длину строк
+
+# === вот сюда переносим твой pyrightconfig.json ===
+[tool.pyright]
+include = ["app", "database", "utils"]
+exclude = ["**/.venv", "**/.mypy_cache", "**/__pycache__"]
+pythonVersion = "3.10"
+typeCheckingMode = "off"
+useLibraryCodeForTypes = true
+
+reportAttributeAccessIssue = "error"
+reportGeneralTypeIssues = "none"
+reportMissingImports = "none"
+reportUnknownMemberType = "none"
+reportUnknownVariableType = "none"
+reportMissingTypeStubs = "none"

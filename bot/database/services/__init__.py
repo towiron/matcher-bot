@@ -1,0 +1,9 @@
+from bot.database.services.match import Match # noqa: F401
+from bot.database.services.profile import Profile # noqa: F401
+from bot.database.services.user import User # noqa: F401
+from bot.database.services.filter import Filter # noqa: F401
+from bot.database.services.city import City # noqa: F401
+from bot.database.services.ethnicity import Ethnicity # noqa: F401
+from bot.database.services.religion import Religion # noqa: F401
+from bot.database.services.marital_status import MaritalStatus # noqa: F401
+from bot.database.services.viewed_profile import ViewedProfile # noqa: F401

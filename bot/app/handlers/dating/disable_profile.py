@@ -1,0 +1,21 @@
+from aiogram import F, types
+from aiogram.filters.state import StateFilter
+
+from bot.loader import _
+
+from bot.app.keyboards.default.base import start_kb
+from bot.app.routers import dating_router
+from bot.app.text import message_text as mt
+from bot.database.models import UserModel
+from bot.database.services import Profile
+
+
+@dating_router.message(StateFilter(None), F.text == _(mt.KB_DISABLE_PROFILE))
+async def _disable_profile_command(message: types.Message, user: UserModel, session) -> None:
+    """Отключает профиль пользователя, и не дает ему дальше пользоватся ботом до восстановления"""
+    await Profile.update(
+        session=session,
+        id=user.id,
+        is_active=False,
+    )
+    await message.answer(text=mt.DISABLE_PROFILE, reply_markup=start_kb)

@@ -1,0 +1,21 @@
+justaiagency.uz {
+	encode zstd gzip
+
+	handle_path /static/* {
+		root * /srv/static
+		file_server
+	}
+
+	handle /filter_page.html {
+		root * /srv/frontend
+		file_server
+	}
+	handle /profile_page.html {
+		root * /srv/frontend
+		file_server
+	}
+
+	handle {
+		reverse_proxy api:8000
+	}
+}
