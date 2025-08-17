@@ -26,6 +26,11 @@ from aiogram import types
 
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_FIND_MATCH))
 async def _search_command(message: types.Message, session: AsyncSession, user: UserModel) -> None:
+    # Проверяем, принял ли пользователь оферту
+    if not user.accepted_offer:
+        await message.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+        return
+    
     if not user.filter:
         await message.answer(mt.FILL_FILTER, reply_markup=build_filter_kb(user))
     else:
@@ -33,10 +38,20 @@ async def _search_command(message: types.Message, session: AsyncSession, user: U
 
 @dating_router.message(StateFilter(None), F.text == mt.KB_SEARCH_BY_FILTER)
 async def _search_command_by_filter(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
+    # Проверяем, принял ли пользователь оферту
+    if not user.accepted_offer:
+        await message.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+        return
+    
     await start_search_by_filter(message=message, state=state, user=user, session=session)
 
 @dating_router.message(StateFilter(None), F.text == _(mt.KB_SEARCH_BY_AI))
 async def _search_by_ai_command(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
+    # Проверяем, принял ли пользователь оферту
+    if not user.accepted_offer:
+        await message.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+        return
+    
     await start_search_by_ai(message=message, state=state, user=user, session=session)
 
 @dating_router.message(
@@ -90,6 +105,11 @@ async def start_search_by_filter(
     message: types.Message, state: FSMContext, user: UserModel, session
 ) -> None:
     """Обычный поиск по фильтрам."""
+    # Проверяем, принял ли пользователь оферту
+    if not user.accepted_offer:
+        await message.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+        return
+    
     await message.answer(mt.SEARCH, reply_markup=search_kb)
 
     if not await _ensure_profile_or_ask(message, user):
@@ -118,6 +138,11 @@ async def start_search_by_ai(
     Проверяем баланс заранее, списываем 3 шанса через User.use_ai_search
     только если нашлись кандидаты.
     """
+    # Проверяем, принял ли пользователь оферту
+    if not user.accepted_offer:
+        await message.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+        return
+    
     await message.answer(mt.SEARCH, reply_markup=search_kb)
 
     if not await _ensure_profile_or_ask(message, user):

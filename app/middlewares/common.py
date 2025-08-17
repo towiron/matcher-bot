@@ -33,7 +33,10 @@ class CommonMiddleware(BaseMiddleware):
         is_lang_callback = isinstance(message, CallbackQuery) and message.data and message.data.startswith("lang:")
         is_lang_command = isinstance(message, Message) and message.text and message.text in ["/lang", "/language"]
 
-        if not user.accepted_offer and not (is_start_command or is_offer_callback or is_lang_callback or is_lang_command):
+        # Добавляем проверку на команды помощи
+        is_help_command = isinstance(message, Message) and message.text and message.text in ["/help", "Помощь"]
+
+        if not user.accepted_offer and not (is_start_command or is_offer_callback or is_lang_callback or is_lang_command or is_help_command):
             msg = message.message if isinstance(message, CallbackQuery) else message
             await msg.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
             return
