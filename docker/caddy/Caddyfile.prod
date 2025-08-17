@@ -1,4 +1,9 @@
-https://{$DOMAIN} {
+{$DOMAIN}, www.{$DOMAIN} {
+	encode zstd gzip
+
+	@www host www.{$DOMAIN}
+	redir @www https://{$DOMAIN}{uri} permanent
+
 	handle_path /static/* {
 		root * /srv/app/frontend/static
 		file_server
@@ -6,10 +11,11 @@ https://{$DOMAIN} {
 	}
 
 	handle {
-		reverse_proxy matcher_service:8000 {
-			header_up X-Forwarded-For {remote}
-			header_up X-Forwarded-Proto {scheme}
-			header_up Host {host}
-		}
+		reverse_proxy matcher_service:8000
+	}
+
+	header {
+		Content-Security-Policy "frame-ancestors 'self' https://web.telegram.org https://*.t.me https://*.telegram.org"
+		-X-Frame-Options
 	}
 }
