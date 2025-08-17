@@ -12,27 +12,19 @@ x-healthcheck: &default-health-check
   retries: 5
 
 services:
-#  matcher_postgres:
-#    image: postgres:15
-#    container_name: matcher_postgres
-#    restart: "no"
-#    env_file:
-#      - .env
-#    networks:
-#      - matcher_network
-#    environment:
-#      POSTGRES_DB: ${DB_NAME}
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_PASSWORD: ${DB_PASS}
-#    ports:
-#      - "${DB_PORT:-5432}:5432"
-#    volumes:
-#      - ./temp/postgres/data:/var/lib/postgresql/data
-#    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U admin -d fhir" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  matcher_postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - postgres:/var/lib/postgresql/data:rw
+    networks:
+      - matcher_network
+    ports:
+      - "5432:5432"
+    logging: *default-logging
 
   matcher_redis:
     image: redis:7
@@ -60,6 +52,7 @@ services:
       - matcher_network
     depends_on:
       - matcher_redis
+      - matcher_postgres
     volumes:
       - ./logs:/app/logs
       - ./images:/app/images
@@ -83,6 +76,7 @@ services:
       - matcher_network
     depends_on:
       - matcher_redis
+      - matcher_postgres
     ports:
       - "${SERVICE_PORT:-8000}:8000"
     volumes:
@@ -127,3 +121,4 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
+  postgres: {}
