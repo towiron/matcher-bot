@@ -14,7 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import ReligionModel
 from database.models.user import UserModel
 from database.models.profile import ProfileModel
-from database.models.filter import FilterModel
 from database.models.city import CityModel
 from database.models.ethnicity import EthnicityModel
 from database.models.marital_status import MaritalStatusModel
@@ -63,10 +62,10 @@ async def create_fake_user(session: AsyncSession):
         name=fake.first_name_female(),
         age=random.randint(20, 25),
         gender=gender,
-        city_id=city.id,
+        city_id=1,
         height=random.randint(160, 190),
         weight=random.randint(50, 90),
-        marital_status_id=marital_status.id,  # ✅ now correct
+        marital_status_id=1,  # ✅ now correct
         has_children=False,
         education=random.choice(EDUCATIONS),
         goal=random.choice(GOALS),
@@ -76,25 +75,10 @@ async def create_fake_user(session: AsyncSession):
         ethnicity_id=1,
         job=fake.job(),
         about="Творческая личность, люблю пить кофе по утрам, слушаю джаз и рисую",
-        looking_for="Хочу найти доброе человека",
+        looking_for="Хочу найти доброго человека",
         is_active=True
     )
     session.add(profile)
-
-    filter_model = FilterModel(
-        id=user.id,
-        city_id=city.id,
-        age_from=20,
-        age_to=35,
-        height_from=160,
-        height_to=190,
-        weight_from=50,
-        weight_to=70,
-        goal=random.choice(GOALS),
-        ethnicity_id=ethnicity.id,
-        has_children=random.choice([True, False, None]),
-    )
-    session.add(filter_model)
 
     await session.commit()
     print(f"✅ Пользователь {user.username} создан.")

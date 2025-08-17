@@ -119,13 +119,17 @@ def _build_prompt_with_reasons(user_about, user_looking_for, cands, lang: str = 
             "Отвечай ТОЛЬКО на русском языке. "
             "Поле reason — должно быть информативным (максимум 150 символов) "
             "и содержать ТОЛЬКО позитивные совпадения. "
-            "Объясни конкретно, почему кандидат подходит: общие интересы, цели, ценности, образ жизни."
+            "Объясни конкретно, почему кандидат подходит: общие интересы, цели, ценности, образ жизни. "
+            "Каждый ответ должен быть УНИКАЛЬНЫМ и отражать конкретные детали из профиля кандидата. "
+            "Избегай общих фраз типа 'общие интересы' - будь конкретным."
         ),
         "en": (
             "Answer ONLY in English. "
             "The 'reason' must be informative (max 150 characters) "
             "and contain ONLY positive matches. "
-            "Explain specifically why the candidate is a good match: shared interests, goals, values, lifestyle."
+            "Explain specifically why the candidate is a good match: shared interests, goals, values, lifestyle. "
+            "Each answer must be UNIQUE and reflect specific details from the candidate's profile. "
+            "Avoid generic phrases like 'shared interests' - be specific."
         ),
     }.get(lang, f"Answer ONLY in {lang}. The 'reason' must be informative and contain only positive matches.")
 
@@ -134,16 +138,19 @@ def _build_prompt_with_reasons(user_about, user_looking_for, cands, lang: str = 
         "Given USER (about, looking_for) and CANDIDATES, rank candidates by MUTUAL fit "
         "based on shared values, goals, lifestyle, and interests.\n"
         f"{lang_clause}\n\n"
-        "IMPORTANT: Provide detailed but concise reasons. Maximum 150 characters for reason field.\n"
-        "Focus on specific shared traits: hobbies, career goals, family values, lifestyle preferences.\n"
-        "Avoid quotes, special characters, and overly long sentences.\n\n"
+        "CRITICAL REQUIREMENTS:\n"
+        "1. Each reason must be UNIQUE and specific to that candidate\n"
+        "2. Mention specific hobbies, activities, or traits from their profile\n"
+        "3. Avoid generic phrases - be concrete and detailed\n"
+        "4. Maximum 150 characters for reason field\n"
+        "5. Focus on what makes THIS candidate special\n\n"
         "Return STRICT JSON ONLY in this exact shape:\n"
         "{\n"
         '  "results": [\n'
-        '    {"id": <int>, "score": <0..100>, "reason": "<detailed reason for compatibility>"}\n'
+        '    {"id": <int>, "score": <0..100>, "reason": "<unique specific reason for this candidate>"}\n'
         "  ]\n"
         "}\n"
-        "No extra text. No quotes in reason field. Keep it informative but concise."
+        "No extra text. No quotes in reason field. Each reason must be different."
     )
 
     user_block = f'\nUSER:\nabout: {user_about}\nlooking_for: {user_looking_for}\n'
@@ -293,9 +300,9 @@ async def search_profiles_by_ai_with_reasons(
         }
         return ids, reasons
 
-    # Не раздуваем промпт
-    if len(cands) > 60:
-        cands = cands[:60]
+    # Не раздуваем промпт - ограничиваем до 5 кандидатов для стабильности
+    if len(cands) > 10:
+        cands = cands[:10]
 
     prompt = _build_prompt_with_reasons(ua, ulf, cands, language)
 
@@ -303,7 +310,7 @@ async def search_profiles_by_ai_with_reasons(
         raw = _chat_call_get_json(
             prompt,
             retries=2,
-            temp=0.1,
+            temp=0.7,  # увеличиваем температуру для большей креативности
             max_tokens=1500,
             lang=language
         )

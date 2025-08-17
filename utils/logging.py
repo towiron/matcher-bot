@@ -27,6 +27,14 @@ logger.level("AI_MATCH", no=19, color="<cyan>", icon="🤝")          # чуть
 logger.level("AI_MATCH_DEBUG", no=20, color="<blue>", icon="🔍")    # между AI_MATCH(19) и AI_MATCH_REASONS(21)
 logger.level("AI_MATCH_REASONS", no=21, color="<magenta>", icon="🧠") # между INFO(20) и SUCCESS(25)
 logger.level("AI_MATCH_ERROR", no=35, color="<red>", icon="❌")       # между WARNING(30) и ERROR(40)
+logger.level("AI_MATCH_TRY_ERROR", no=36, color="<red>", icon="🔄")   # ошибки попыток API
+logger.level("AI_MATCH_TRY_ERROR_FALLBACK", no=37, color="<red>", icon="🔄") # ошибки fallback попыток
+logger.level("AI_MATCH_WARNING", no=30, color="<yellow>", icon="⚠️")  # предупреждения
+logger.level("AI_MATCH_JSON_ERROR", no=38, color="<red>", icon="📄")  # ошибки JSON
+logger.level("AI_MATCH_FULL_RESPONSE", no=39, color="<red>", icon="📄") # полный ответ при ошибке
+logger.level("AI_MATCH_ITEM_SKIP", no=40, color="<red>", icon="⏭️")   # пропуск элементов
+logger.level("AI_MATCH_EMPTY", no=41, color="<red>", icon="📭")      # пустой результат
+logger.level("AI_MATCH_GIVE_UP", no=42, color="<red>", icon="🏳️")   # сдались после попыток
 
 logger.level("BALANCE_DEBUG", no=22, color="<yellow>", icon="💰")    # между AI_MATCH_REASONS(21) и WARNING(30)
 logger.level("BALANCE_DEBIT", no=23, color="<red>", icon="��")       # списание шансов
