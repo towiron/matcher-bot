@@ -102,7 +102,6 @@ def normalize_profile_data(data: dict) -> dict:
         "has_children": bool(data.get("has_children")) if isinstance(data.get("has_children"), bool) else _to_bool_or_none(data.get("has_children")),
         "education": education,
         "goal": goal,
-        "polygamy": _to_bool_or_none(data.get("polygamy")),   # nullable=True
         "religion_id": _to_int(data.get("religion")),
         "religious_level": religious_level,                   # nullable=True
         "ethnicity_id": _to_int(data.get("ethnicity")),

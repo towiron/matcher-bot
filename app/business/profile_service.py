@@ -166,7 +166,6 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
 {mt.PROFILE_EDUCATION.format(education_map.get(profile.education, profile.education))}
 {mt.PROFILE_JOB.format(profile.job or mt.PROFILE_NOT_SPECIFIED)}
 {mt.PROFILE_GOAL.format(goal_map.get(profile.goal, profile.goal))}
-{mt.PROFILE_POLYGAMY.format(mt.PROFILE_YES if profile.polygamy else mt.PROFILE_NO)}
 {mt.PROFILE_RELIGION.format(religion_name)}"""
 
     if profile.religious_level:

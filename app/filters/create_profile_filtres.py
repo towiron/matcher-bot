@@ -49,12 +49,6 @@ religious_level_map = {
     mt.KB_RELIGIOSITY_STRICT: "strict",
 }
 
-polygamy_map = {
-    mt.KB_POLYGAMY_YES: True,
-    mt.KB_POLYGAMY_NO: False,
-    mt.KB_POLYGAMY_UNSURE: None,
-}
-
 ethnicity_map = {
     mt.KB_ETHNICITY_UZBEK: "uzbek",
     mt.KB_ETHNICITY_RUSSIAN: "russian",

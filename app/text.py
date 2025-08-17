@@ -329,10 +329,6 @@ The reason: {}
         return _("<b>Цель знакомства:</b> {}")
 
     @property
-    def PROFILE_POLYGAMY(self):
-        return _("<b>Многожёнство:</b> {}")
-
-    @property
     def PROFILE_RELIGION(self):
         return _("<b>Религия:</b> {}")
 
@@ -498,10 +494,6 @@ The reason: {}
     @property
     def ASK_HAS_CHILDREN(self):
         return _("Есть ли у вас дети?")
-
-    @property
-    def ASK_POLYGAMY(self):
-        return _("Вы приемлете полигамию?")
 
     @property
     def ASK_GOAL(self):

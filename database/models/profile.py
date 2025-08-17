@@ -42,9 +42,6 @@ class ProfileModel(BaseModel):
     # Цель знакомства: 'friendship', 'communication', 'marriage'
     goal: Mapped[str] = mapped_column(String(50), nullable=False)
 
-    # Приемлет ли пользователь многожёнство или NULL (если полигамность = "Not Sure")
-    polygamy: Mapped[bool] = mapped_column(nullable=True)
-
     # Религия: например, 'Islam', 'Christianity', 'Other' и т.д.
     religion_id: Mapped[int] = mapped_column(ForeignKey("religions.id"), nullable=False)
 

@@ -69,7 +69,6 @@ async def create_fake_user(session: AsyncSession):
         has_children=False,
         education=random.choice(EDUCATIONS),
         goal=random.choice(GOALS),
-        polygamy=False,
         religion_id=1,
         religious_level="none",
         ethnicity_id=1,

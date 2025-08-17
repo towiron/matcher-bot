@@ -66,9 +66,6 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
     if filter_obj.has_children is not None:
         filters.append(ProfileModel.has_children == filter_obj.has_children)
 
-    if profile.polygamy is not None:
-        filters.append(ProfileModel.polygamy == profile.polygamy)
-
     if profile.religion_id is not None:
         filters.append(ProfileModel.religion_id == profile.religion_id)
 

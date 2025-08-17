@@ -55,7 +55,6 @@ def build_profile_query(profile: ProfileModel, language: str) -> str:
         "has_children": str(profile.has_children).lower(),  # True → "true"
         "education": profile.education,
         "goal": profile.goal,
-        "polygamy": str(profile.polygamy).lower() if profile.polygamy is not None else None,
         "religion_id": profile.religion_id,
         "religious_level": profile.religious_level,
         "ethnicity_id": profile.ethnicity_id,

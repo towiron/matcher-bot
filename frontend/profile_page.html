@@ -56,12 +56,6 @@
         <option data-i18n="marriage" value="marriage">Брак</option>
       </select>
 
-      <select name="polygamy">
-        <option data-i18n="polygamy" value="">Какой тип отношений вы приемлете?</option>
-        <option data-i18n="polygamy_true" value="true">Полигамия</option>
-        <option data-i18n="polygamy_false" value="false">Моногамия</option>
-      </select>
-
       <select name="religion" id="religionInput" required>
         <option data-i18n="religion" value="">Выберите религию</option>
       </select>
@@ -134,9 +128,6 @@
         communication: "Общение",
         serious_relationship: "Серьезные отношения",
         marriage: "Брак",
-        polygamy: "Какой тип отношений вы приемлете?",
-        polygamy_true: "Полигамия",
-        polygamy_false: "Моногамия",
         religion: "Выберите религию",
         religious_level: "Насколько вы религиозны?",
         none: "Не религиозен(а)",
@@ -176,9 +167,6 @@
         communication: "Muloqot",
         serious_relationship: "Jiddiy munosabat",
         marriage: "Nikoh",
-        polygamy: "Qaysi turdagi munosabatni qabul qilasiz?",
-        polygamy_true: "Ko‘p xotinlilik",
-        polygamy_false: "Yakkaxotinlilik",
         religion: "Dinningizni tanlang",
         religious_level: "Qanchalik dindorsiz?",
         none: "Dindor emasman",
@@ -218,9 +206,6 @@
         communication: "Communication",
         serious_relationship: "Serious relationship",
         marriage: "Marriage",
-        polygamy: "What type of relationship do you accept?",
-        polygamy_true: "Polygamy",
-        polygamy_false: "Monogamy",
         religion: "Choose a religion",
         religious_level: "How religious are you?",
         none: "Not religious",
@@ -272,7 +257,6 @@
         has_children: "select[name='has_children']",
         education: "select[name='education']",
         goal: "select[name='goal']",
-        polygamy: "select[name='polygamy']",
         religion_id: "#religionInput",
         religious_level: "select[name='religious_level']",
         ethnicity_id: "#ethnicityInput",
@@ -392,7 +376,6 @@
 
       // Приведение типов
       formData.has_children = formData.has_children === "true";
-      if (formData.polygamy) formData.polygamy = formData.polygamy === "true";
 
       // Подписи выбранных значений для передачи в бот
       const selectedCity = citiesList.find(c => String(c.id) === String(formData.city));
