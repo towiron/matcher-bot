@@ -1,4 +1,4 @@
-{$DOMAIN} {
+https://{$DOMAIN} {
 	handle_path /static/* {
 		root * /srv/app/frontend/static
 		file_server
