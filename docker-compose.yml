@@ -107,7 +107,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro   # <-- вот это
+      - ./docker/caddy/Caddyfile.prod:/etc/caddy/Caddyfile:ro
       - ./frontend:/srv/app/frontend:ro
       - caddy_data:/data
       - caddy_config:/config
