@@ -1,35 +1,49 @@
-FROM python:3.11-slim
+# syntax=docker/dockerfile:1.7
+########################
+# 1) Builder
+########################
+FROM python:3.11-slim AS builder
 
 ARG POETRY_VERSION=2.0.1
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_VIRTUALENVS_IN_PROJECT=false
+ENV PIP_NO_CACHE_DIR=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_VIRTUALENVS_IN_PROJECT=true
 
 WORKDIR /app
 
-# Системные зависимости для сборки колёс
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Инструменты сборки (с очисткой и кэш-монтами)
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    apt-get update && \
+    apt-get install -y --no-install-recommends build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Обновим базовые инструменты и поставим нужную версию Poetry
 RUN pip install --upgrade pip setuptools wheel \
  && pip install "poetry==${POETRY_VERSION}"
 
-# Сначала только файлы зависимостей — для кэширования слоя
 COPY pyproject.toml poetry.lock ./
-
-# Жёстко отключим venv и уберём возможные следы
-RUN poetry config virtualenvs.create false && rm -rf /app/.venv
-
-# Теперь копируем весь проект (важно: .dockerignore должен исключать .venv)
-COPY . .
-
-# Установка зависимостей (новый синтаксис для Poetry 2)
+# Ставим только зависимости (без твоего пакета кода)
 RUN poetry install --only main --no-interaction --no-ansi
 
-# Логи (если нужно)
-RUN mkdir -p logs
+COPY . .
+# Если нужно установить и сам проект: убери флаг --only main
+# RUN poetry install --no-interaction --no-ansi
 
+########################
+# 2) Final
+########################
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PATH="/app/.venv/bin:${PATH}"
+
+WORKDIR /app
+
+# Копируем только виртуальное окружение и код
+COPY --from=builder /app/.venv /app/.venv
+COPY . .
+
+RUN mkdir -p logs
 CMD ["python", "bot-runner.py"]

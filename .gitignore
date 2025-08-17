@@ -17,7 +17,3 @@
 **.sql
 **/.env
 **/logs
-
-
-**/database/migrations/versions/*
-!**/database/migrations/versions/__init__.py
