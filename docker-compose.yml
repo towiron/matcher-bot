@@ -19,7 +19,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
-      - postgres:/var/lib/postgresql/data:rw
+      - ./temp/postgres/data:/var/lib/postgresql/data
     networks:
       - matcher_network
     ports:
@@ -121,4 +121,3 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
-  postgres: {}
