@@ -9,6 +9,9 @@ from database.models.user import UserStatus
 from database.models.profile import ProfileModel
 from database.services import User
 from database.services.profile import Profile
+from loader import _
+from app.text import message_text as mt
+
 
 
 class CommonMiddleware(BaseMiddleware):
@@ -38,7 +41,7 @@ class CommonMiddleware(BaseMiddleware):
 
         if not user.accepted_offer and not (is_start_command or is_offer_callback or is_lang_callback or is_lang_command or is_help_command):
             msg = message.message if isinstance(message, CallbackQuery) else message
-            await msg.answer("❗ Вы должны принять оферту перед использованием бота. Введите /start")
+            await msg.answer(_(mt.OFFER_REQUIRED))
             return
 
         # Новые пользователи

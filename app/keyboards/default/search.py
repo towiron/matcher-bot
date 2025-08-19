@@ -2,7 +2,6 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
 
 from data.config import WEB_APP_URL
 from database.models import FilterModel, UserModel
-from loader import _
 from urllib.parse import urlencode
 
 
@@ -13,11 +12,11 @@ def search_kb() -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(
-                    text=_(mt.KB_SEARCH_FILTER),
+                    text=mt.KB_SEARCH_FILTER,
                     web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter")
                 ),
                 KeyboardButton(
-                    text=_(mt.KB_BACK),
+                    text=mt.KB_BACK,
                 )
             ]
         ],
@@ -30,13 +29,13 @@ def build_filter_kb(user: UserModel) -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(
-                    text=_(mt.KB_CREATE_FILTER),
+                    text=mt.KB_CREATE_FILTER,
                     web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?language={user.language}")
                 ),
             ],
             [
                 KeyboardButton(
-                    text=_(mt.KB_BACK),
+                    text=mt.KB_BACK,
                 )
             ]
         ],
@@ -49,19 +48,19 @@ def search_menu_kb(user: UserModel) -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(
-                    text=_(mt.KB_SEARCH_BY_FILTER),
+                    text=mt.KB_SEARCH_BY_FILTER,
                 ),
                 KeyboardButton(
-                    text=_(mt.KB_SEARCH_BY_AI),
+                    text=mt.KB_SEARCH_BY_AI,
                 ),
             ],
             [
                 KeyboardButton(
-                    text=_(mt.KB_CHANGE_FILTER),
+                    text=mt.KB_CHANGE_FILTER,
                     web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?{build_filter_query(user.filter, user.language)}")
                 ),
                 KeyboardButton(
-                    text=_(mt.KB_BACK),
+                    text=mt.KB_BACK,
                 )
             ]
         ],

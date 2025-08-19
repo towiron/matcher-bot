@@ -2,7 +2,6 @@ import json
 
 from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
-from loader import _
 
 from aiogram.types import Message
 
@@ -42,7 +41,7 @@ async def _create_profile_command(message: types.Message, session: AsyncSession,
     )
     await session.refresh(user)
 
-    await message.answer(_(mt.PRFILE_SUCCESSFULLY_CREATED), reply_markup=ReplyKeyboardRemove())
+    await message.answer(mt.PRFILE_SUCCESSFULLY_CREATED, reply_markup=ReplyKeyboardRemove())
 
     keyboard = profile_menu_kb(user.language, user.profile)
     await send_profile(session, message.from_user.id, user.profile, user.language)

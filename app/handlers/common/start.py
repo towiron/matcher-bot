@@ -1,7 +1,7 @@
 from aiogram import types, F
 from aiogram.filters import CommandStart
 from aiogram.filters.state import StateFilter
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import CallbackQuery
 
 from app.business.menu_service import menu
 from app.keyboards.inline.lang import lang_ikb
@@ -24,6 +24,7 @@ async def _start_command(message: types.Message, user: UserModel) -> None:
     if user.profile:
         await menu(user.id)
     else:
+        # Если профиля нет, но оферта принята - предлагаем создать профиль
         await message.answer(mt.CHANGE_LANG, reply_markup=lang_ikb())
 
 

@@ -15,4 +15,7 @@
 **.json
 **.csv
 **/.env
+**/.env.prod
+**/.env.dev
+
 **/logs

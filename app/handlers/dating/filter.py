@@ -6,7 +6,6 @@ from aiogram.types import ReplyKeyboardRemove
 
 from app.business.filter_service import send_filter
 from app.handlers.dating.create_profile import WebAppActionFilter
-from loader import _
 
 import app.filters.create_profile_filtres as filters
 
@@ -29,7 +28,7 @@ async def _create_filter_command(message: types.Message, session, user: UserMode
 
     await session.refresh(user)
 
-    await message.answer(text=_(mt.FILTER_SUCCESSFULLY_ADDED), reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=mt.FILTER_SUCCESSFULLY_ADDED, reply_markup=ReplyKeyboardRemove())
     await send_filter(session, message.from_user.id, user)
 
 def normalize_filter_data(data: dict) -> dict:
@@ -54,7 +53,7 @@ def normalize_filter_data(data: dict) -> dict:
     }
 
 
-@dating_router.message(StateFilter(None), F.text == _(mt.KB_MY_PROFILE))
+@dating_router.message(StateFilter(None), F.text == mt.KB_MY_PROFILE)
 async def filter_command(message: types.Message) -> None:
     """Отправляет фильтр пользователя"""
     keyboard = search_kb()

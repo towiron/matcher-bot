@@ -1,15 +1,15 @@
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.filters.state import StateFilter
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from app.business.menu_service import menu
 from app.keyboards.default.registration_form import create_profile_kb
 from app.keyboards.inline.lang import LangCallback, lang_ikb
 from app.routers import common_router
 from app.text import message_text as mt
 from database.models import UserModel
 from database.services import User
-from app.business.menu_service import menu
 from loader import _
 
 
@@ -33,18 +33,17 @@ async def _change_lang(
     )
     await callback.message.edit_text(mt.DONE_CHANGE_LANG(language))
     
-    # Если пользователь еще не принял оферту, показываем её
     if not user.accepted_offer:
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="✅ Я согласен", callback_data="offer_accept"),
-                    InlineKeyboardButton(text="❌ Не согласен", callback_data="offer_decline")
+                    InlineKeyboardButton(text=mt.OFFER_ACCEPT(language), callback_data="offer_accept"),
+                    InlineKeyboardButton(text=mt.OFFER_NOT_ACCEPT(language), callback_data="offer_decline")
                 ]
             ]
         )
 
-        await callback.message.answer(_(mt.OFFER), reply_markup=keyboard, parse_mode="HTML")
+        await callback.message.answer(_(mt.OFFER(language)), reply_markup=keyboard, parse_mode="HTML")
     else:
         # Если оферта уже принята, продолжаем как обычно
         if user.profile:

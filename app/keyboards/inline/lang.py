@@ -5,8 +5,7 @@ from loader import i18n
 
 language_dict = {
     "ru": "🇷🇺 Русский",
-    # "uz": "🇺🇿 O'zbek",
-    # "en": "🇬🇧 English",
+    "uz": "🇺🇿 Ўзбек",
 }
 
 

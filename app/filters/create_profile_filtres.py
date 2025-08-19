@@ -8,12 +8,6 @@ gender_map = {
     mt.KB_GENDER_FEMALE: "female",
 }
 
-marital_status_map = {
-    mt.KB_MARITAL_STATUS_SINGLE: "single",
-    mt.KB_MARITAL_STATUS_DIVORCED: "divorced",
-    mt.KB_MARITAL_STATUS_WIDOWED: "widowed",
-}
-
 yes_no_map = {
     mt.KB_POLYGAMY_YES: True,
     mt.KB_POLYGAMY_NO: False,
@@ -33,14 +27,6 @@ goal_map = {
     mt.KB_GOAL_COMMUNICATION: "communication",
 }
 
-religion_map = {
-    mt.KB_RELIGION_ISLAM: "islam",
-    mt.KB_RELIGION_CHRISTIANITY: "christianity",
-    mt.KB_RELIGION_JUDAISM: "judaism",
-    mt.KB_RELIGION_BUDDHISM: "buddhism",
-    mt.KB_RELIGION_OTHER: "other",
-}
-
 religious_level_map = {
     mt.KB_RELIGIOSITY_NONE: None,
     mt.KB_RELIGIOSITY_LOW: "low",
@@ -48,20 +34,6 @@ religious_level_map = {
     mt.KB_RELIGIOSITY_HIGH: "high",
     mt.KB_RELIGIOSITY_STRICT: "strict",
 }
-
-ethnicity_map = {
-    mt.KB_ETHNICITY_UZBEK: "uzbek",
-    mt.KB_ETHNICITY_RUSSIAN: "russian",
-}
-
-has_children_map = {
-    mt.KB_HAS_CHILDREN_YES: True,
-    mt.KB_HAS_CHILDREN_NO: False,
-}
-
-leave_previous_tuple = (
-    mt.KB_LEAVE_PREVIOUS,
-)
 
 start_command_tuple = (
     "/create",

@@ -4,22 +4,21 @@
 # Infrastructure
 infra-start: infra-stop
 	@docker compose \
-		-f docker-compose.yml \
-		--env-file .env \
+		-f docker-compose.dev.yml \
+		--env-file .env.dev \
 		up --build -d;
 
 infra-stop:
 	@docker compose \
-		-f docker-compose.yml \
-		--env-file .env \
+		-f docker-compose.dev.yml \
+		--env-file .env.dev \
 		down > /dev/null 2>&1 || true
 
 db-clear:
 	@rm -rf ./temp
-	@rm -rf ./database/migrations/versions/*
 
 refresh-migrations:
-	@alembic revision --autogenerate -m "Initial migration"
+# 	@alembic revision --autogenerate
 	@alembic upgrade head
 
 local:

@@ -7,7 +7,6 @@ from data.config import MODERATOR_GROUP
 from database.models.profile import ProfileModel
 from database.models.user import UserModel
 from database.services import City, Ethnicity, Religion
-# from database.services.search import haversine_distance
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.services.marital_status import MaritalStatus

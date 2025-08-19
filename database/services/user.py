@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from data.config import STARTER_CHANCE_COUNT, CHANCE_COST
 from database.services.base import BaseService
@@ -47,14 +47,28 @@ class User(BaseService):
 
     # ---------- CREATE / UPSERT ----------
 
+    async def get_with_rels(session: AsyncSession, user_id: int) -> Optional[UserModel]:
+        stmt = (
+            select(UserModel)
+            .options(
+                selectinload(UserModel.profile),
+                selectinload(UserModel.filter),
+            )
+            .where(UserModel.id == user_id)
+        )
+        return await session.scalar(stmt)
+
     @staticmethod
     async def get_or_create(
-        session: AsyncSession, id: int, username: str | None = None, language: str | None = None
-    ) -> tuple[Optional[UserModel], bool]:
-        if user := await User.get_with_relations(session, id):
+            session: AsyncSession, id: int, username: str = None, language: str = None
+    ) -> UserModel:
+        if user := await User.get_with_rels(session, id):
             return user, False
-        user = await User.create(session, id=id, username=username, language=language)
+        await User.create(session, id=id, username=username, language=language)
+        user = await User.get_with_profile(session, id)
         return user, True
+
+
 
     @staticmethod
     async def create(

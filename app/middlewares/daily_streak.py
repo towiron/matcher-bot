@@ -13,6 +13,9 @@ from database.services import User
 from database.services.balance import Balance
 from database.models.enums import EntryKind, Source
 
+from loader import _
+from app.text import message_text as mt
+
 _TZ = pytz.timezone("Asia/Tashkent")
 
 
@@ -110,12 +113,8 @@ class DailyStreakMiddleware(BaseMiddleware):
 
         # 5) уведомление, если бонус реально выдан
         if got_bonus and chat_id:
-            text = (
-                "🎁 Вы получили ежедневный бонус: 1 шанс!\n"
-                f"🔥 Вы активны уже {user.daily_streak} дней подряд!"
-            )
             try:
-                await bot.send_message(chat_id, text)
+                await bot.send_message(chat_id, _(mt.DAILY_BONUS(streak=user.daily_streak)))
             except Exception:
                 pass  # не роняем пайплайн
 

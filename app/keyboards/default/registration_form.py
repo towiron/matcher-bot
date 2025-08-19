@@ -2,7 +2,6 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
 
 from data.config import WEB_APP_URL
 from database.models.profile import ProfileModel
-from loader import _
 
 from app.text import message_text as mt
 from urllib.parse import urlencode
@@ -12,7 +11,7 @@ def create_profile_kb(language: str) -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(
-                    text=_(mt.CREATE_PROFILE),
+                    text=mt.CREATE_PROFILE,
                     web_app=WebAppInfo(url=f"{WEB_APP_URL}/profile?language={language}")
                 )
             ]
@@ -28,14 +27,14 @@ def profile_menu_kb(language: str, profile: ProfileModel) -> ReplyKeyboardMarkup
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text=_(mt.KB_FIND_MATCH)),
+                KeyboardButton(text=mt.KB_FIND_MATCH),
             ],
             [
                 KeyboardButton(
-                    text=_(mt.KB_FILL_PROFILE_AGAIN),
+                    text=mt.KB_FILL_PROFILE_AGAIN,
                     web_app=WebAppInfo(url=full_url)
                 ),
-                KeyboardButton(text=_(mt.KB_BACK)),
+                KeyboardButton(text=mt.KB_BACK),
             ]
         ],
         resize_keyboard=True

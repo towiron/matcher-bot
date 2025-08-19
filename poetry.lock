@@ -44,6 +44,29 @@ redis = ["redis[hiredis] (>=5.0.1,<5.3.0)"]
 test = ["aresponses (>=2.1.6,<2.2.0)", "pycryptodomex (>=3.19.0,<3.20.0)", "pytest (>=7.4.2,<7.5.0)", "pytest-aiohttp (>=1.0.5,<1.1.0)", "pytest-asyncio (>=0.21.1,<0.22.0)", "pytest-cov (>=4.1.0,<4.2.0)", "pytest-html (>=4.0.2,<4.1.0)", "pytest-lazy-fixture (>=0.6.3,<0.7.0)", "pytest-mock (>=3.12.0,<3.13.0)", "pytest-mypy (>=0.10.3,<0.11.0)", "pytz (>=2023.3,<2024.0)"]
 
 [[package]]
+name = "aiogram-i18n"
+version = "1.4"
+description = "small translation tools for aiogram"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "aiogram_i18n-1.4-py3-none-any.whl", hash = "sha256:a1f838cfd6fa9a459d5f4514e9693e4fe75d27a0138686d92880faff11447007"},
+    {file = "aiogram_i18n-1.4.tar.gz", hash = "sha256:6e41304a166fe3bccb74f98b00dc4e85fac0cee815ae7f2c85f539e37e65818b"},
+]
+
+[package.dependencies]
+aiogram = ">=3.0.0b8"
+click = ">=8.1.0,<8.2.0"
+
+[package.extras]
+compiler = ["fluent-compiler (>=1.0,<2.0)"]
+dev = ["black (>=23.12.0,<23.13.0)", "mypy (>=1.8.0,<1.9.0)", "packaging (>=23.0,<24.0)", "pre-commit (>=3.3.3,<3.4.0)", "ruff (>=0.1.13,<0.2.0)"]
+docs = ["furo (>=2023.9.10,<2023.10.0)", "sphinx (>=7.2.6,<7.3.0)", "sphinx-autobuild (>=2021.3.14,<2021.4.0)"]
+runtime = ["fluent-runtime (>=0.4.0,<0.5.0)"]
+test = ["fluent-compiler (>=1.0,<2.0)", "fluent-runtime (>=0.4.0,<0.5.0)", "libcst (>=1.0.1,<1.1.0)", "pytest (>=7.4.0,<7.5.0)", "pytest-asyncio (>=0.21.1,<0.22.0)", "pytest-cov (>=4.0.0,<4.1.0)", "pytest-lazy-fixture (>=0.6.3,<0.7.0)"]
+
+[[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
 description = "Happy Eyeballs for asyncio"
@@ -423,14 +446,14 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.2.1"
+version = "8.1.8"
 description = "Composable command line interface toolkit"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "click-8.2.1-py3-none-any.whl", hash = "sha256:61a3265b914e850b85317d0b3109c7f8cd35a670f963866005d6ef1d5175a12b"},
-    {file = "click-8.2.1.tar.gz", hash = "sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202"},
+    {file = "click-8.1.8-py3-none-any.whl", hash = "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2"},
+    {file = "click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a"},
 ]
 
 [package.dependencies]
@@ -2625,4 +2648,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "c498fc4c2680db92809b014de9235708dd53179b9386875c8358dcb95a607ddd"
+content-hash = "fac1477bce74139cca64e8db657334ed120bf5112c9fc427818aa734390055a3"

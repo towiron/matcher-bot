@@ -1,0 +1,48 @@
+name: matcher
+
+x-logging: &default-logging
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  matcher_postgres:
+    image: postgres:15
+    container_name: matcher_postgres
+    restart: "no"
+    env_file:
+      - .env
+    networks:
+      - matcher_network
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./temp/postgres/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d fhir" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *default-logging
+
+  matcher_redis:
+    image: redis:7
+    container_name: matcher_redis
+    networks:
+      - matcher_network
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ./temp/redis/data:/data
+    logging: *default-logging
+
+
+networks:
+  matcher_network:
+    driver: bridge

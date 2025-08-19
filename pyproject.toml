@@ -20,6 +20,7 @@ uvicorn = "^0.35.0"
 faker = "^37.5.3"
 python-multipart = "^0.0.20"
 openai = "^1.99.6"
+aiogram-i18n = "^1.4"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.8"

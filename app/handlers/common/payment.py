@@ -6,7 +6,6 @@ from app.business.menu_service import menu
 from app.keyboards.default.base import menu_kb
 from data.config import CLICK_LIVE_TOKEN, PAYME_LIVE_TOKEN, CHANCE_COST
 from database.models import UserModel
-from loader import _
 from app.routers import common_router
 from app.text import message_text as mt
 
@@ -43,7 +42,7 @@ def fmt_sum(v: int) -> str:
     return f"{v:,}".replace(",", " ").replace(" ", "\u00A0")
 
 
-@common_router.message(F.text.in_(("/pay", _(mt.KB_BUY_CHANCES))))
+@common_router.message(F.text.in_(("/pay", mt.KB_BUY_CHANCES)))
 async def choose_provider(message: types.Message, user: UserModel):
     # показываем баланс в шансах из кеша
     balance_chances = getattr(user, "balance_chances", None)
