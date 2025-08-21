@@ -10,6 +10,14 @@ from app.keyboards.default.search import build_filter_kb, search_menu_kb
 from app.routers import dating_router
 from app.states.default import Search
 from app.text import message_text as mt
+from app.utils.reply_texts import (
+    KB_FIND_MATCH_V,
+    KB_SEARCH_BY_FILTER_V,
+    KB_SEARCH_BY_AI_V,
+    KB_GIVE_CHANCE_V,
+    KB_NEXT_V,
+    KB_BACK_TO_SEARCH_V,
+)
 
 from database.models import UserModel
 from database.services import User, Match, Profile, ViewedProfile
@@ -22,7 +30,7 @@ from typing import Dict, List
 
 from aiogram import types
 
-@dating_router.message(StateFilter(None), F.text == mt.KB_FIND_MATCH)
+@dating_router.message(StateFilter(None), F.text.in_(KB_FIND_MATCH_V))
 async def _search_command(message: types.Message, session: AsyncSession, user: UserModel) -> None:
     # Проверяем, принял ли пользователь оферту
     if not user.filter:
@@ -30,17 +38,17 @@ async def _search_command(message: types.Message, session: AsyncSession, user: U
     else:
         await send_filter(session, user.id, user)
 
-@dating_router.message(StateFilter(None), F.text == mt.KB_SEARCH_BY_FILTER)
+@dating_router.message(StateFilter(None), F.text.in_(KB_SEARCH_BY_FILTER_V))
 async def _search_command_by_filter(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
     await start_search_by_filter(message=message, state=state, user=user, session=session)
 
-@dating_router.message(StateFilter(None), F.text == mt.KB_SEARCH_BY_AI)
+@dating_router.message(StateFilter(None), F.text.in_(KB_SEARCH_BY_AI_V))
 async def _search_by_ai_command(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
     await start_search_by_ai(message=message, state=state, user=user, session=session)
 
 @dating_router.message(
     StateFilter(Search.search),
-    F.text.in_((mt.KB_NEXT, mt.KB_GIVE_CHANCE, mt.KB_BACK_TO_SEARCH)),
+    F.text.in_((*KB_NEXT_V, *KB_GIVE_CHANCE_V, *KB_BACK_TO_SEARCH_V)),
 )
 async def _search_profile(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
     await handle_search_navigation(message=message, state=state, user=user, session=session)
@@ -90,7 +98,7 @@ async def start_search_by_filter(
 ) -> None:
     """Обычный поиск по фильтрам."""
     # Проверяем, принял ли пользователь оферту
-    await message.answer(mt.SEARCH, reply_markup=search_kb)
+    await message.answer(mt.SEARCH, reply_markup=search_kb())
 
     if not await _ensure_profile_or_ask(message, user):
         return
@@ -118,7 +126,7 @@ async def start_search_by_ai(
     Проверяем баланс заранее, списываем 3 шанса через User.use_ai_search
     только если нашлись кандидаты.
     """
-    await message.answer(mt.SEARCH, reply_markup=search_kb)
+    await message.answer(mt.SEARCH, reply_markup=search_kb())
 
     if not await _ensure_profile_or_ask(message, user):
         return
@@ -157,7 +165,7 @@ async def start_search_by_ai(
         logger.log("BALANCE_DEBUG", f"user={user.id} insufficient_balance: {balance_now} < 3")
         await message.answer(
             text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
-            reply_markup=payment_kb)
+            reply_markup=payment_kb())
         return
 
     logger.log("BALANCE_DEBUG", f"user={user.id} balance_check_passed, proceeding to debit")
@@ -172,7 +180,7 @@ async def start_search_by_ai(
         balance_now = user.balance_chances
         await message.answer(
             text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
-            reply_markup=payment_kb)
+            reply_markup=payment_kb())
         return
     except Exception as e:
         logger.log("BALANCE_DEBIT_ERROR", f"user={user.id} use_ai_search failed: {e!r}")
@@ -217,7 +225,7 @@ async def handle_search_navigation(
         return
 
     # Ветка "Дать шанс"
-    if message.text == mt.KB_GIVE_CHANCE:
+    if message.text in KB_GIVE_CHANCE_V:
         another_user = await User.get_with_profile(session, profile_list[0])  # текущий показан
         if not another_user:
             await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
@@ -235,7 +243,7 @@ async def handle_search_navigation(
             return
 
     # Ветка "Назад к настройкам"
-    if message.text == mt.KB_BACK_TO_SEARCH:
+    if message.text in KB_BACK_TO_SEARCH_V:
         await state.clear()
         await send_filter(session, message.from_user.id, user)
         return
@@ -269,7 +277,7 @@ async def _give_chance(session, message: types.Message, user: UserModel, another
         else f"tg://user?id={another_user.id}"
     )
 
-    await message.answer(text=mt.GAVE_CHANCE(profile_link, user_balance), parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance)
+    await message.answer(text=mt.GAVE_CHANCE(profile_link, user_balance), parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance())
 
 
 async def _show_next_profile(

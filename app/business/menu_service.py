@@ -8,5 +8,5 @@ async def menu(chat_id: int) -> None:
     await bot.send_message(
         chat_id=chat_id,
         text=mt.MENU,
-        reply_markup=menu_kb,
+        reply_markup=menu_kb(),
     )

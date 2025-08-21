@@ -31,7 +31,7 @@ async def display_filtered_profile(session: AsyncSession, chat_id: int, profile:
         chat_id=chat_id,
         text=text,
         parse_mode="HTML",
-        reply_markup=search_kb
+        reply_markup=search_kb()
     )
 
 

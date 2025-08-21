@@ -8,6 +8,7 @@ from data.config import CLICK_LIVE_TOKEN, PAYME_LIVE_TOKEN, CHANCE_COST
 from database.models import UserModel
 from app.routers import common_router
 from app.text import message_text as mt
+from app.utils.reply_texts import KB_BUY_CHANCES_V
 
 # ⚙️ Новый леджер/энумы
 from database.services.balance import Balance
@@ -42,7 +43,7 @@ def fmt_sum(v: int) -> str:
     return f"{v:,}".replace(",", " ").replace(" ", "\u00A0")
 
 
-@common_router.message(F.text.in_(("/pay", mt.KB_BUY_CHANCES)))
+@common_router.message(F.text.in_(("/pay", *KB_BUY_CHANCES_V)))
 async def choose_provider(message: types.Message, user: UserModel):
     # показываем баланс в шансах из кеша
     balance_chances = getattr(user, "balance_chances", None)
@@ -150,17 +151,17 @@ async def on_successful_payment(message: types.Message, user: UserModel, session
 
     paid_sum = message.successful_payment.total_amount // 100  # факт от Telegram
     if paid_sum != requested_sum:
-        await message.answer("Сумма оплаты не совпадает с запросом.", reply_markup=menu_kb)
+        await message.answer("Сумма оплаты не совпадает с запросом.", reply_markup=menu_kb())
         return
 
     plan = PLANS_BY_SUM.get(paid_sum)
     if not plan:
-        await message.answer("Неизвестный тариф.", reply_markup=menu_kb)
+        await message.answer("Неизвестный тариф.", reply_markup=menu_kb())
         return
 
     source = SOURCES.get(provider)
     if not source:
-        await message.answer("Неизвестный провайдер оплаты.", reply_markup=menu_kb)
+        await message.answer("Неизвестный провайдер оплаты.", reply_markup=menu_kb())
         return
 
     # Считаем оплаченные и бонусные шансы
@@ -197,4 +198,4 @@ async def on_successful_payment(message: types.Message, user: UserModel, session
         total = await OldUserSvc.get_chance_balance(user)
 
     await state.clear()
-    await message.answer(f"💎 На вашем балансе {total} шанс(ов).", reply_markup=menu_kb)
+    await message.answer(f"💎 На вашем балансе {total} шанс(ов).", reply_markup=menu_kb())

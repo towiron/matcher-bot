@@ -11,6 +11,7 @@ import app.filters.create_profile_filtres as filters
 
 from app.routers import dating_router
 from app.text import message_text as mt
+from app.utils.reply_texts import KB_MY_PROFILE_V
 from database.models import UserModel
 from database.services import Filter
 from app.keyboards.default.search import search_kb
@@ -53,7 +54,7 @@ def normalize_filter_data(data: dict) -> dict:
     }
 
 
-@dating_router.message(StateFilter(None), F.text == mt.KB_MY_PROFILE)
+@dating_router.message(StateFilter(None), F.text.in_(KB_MY_PROFILE_V))
 async def filter_command(message: types.Message) -> None:
     """Отправляет фильтр пользователя"""
     keyboard = search_kb()
