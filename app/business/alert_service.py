@@ -13,12 +13,11 @@ async def new_user_alert_to_group(user: UserModel) -> None:
             else:
                 user_link = f'<a href="tg://user?id={user.id}">user</a>'
 
-            text = f"New user!\n<code>{user.id}</code> ({user_link})"
+            text = f"<b>🆕 Новый пользователь</b>\nID: <code>{user.id}</code>\nСсылка: ({user_link})\n#new"
 
             await bot.send_message(
                 chat_id=MODERATOR_GROUP,
                 text=text,
-                parse_mode="HTML"
             )
         except Exception as e:
-            logger.error("Сообщение в модераторскую группу не отправлено: %s", e)
+            logger.error("Сообщение в модераторскую группу не отправлено: {}", e)
