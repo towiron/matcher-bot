@@ -26,7 +26,7 @@ async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileMode
 
 async def display_filtered_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru") -> None:
     """Отправляет профиль пользователя которые подошли по фильтрам"""
-    text = await format_profile_text(session, profile, user_language)
+    text = await format_candidate_profile_text(session, profile, user_language)
     await bot.send_message(
         chat_id=chat_id,
         text=text,
@@ -161,9 +161,10 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
 {mt.PROFILE_MARITAL_STATUS.format(marital_status_name)}
 {mt.PROFILE_HAS_CHILDREN.format(mt.PROFILE_YES if profile.has_children else mt.PROFILE_NO)}"""
 
+    job_text = profile.job if profile.job else "-"
     profile_text += f"""
 {mt.PROFILE_EDUCATION.format(education_map.get(profile.education, profile.education))}
-{mt.PROFILE_JOB.format(profile.job or mt.PROFILE_NOT_SPECIFIED)}
+{mt.PROFILE_JOB.format(job_text)}
 {mt.PROFILE_GOAL.format(goal_map.get(profile.goal, profile.goal))}
 {mt.PROFILE_RELIGION.format(religion_name)}"""
 
@@ -172,10 +173,100 @@ async def format_profile_text(session: AsyncSession, profile: ProfileModel, user
 
     profile_text += f"""
 {mt.PROFILE_ETHNICITY.format(ethnicity_name)}"""
+
+    about_text = profile.about if profile.about else "-"
+    looking_for_text = profile.looking_for if profile.looking_for else "-"
+
     profile_text += f"""
-{mt.PROFILE_ABOUT.format(profile.about)}"""
+{mt.PROFILE_ABOUT.format(about_text)}"""
     profile_text += f"""
-{mt.PROFILE_LOOKING_FOR.format(profile.looking_for)}"""
+{mt.PROFILE_LOOKING_FOR.format(looking_for_text)}"""
+
+    return profile_text
+
+async def format_candidate_profile_text(session: AsyncSession, profile: ProfileModel, user_language: str = "ru") -> str:
+    """Форматирует профиль для отображения"""
+
+    education_map = {
+        "primary": mt.KB_EDUCATION_SECONDARY,  # или добавь KB_EDUCATION_PRIMARY
+        "secondary": mt.KB_EDUCATION_SECONDARY,
+        "incomplete_higher": mt.KB_EDUCATION_INCOMPLETE_HIGHER,
+        "higher": mt.KB_EDUCATION_HIGHER,
+    }
+
+    goal_map = {
+        "friendship": mt.KB_GOAL_FRIENDSHIP,
+        "communication": mt.KB_GOAL_COMMUNICATION,
+        "marriage": mt.KB_GOAL_MARRIAGE,
+        "serious_relationship": mt.KB_GOAL_SERIOUS_RELATIONSHIP,
+    }
+
+    religious_level_map = {
+        "low": mt.KB_RELIGIOSITY_LOW,
+        "medium": mt.KB_RELIGIOSITY_MEDIUM,
+        "high": mt.KB_RELIGIOSITY_HIGH,
+        "strict": mt.KB_RELIGIOSITY_STRICT,
+        "none": mt.KB_RELIGIOSITY_NONE,
+    }
+
+    marital_status_obj = await MaritalStatus.get_by_id(session, id=profile.marital_status_id)
+    marital_status_name = get_gendered_field_value(marital_status_obj, user_language, profile.gender)
+
+    city_obj = await City.get_by_id(session, id=profile.city_id)
+    city_name = city_obj.en
+    if city_obj:
+        match user_language:
+            case "uz":
+                city_name = city_obj.uz
+            case "en":
+                city_name = city_obj.en
+            case "ru":
+                city_name = city_obj.ru
+
+    ethnicity_obj = await Ethnicity.get_by_id(session, id=profile.ethnicity_id)
+    ethnicity_name = get_gendered_field_value(ethnicity_obj, user_language, profile.gender)
+
+    religion_obj = await Religion.get_by_id(session, id=profile.religion_id)
+    religion_name = religion_obj.en
+    if religion_obj:
+        match user_language:
+            case "uz":
+                religion_name = religion_obj.uz
+            case "en":
+                religion_name = religion_obj.en
+            case "ru":
+                religion_name = religion_obj.ru
+
+    # Сборка текста
+    profile_text = f"""
+{mt.PROFILE_NAME.format(profile.name)}
+{mt.PROFILE_AGE.format(profile.age)}
+{mt.PROFILE_CITY.format(city_name)}
+{mt.PROFILE_HEIGHT.format(profile.height)}
+{mt.PROFILE_WEIGHT.format(profile.weight)}
+
+{mt.PROFILE_MARITAL_STATUS.format(marital_status_name)}
+{mt.PROFILE_HAS_CHILDREN.format(mt.PROFILE_YES if profile.has_children else mt.PROFILE_NO)}"""
+
+    job_text = profile.job if profile.job else "-"
+    profile_text += f"""
+{mt.PROFILE_EDUCATION.format(education_map.get(profile.education, profile.education))}
+{mt.PROFILE_JOB.format(job_text)}
+{mt.PROFILE_GOAL.format(goal_map.get(profile.goal, profile.goal))}
+{mt.PROFILE_RELIGION.format(religion_name)}"""
+
+    if profile.religious_level:
+        profile_text += f"\n{mt.PROFILE_RELIGIOUS_LEVEL.format(religious_level_map.get(profile.religious_level))}"
+
+    profile_text += f"""
+{mt.PROFILE_ETHNICITY.format(ethnicity_name)}"""
+    about_text = profile.about if profile.about else "-"
+    looking_for_text = profile.looking_for if profile.looking_for else "-"
+
+    profile_text += f"""
+{mt.PROFILE_ABOUT.format(about_text)}"""
+    profile_text += f"""
+{mt.PROFILE_LOOKING_FOR.format(looking_for_text)}"""
 
     return profile_text
 
