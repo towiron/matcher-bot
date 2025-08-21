@@ -64,4 +64,4 @@ async def _change_lang(
         else:
             # используем СВЕЖИЙ language, не "user.language" из прошлого апдейта
             keyboard = create_profile_kb(language)
-            await callback.message.answer(mt.WELCOME(language), reply_markup=keyboard)
+            await callback.message.answer(mt.WELCOME, reply_markup=keyboard)
