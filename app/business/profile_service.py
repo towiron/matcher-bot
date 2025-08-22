@@ -8,12 +8,13 @@ from database.models.profile import ProfileModel
 from database.models.user import UserModel
 from database.services import City, Ethnicity, Religion
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
 
 from database.services.marital_status import MaritalStatus
 from loader import bot
 from utils.logging import logger
 
-async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru") -> None:
+async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru", reply_markup: ReplyKeyboardMarkup | InlineKeyboardMarkup | None = None) -> None:
     """Отправляет пользователю переданный в функцию профиль"""
     profile_text = await format_profile_text(session, profile, user_language)
 
@@ -21,6 +22,7 @@ async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileMode
         chat_id=chat_id,
         text=profile_text,
         parse_mode="HTML",
+        reply_markup=reply_markup,
     )
 
 

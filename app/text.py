@@ -524,6 +524,10 @@ The reason: {}
 )
 
     @property
+    def GOT_CHANCE(self) -> str:
+        return _("✨ Тебе дали шанс!")
+
+    @property
     def SMART_SEARCH_EMPTY_REPEAT(self) -> str:
         return _("""
 🧠 Кандидаты умного поиска закончились!

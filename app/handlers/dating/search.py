@@ -5,6 +5,7 @@ from aiogram.enums.parse_mode import ParseMode
 
 from app.business.filter_service import send_filter
 from app.business.profile_service import display_filtered_profile
+from app.business.dating_service import send_got_chance_alert
 from app.keyboards.default.base import search_kb, search_kb_after_chance, payment_kb
 from app.keyboards.default.search import build_filter_kb, search_menu_kb
 from app.routers import dating_router
@@ -239,7 +240,7 @@ async def handle_search_navigation(
             )
             return
         except ValueError:
-            await message.answer(mt.ERR_NO_CHANCES_LEFT, reply_markup=payment_kb)
+            await message.answer(mt.ERR_NO_CHANCES_LEFT, reply_markup=payment_kb())
             return
 
     # Ветка "Назад к настройкам"
@@ -278,6 +279,9 @@ async def _give_chance(session, message: types.Message, user: UserModel, another
     )
 
     await message.answer(text=mt.GAVE_CHANCE(profile_link, user_balance), parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance())
+
+    # Уведомим получателя шанса: отправим ему профиль дарителя и ссылку на контакт
+    await send_got_chance_alert(session=session, recipient=another_user, giver=user)
 
 
 async def _show_next_profile(
