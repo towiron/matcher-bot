@@ -41,6 +41,14 @@ logger.level("BALANCE_DEBIT", no=23, color="<red>", icon="��")       # сп�
 logger.level("BALANCE_CREDIT", no=24, color="<green>", icon="💎")    # пополнение шансов
 logger.level("BALANCE_ERROR", no=35, color="<red>", icon="❌")       # ошибки баланса
 
+# Уровни для отладки поиска
+logger.level("RESUME_SEARCH_DEBUG", no=25, color="<cyan>", icon="🔄")  # отладка возобновления поиска
+logger.level("GIVE_CHANCE_DEBUG", no=26, color="<blue>", icon="💝")    # отладка дачи шанса
+logger.level("BALANCE_DEBIT_ERROR", no=36, color="<red>", icon="💸❌") # ошибки списания шансов
+
+# Уровни для управления состояниями
+logger.level("STATE_CLEAR", no=27, color="<magenta>", icon="🧹")       # очистка состояний FSM
+
 
 getLogger("aiogram").addFilter(
     lambda r: r.getMessage().find("Field 'database_user' doesn't exist in") == -1

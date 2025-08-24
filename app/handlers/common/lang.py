@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command, StateFilter
+from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.i18n import I18n
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,24 +13,37 @@ from app.text import message_text as mt
 from database.models import UserModel
 from database.services import User
 from loader import i18n  # сам экземпляр I18n, не gettext-алиас _
+from utils.logging import logger
 
 def normalize_lang(code: str | None, default: str = "ru") -> str:
     if not code:
         return default
     return code.split("-")[0].lower()
 
-@common_router.message(StateFilter(None), Command("language"))
-@common_router.message(StateFilter(None), Command("lang"))
-async def _lang(message: types.Message) -> None:
+@common_router.message(Command("language"))
+@common_router.message(Command("lang"))
+async def _lang(message: types.Message, state: FSMContext) -> None:
+    # Очищаем любое состояние при команде /lang
+    current_state = await state.get_state()
+    if current_state:
+        logger.log("STATE_CLEAR", f"user={message.from_user.id} cleared_state={current_state} via /lang command")
+    await state.clear()
+    
     await message.answer(mt.CHANGE_LANG,  reply_markup=lang_ikb())
 
-@common_router.callback_query(StateFilter(None), LangCallback.filter())
+@common_router.callback_query(LangCallback.filter())
 async def _change_lang(
     callback: types.CallbackQuery,
     callback_data: LangCallback,
     user: UserModel,
     session: AsyncSession,
+    state: FSMContext,
 ) -> None:
+    # Очищаем любое состояние при изменении языка
+    current_state = await state.get_state()
+    if current_state:
+        logger.log("STATE_CLEAR", f"user={user.id} cleared_state={current_state} via lang_change")
+    await state.clear()
     # 1) нормализуем и сохраняем
     language = normalize_lang(callback_data.lang)
     await User.update(session=session, id=user.id, language=language)

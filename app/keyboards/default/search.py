@@ -30,7 +30,7 @@ def build_filter_kb(user: UserModel) -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(
                     text=mt.KB_CREATE_FILTER,
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?language={user.language}")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?language={user.language}&gender={user.profile.gender}")
                 ),
             ],
             [
@@ -57,7 +57,7 @@ def search_menu_kb(user: UserModel) -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(
                     text=mt.KB_CHANGE_FILTER,
-                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?{build_filter_query(user.filter, user.language)}")
+                    web_app=WebAppInfo(url=f"{WEB_APP_URL}/filter?{build_filter_query(user.filter, user.language, user.profile.gender)}")
                 ),
                 KeyboardButton(
                     text=mt.KB_BACK,
@@ -68,9 +68,10 @@ def search_menu_kb(user: UserModel) -> ReplyKeyboardMarkup:
     )
     return kb
 
-def build_filter_query(filter: FilterModel, language: str) -> str:
+def build_filter_query(filter: FilterModel, language: str, user_gender: str) -> str:
     params = {
         "language": language,
+        "gender": user_gender,
         "city": filter.city_id,
         "age_from": filter.age_from,
         "age_to": filter.age_to,

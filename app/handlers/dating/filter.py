@@ -15,10 +15,11 @@ from app.utils.reply_texts import KB_MY_PROFILE_V
 from database.models import UserModel
 from database.services import Filter
 from app.keyboards.default.search import search_kb
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dating_router.message(WebAppActionFilter("filter_submit"))
-async def _create_filter_command(message: types.Message, session, user: UserModel):
+async def _create_filter_command(message: types.Message, session: AsyncSession, user: UserModel):
     data = json.loads(message.web_app_data.data)
     filter = normalize_filter_data(data)
     await Filter.create_or_update(

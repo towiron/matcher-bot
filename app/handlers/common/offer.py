@@ -5,6 +5,7 @@ from app.text import message_text as mt
 from database.services import User
 from app.states.default import Onboarding
 from loader import _, i18n
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def show_offer(message: Message, language: str) -> None:
@@ -22,7 +23,7 @@ async def show_offer(message: Message, language: str) -> None:
         await message.answer(_(mt.OFFER), reply_markup=keyboard, parse_mode="HTML")
 
 
-async def handle_offer_accept(callback, user: UserModel, session, state: FSMContext) -> None:
+async def handle_offer_accept(callback: types.CallbackQuery, user: UserModel, session: AsyncSession, state: FSMContext) -> None:
     """Обработчик принятия оферты"""
     await callback.answer()
     
@@ -42,7 +43,7 @@ async def handle_offer_accept(callback, user: UserModel, session, state: FSMCont
         await menu(callback.from_user.id)
 
 
-async def handle_offer_decline(callback, state: FSMContext) -> None:
+async def handle_offer_decline(callback: types.CallbackQuery, state: FSMContext) -> None:
     """Обработчик отклонения оферты"""
     await callback.answer()
     await callback.message.edit_text(mt.OFFER_NOT_ACCEPTED_ANSWER)

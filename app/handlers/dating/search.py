@@ -32,20 +32,35 @@ from typing import Dict, List
 from aiogram import types
 
 @dating_router.message(StateFilter(None), F.text.in_(KB_FIND_MATCH_V))
-async def _search_command(message: types.Message, session: AsyncSession, user: UserModel) -> None:
+async def _search_command(message: types.Message, session: AsyncSession, user: UserModel, state: FSMContext) -> None:
     # Проверяем, принял ли пользователь оферту
     if not user.filter:
         await message.answer(mt.FILL_FILTER, reply_markup=build_filter_kb(user))
     else:
-        await send_filter(session, user.id, user)
+        # Сначала проверяем, есть ли приостановленный поиск
+        search_resumed = await check_and_resume_paused_search(message, state, user, session)
+        if not search_resumed:
+            # Если нет приостановленного поиска, показываем обычное меню поиска
+            await send_filter(session, user.id, user)
 
 @dating_router.message(StateFilter(None), F.text.in_(KB_SEARCH_BY_FILTER_V))
 async def _search_command_by_filter(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
-    await start_search_by_filter(message=message, state=state, user=user, session=session)
+    # Сначала проверяем, есть ли приостановленный поиск
+    search_resumed = await check_and_resume_paused_search(message, state, user, session)
+    if not search_resumed:
+        # Если нет приостановленного поиска, запускаем новый поиск
+        await start_search_by_filter(message=message, state=state, user=user, session=session)
 
 @dating_router.message(StateFilter(None), F.text.in_(KB_SEARCH_BY_AI_V))
 async def _search_by_ai_command(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
-    await start_search_by_ai(message=message, state=state, user=user, session=session)
+    # Сначала проверяем, есть ли приостановленный поиск
+    search_resumed = await check_and_resume_paused_search(message, state, user, session)
+    if not search_resumed:
+        # Если нет приостановленного поиска, проверяем поля профиля
+        if not await _ensure_ai_search_fields(message, user):
+            return
+        # Если поля заполнены, запускаем новый поиск
+        await start_search_by_ai(message=message, state=state, user=user, session=session)
 
 @dating_router.message(
     StateFilter(Search.search),
@@ -62,6 +77,7 @@ class SearchData:
     ids: List[int]
     mode: str                     # "filter" | "ai"
     ai_reasons: Dict[str, str]    # ключи — строковые id
+    paused_for_payment: bool = False  # флаг, что поиск приостановлен для оплаты
 
     @staticmethod
     async def load(state: FSMContext) -> "SearchData":
@@ -70,6 +86,7 @@ class SearchData:
             ids=list(data.get("ids", [])),
             mode=data.get("mode", "filter"),
             ai_reasons=dict(data.get("ai_reasons") or {}),
+            paused_for_payment=data.get("paused_for_payment", False),
         )
 
     async def save(self, state: FSMContext) -> None:
@@ -84,11 +101,57 @@ async def _ensure_profile_or_ask(message: types.Message, user: UserModel) -> boo
         return False
     return True
 
-async def _ensure_filter_or_show(message: types.Message, session, user: UserModel) -> bool:
+async def _ensure_filter_or_show(message: types.Message, session: AsyncSession, user: UserModel) -> bool:
     if not user.filter:
         await message.answer(mt.FILL_FILTER, reply_markup=None)  # реплай-кб соберётся в send_filter
         await send_filter(session, user.id, user)
         return False
+    return True
+
+async def _ensure_ai_search_fields(message: types.Message, user: UserModel) -> bool:
+    """Проверяет, заполнены ли поля профиля для умного поиска."""
+    if not user.profile:
+        await message.answer(mt.FILL_PROFILE_FIRST)
+        return False
+    
+    # Проверяем критически важные поля для умного поиска
+    missing_fields = []
+    short_fields = []
+    
+    if not user.profile.about or user.profile.about.strip() == "":
+        missing_fields.append("О себе")
+    elif len(user.profile.about.strip()) < 20:
+        short_fields.append("О себе (минимум 20 символов)")
+    
+    if not user.profile.looking_for or user.profile.looking_for.strip() == "":
+        missing_fields.append("Кого ищете")
+    elif len(user.profile.looking_for.strip()) < 20:
+        short_fields.append("Кого ищете (минимум 20 символов)")
+    
+    if missing_fields or short_fields:
+        all_fields = missing_fields + short_fields
+        fields_text = ", ".join(all_fields)
+        
+        if missing_fields:
+            message_text = (
+                f"❌ Для использования умного поиска необходимо заполнить следующие поля профиля:\n\n"
+                f"📝 {fields_text}\n\n"
+            )
+        else:
+            message_text = (
+                f"⚠️ Для качественного умного поиска рекомендуется расширить следующие поля профиля:\n\n"
+                f"📝 {fields_text}\n\n"
+            )
+        
+        message_text += (
+            "💡 Умный поиск анализирует ваши интересы и предпочтения, "
+            "поэтому важно подробно описать себя и кого вы ищете.\n\n"
+            "Пожалуйста, дополните свой профиль и попробуйте снова."
+        )
+        
+        await message.answer(message_text, reply_markup=search_menu_kb(user=user))
+        return False
+    
     return True
 
 
@@ -124,21 +187,33 @@ async def start_search_by_ai(
         message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession
 ) -> None:
     """ИИ-ранжирование + объяснения.
-    Проверяем баланс заранее, списываем 3 шанса через User.use_ai_search
-    только если нашлись кандидаты.
+    1) Проверяем баланс перед ИИ-запросом
+    2) Делаем ИИ-поиск только если есть шансы
+    3) Списываем 3 шанса только если ИИ нашел кандидатов
     """
     await message.answer(mt.SEARCH, reply_markup=search_kb())
 
     if not await _ensure_profile_or_ask(message, user):
         return
 
-    # 1) Фильтр БД
+    # 1) Проверяем баланс ПЕРЕД любыми операциями
+    balance_now = user.balance_chances
+    logger.log("BALANCE_DEBUG", f"user={user.id} balance_now={balance_now} (type: {type(balance_now)})")
+    
+    if balance_now < 3:
+        logger.log("BALANCE_DEBUG", f"user={user.id} insufficient_balance: {balance_now} < 3")
+        await message.answer(
+            text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
+            reply_markup=payment_kb())
+        return
+
+    # 2) Фильтр БД
     profile_list = await search_profiles(session, user.profile)
     if not profile_list:
         await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
         return
 
-    # 2) ИИ-ранжирование
+    # 3) ИИ-ранжирование (только если есть баланс)
     try:
         ids, reasons = await search_profiles_by_ai_with_reasons(
             session=session,
@@ -153,36 +228,24 @@ async def start_search_by_ai(
         ids, reasons = [], {}
 
     if not ids:
-        # Кандидатов нет — ничего не списываем
-        await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
-        return
-
-    # 3) Проверяем баланс только после успешного поиска
-    balance_now = user.balance_chances
-    logger.log("BALANCE_DEBUG", f"user={user.id} balance_now={balance_now} (type: {type(balance_now)})")
-    logger.log("BALANCE_DEBUG", f"user={user.id} balance_now < 3 = {balance_now < 3}")
-
-    if balance_now < 3:
-        logger.log("BALANCE_DEBUG", f"user={user.id} insufficient_balance: {balance_now} < 3")
+        # ИИ не нашел подходящих кандидатов — ничего не списываем
         await message.answer(
-            text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
-            reply_markup=payment_kb())
+            "🤖 Умный поиск не смог найти подходящих кандидатов на данный момент.\n\n"
+            "💡 Попробуйте:\n"
+            "• Обновить описание профиля\n"
+            "• Расширить критерии поиска\n"
+            "• Попробовать обычный поиск",
+            reply_markup=search_menu_kb(user=user)
+        )
         return
-
-    logger.log("BALANCE_DEBUG", f"user={user.id} balance_check_passed, proceeding to debit")
 
     # 4) Списываем 3 шанса через User.use_ai_search
+    logger.log("BALANCE_DEBUG", f"user={user.id} balance_check_passed, proceeding to debit")
     try:
         logger.log("BALANCE_DEBUG", f"user={user.id} calling use_ai_search")
         await User.use_ai_search(session=session, user=user)
+        await session.refresh(user)  # Обновляем баланс пользователя
         logger.log("BALANCE_DEBIT", f"user={user.id} -3 (smart_search_success via use_ai_search)")
-    except ValueError as e:
-        logger.log("BALANCE_DEBUG", f"user={user.id} ValueError caught: {e}")
-        balance_now = user.balance_chances
-        await message.answer(
-            text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
-            reply_markup=payment_kb())
-        return
     except Exception as e:
         logger.log("BALANCE_DEBIT_ERROR", f"user={user.id} use_ai_search failed: {e!r}")
         await message.answer(mt.ERR_CHANCES_DEBIT_FAILED, reply_markup=search_menu_kb(user=user))
@@ -231,17 +294,16 @@ async def handle_search_navigation(
         if not another_user:
             await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
             return
-        try:
-            await _give_chance(
-                session=session,
-                message=message,
-                user=user,
-                another_user=another_user,
-            )
-            return
-        except ValueError:
-            await message.answer(mt.ERR_NO_CHANCES_LEFT, reply_markup=payment_kb())
-            return
+        # Пытаемся дать шанс (функция сама сохранит состояние при недостатке шансов)
+        await _give_chance(
+            message=message,
+            user=user,
+            another_user=another_user,
+            session=session,
+            state=state,
+            search_data=data,
+        )
+        return
 
     # Ветка "Назад к настройкам"
     if message.text in KB_BACK_TO_SEARCH_V:
@@ -250,15 +312,32 @@ async def handle_search_navigation(
         return
 
     # Иначе: «Далее» — показать следующего
+    
     await _show_next_profile(session, message, state, user, data)
 
 
-async def _give_chance(session, message: types.Message, user: UserModel, another_user: UserModel) -> None:
+async def _give_chance(message: types.Message, user: UserModel, another_user: UserModel, session: AsyncSession, state: FSMContext = None, search_data: SearchData = None) -> None:
+    # Проверяем, достаточно ли шансов для дачи шанса
+    if user.balance_chances < 1:
+        if state and search_data:
+            # Сохраняем состояние поиска для продолжения после оплаты
+            search_data.paused_for_payment = True
+            await search_data.save(state)
+            logger.log("GIVE_CHANCE_DEBUG", f"user={user.id} saved_search_state_for_payment, mode={search_data.mode}")
+        
+        await message.answer(
+            f"❌ Недостаточно шансов для дачи шанса. У вас {user.balance_chances} шанс(ов).",
+            reply_markup=payment_kb()
+        )
+        return
+
     # Списываем 1 шанс перед созданием матча
     try:
         await User.use_one_chance(session=session, user=user, target_id=another_user.id)
+        await session.refresh(user)  # Обновляем баланс пользователя
         logger.log("BALANCE_DEBUG", f"user={user.id} -1 (give_chance via use_one_chance)")
-    except ValueError:
+    except ValueError as e:
+        logger.log("BALANCE_DEBUG", f"user={user.id} ValueError caught in give_chance: {e}")
         raise ValueError("Недостаточно шансов для дачи шанса")
     except Exception as e:
         logger.log("BALANCE_DEBUG", f"user={user.id} use_one_chance failed: {e!r}")
@@ -270,7 +349,8 @@ async def _give_chance(session, message: types.Message, user: UserModel, another
     if not is_create:
         return
 
-    # Получаем обновленный баланс
+    # Получаем обновленный баланс и обновляем объект пользователя
+    await session.refresh(user)
     user_balance = await User.get_chance_balance(user)
     profile_link = (
         f"https://t.me/{another_user.username}"
@@ -285,7 +365,7 @@ async def _give_chance(session, message: types.Message, user: UserModel, another
 
 
 async def _show_next_profile(
-    session,
+    session: AsyncSession,
     message: types.Message,
     state: FSMContext,
     user: UserModel,
@@ -339,3 +419,81 @@ async def _show_next_profile(
 
     profile = await Profile.get(session, next_id)
     await display_filtered_profile(session, user.id, profile, user.language)
+
+
+# ---------- Функция для проверки и возобновления приостановленного поиска ----------
+
+async def check_and_resume_paused_search(
+    message: types.Message, 
+    state: FSMContext, 
+    user: UserModel, 
+    session: AsyncSession
+) -> bool:
+    """
+    Проверяет, есть ли приостановленный поиск, и если да - предлагает продолжить.
+    Возвращает True, если поиск был возобновлен, False - если нет.
+    """
+    current_state = await state.get_state()
+    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} checking_paused_search, current_state={current_state}")
+    
+    if current_state != Search.search:
+        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} not_in_search_state")
+        return False
+    
+    data = await SearchData.load(state)
+    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} loaded_search_data, paused={data.paused_for_payment}, ids_count={len(data.ids)}")
+    
+    if not data.paused_for_payment or not data.ids:
+        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} no_paused_search_or_empty_ids")
+        return False
+    
+    # Проверяем баланс после оплаты
+    await session.refresh(user)  # Обновляем баланс пользователя
+    balance_now = user.balance_chances
+    
+    # ЛОГИКА: 
+    # - Для умного поиска: 3 шанса уже списаны при запуске, нужно только 1 для "дать шанс"
+    # - Для обычного поиска: шансы не списывались, нужно только 1 для "дать шанс"
+    # - В любом случае для продолжения просмотра достаточно 1 шанса
+    required_chances = 1
+    
+    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} mode={data.mode} balance={balance_now} required={required_chances}")
+    
+    if balance_now < required_chances:
+        # Баланс все еще недостаточен
+        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} insufficient_balance_for_resume: {balance_now} < {required_chances}")
+        await message.answer(
+            f"❌ Недостаточно шансов для продолжения поиска. У вас {balance_now} шанс(ов), требуется {required_chances}.",
+            reply_markup=payment_kb()
+        )
+        return False
+    
+    # Баланс достаточен, возобновляем поиск
+    data.paused_for_payment = False
+    await data.save(state)
+    
+    # Показываем текущий профиль (тот, для которого пользователь хотел дать шанс)
+    current_id = data.ids[0]
+    another_user = await User.get_with_profile(session, current_id)
+    
+    if not another_user:
+        await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
+        await state.clear()
+        return True
+    
+    # Показываем ТОТ ЖЕ профиль, для которого пользователь хотел дать шанс
+    if data.mode == "ai":
+        reason_text = data.ai_reasons.get(str(current_id))
+        if reason_text:
+            await message.answer(text=mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
+    
+    await display_filtered_profile(session, user.id, another_user.profile, user.language)
+    
+    await message.answer(
+        "✅ Теперь у вас достаточно шансов! Вы можете дать шанс этому пользователю или продолжить поиск.",
+        reply_markup=search_kb()
+    )
+    
+    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} resumed_search_with_same_profile={current_id}")
+    
+    return True

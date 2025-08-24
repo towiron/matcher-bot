@@ -7,10 +7,11 @@ from app.text import message_text as mt
 from app.utils.reply_texts import KB_DISABLE_PROFILE_V
 from database.models import UserModel
 from database.services import Profile
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dating_router.message(StateFilter(None), F.text.in_(KB_DISABLE_PROFILE_V))
-async def _disable_profile_command(message: types.Message, user: UserModel, session) -> None:
+async def _disable_profile_command(message: types.Message, user: UserModel, session: AsyncSession) -> None:
     """Отключает профиль пользователя, и не дает ему дальше пользоватся ботом до восстановления"""
     await Profile.update(
         session=session,

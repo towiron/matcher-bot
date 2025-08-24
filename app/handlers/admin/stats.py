@@ -11,13 +11,14 @@ from app.routers import admin_router
 from data.config import GRAPH_FILE_PATH
 from database.services.stats import Stats
 from utils.graphs import StatsGraph
+from sqlalchemy.ext.asyncio import AsyncSession
 
 stats_graph = StatsGraph()
 
 
 @admin_router.message(StateFilter(None), Command("stats"))
 @admin_router.message(StateFilter(None), F.text == "📊 Statistics")
-async def _stats_command(message: types.Message, session) -> None:
+async def _stats_command(message: types.Message, session: AsyncSession) -> None:
     """Отправляет администратору меню статистики"""
     await message.answer("Stats sending...")
 
@@ -36,7 +37,7 @@ async def _stats_command(message: types.Message, session) -> None:
 
 
 @admin_router.callback_query(StateFilter(None), StatsCallback.filter())
-async def _stats_callback(callback: types.CallbackQuery, callback_data: StatsCallback, session) -> None:
+async def _stats_callback(callback: types.CallbackQuery, callback_data: StatsCallback, session: AsyncSession) -> None:
     """Отправляет администратору график и статистику"""
 
     user_text = _(mt.KB_STAT_USER)

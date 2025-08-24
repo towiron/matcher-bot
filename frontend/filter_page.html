@@ -9,6 +9,48 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .button-group button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .button-group button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+    }
+    
+    .button-group button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    
+    .button-group button[type="button"] {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .button-group button[type="button"]:hover {
+      background-color: #da190b;
+    }
+    
+    @media (max-width: 600px) {
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -65,7 +107,10 @@
         <option value="" data-i18n="ethnicity">Выберите национальность</option>
       </select>
 
-      <button type="submit" data-i18n="apply">✅ Применить фильтр</button>
+      <div class="button-group">
+        <button type="submit" data-i18n="apply">✅ Применить фильтр</button>
+        <button type="button" id="clearFilterBtn" data-i18n="clear">🗑️ Очистить фильтр</button>
+      </div>
     </form>
   </div>
 
@@ -87,7 +132,7 @@
     let citiesList = [];
     let ethnicitiesList = [];
 
-    // i18n
+    // i18n с гендерными окончаниями
     const i18n = {
       ru: {
         title: "🔍 Фильтры поиска",
@@ -97,7 +142,10 @@
         weight_lbl: "Вес (кг):",
         from: "От",
         to: "До",
-        has_children: "Есть ли дети?",
+        has_children: {
+          male: "Есть ли у неё дети?",    // Мужчина ищет женщину
+          female: "Есть ли у него дети?"  // Женщина ищет мужчину
+        },
         yes: "Да",
         no: "Нет",
         any: "Не важно",
@@ -108,6 +156,7 @@
         marriage: "Брак",
         ethnicity: "Выберите национальность",
         apply: "✅ Применить фильтр",
+        clear: "🗑️ Очистить фильтр",
         sent: "Данные отправлены!",
         error: "Ошибка. Проверьте подключение."
       },
@@ -119,7 +168,10 @@
         weight_lbl: "Вазни (кг):",
         from: "Дан",
         to: "Гача",
-        has_children: "Фарзанд борми?",
+        has_children: {
+          male: "Унинг фарзанди борми?",     // Эркак аёл излайди
+          female: "Унинг фарзанди борми?"    // Аёл эркак излайди
+        },
         yes: "Ҳа",
         no: "Йўқ",
         any: "Муҳим эмас",
@@ -130,6 +182,7 @@
         marriage: "Никоҳ",
         ethnicity: "Миллатни танланг",
         apply: "✅ Фильтрни қўллаш",
+        clear: "🗑️ Фильтрни тозалаш",
         sent: "Маълумотлар юборилди!",
         error: "Хато. Интернетни текширинг."
       },
@@ -141,7 +194,10 @@
         weight_lbl: "Weight (kg):",
         from: "From",
         to: "To",
-        has_children: "Do they have children?",
+        has_children: {
+          male: "Does she have children?",   // Мужчина ищет женщину
+          female: "Does he have children?"  // Женщина ищет мужчину
+        },
         yes: "Yes",
         no: "No",
         any: "Any",
@@ -152,11 +208,19 @@
         marriage: "Marriage",
         ethnicity: "Select nationality",
         apply: "✅ Apply filter",
+        clear: "🗑️ Clear filter",
         sent: "Data sent!",
         error: "Error. Check your connection."
       }
     };
-    const T = (k) => (i18n[language] && i18n[language][k]) || i18n.ru[k] || k;
+    const T = (key) => {
+      const value = (i18n[language] && i18n[language][key]) || i18n.ru[key] || key;
+      // Если значение является объектом с гендерными вариантами
+      if (typeof value === 'object' && value !== null) {
+        return value[userGender] || value.male || key;
+      }
+      return value;
+    };
 
     function applyTranslations() {
       document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -268,6 +332,35 @@
         alert(T("error"));
       }
     });
+
+    // функция очистки фильтра
+    function clearFilter() {
+      // Очищаем все поля формы
+      document.getElementById("filterForm").reset();
+      
+      // Сбрасываем select элементы в начальное состояние
+      cityInput.value = "";
+      ethnicityInput.value = "";
+      
+      // Очищаем числовые поля
+      const numberFields = ["age_from", "age_to", "height_from", "height_to", "weight_from", "weight_to"];
+      numberFields.forEach(fieldName => {
+        const field = document.getElementsByName(fieldName)[0];
+        if (field) field.value = "";
+      });
+      
+      // Сбрасываем select поля
+      const selectFields = ["goal", "has_children"];
+      selectFields.forEach(fieldName => {
+        const field = document.getElementsByName(fieldName)[0];
+        if (field) field.selectedIndex = 0;
+      });
+      
+      console.log("Фильтр очищен");
+    }
+
+    // обработчик кнопки очистки
+    document.getElementById("clearFilterBtn").addEventListener("click", clearFilter);
   </script>
 </body>
 </html>

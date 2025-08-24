@@ -1,6 +1,7 @@
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPrice, ReplyKeyboardRemove
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.business.menu_service import menu
 from app.keyboards.default.base import menu_kb
@@ -13,6 +14,8 @@ from app.utils.reply_texts import KB_BUY_CHANCES_V
 # ⚙️ Новый леджер/энумы
 from database.services.balance import Balance
 from database.models.enums import EntryKind, Source
+
+# Импорт функции для возобновления поиска будет динамическим
 
 PLANS = [
     {"sum": 5_000,  "chances": 5},
@@ -140,7 +143,7 @@ async def pre_checkout_handler(query: types.PreCheckoutQuery):
 
 
 @common_router.message(F.successful_payment)
-async def on_successful_payment(message: types.Message, user: UserModel, session, state: FSMContext):
+async def on_successful_payment(message: types.Message, user: UserModel, session: AsyncSession, state: FSMContext):
     # Распарсим payload
     try:
         _, provider, sum_str = message.successful_payment.invoice_payload.split(":")
@@ -192,10 +195,23 @@ async def on_successful_payment(message: types.Message, user: UserModel, session
         )
 
     await message.answer(f"✅ Оплата прошла успешно! 💎 Зачислено {plan['chances']} шанс(ов).")
-    total = getattr(user, "balance_chances", None)
-    if total is None:
-        from database.services import User as OldUserSvc
-        total = await OldUserSvc.get_chance_balance(user)
+    
+    # Обновляем баланс пользователя после зачисления
+    await session.refresh(user)
+    
+    # Проверяем, есть ли приостановленный поиск для возобновления
+    try:
+        from app.handlers.dating.search import check_and_resume_paused_search
+        search_resumed = await check_and_resume_paused_search(message, state, user, session)
+    except ImportError:
+        search_resumed = False
+    
+    if not search_resumed:
+        # Если поиск не был возобновлен, показываем обычное меню
+        total = getattr(user, "balance_chances", None)
+        if total is None:
+            from database.services import User as OldUserSvc
+            total = await OldUserSvc.get_chance_balance(user)
 
-    await state.clear()
-    await message.answer(f"💎 На вашем балансе {total} шанс(ов).", reply_markup=menu_kb())
+        await state.clear()
+        await message.answer(f"💎 На вашем балансе {total} шанс(ов).", reply_markup=menu_kb())
