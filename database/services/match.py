@@ -56,7 +56,8 @@ class Match(BaseService):
                 (MatchModel.receiver_id == receiver_id) & (MatchModel.sender_id == sender_id)
             )
         )
-        return result.scalar_one_or_none()
+        match = result.scalar_one_or_none()
+        return match
 
     @staticmethod
     async def delete(session: AsyncSession, receiver_id: int, sender_id: int) -> None:

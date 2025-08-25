@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models.filter import FilterModel
 from database.models.profile import ProfileModel
-from database.models.viewed_profile import ViewedProfileModel
 from database.models.match import MatchModel
 from typing import Optional, List, Tuple, Dict
 from utils.logging import logger
@@ -24,19 +23,10 @@ async def search_profiles(session: AsyncSession, profile: ProfileModel) -> list[
 
     target_gender = "female" if profile.gender == "male" else "male"
 
-    viewed_subq = select(ViewedProfileModel.viewed_user_id).where(
-        ViewedProfileModel.viewer_id == profile.id
-    )
-    matched_subq = select(MatchModel.receiver_id).where(
-        MatchModel.sender_id == profile.id
-    )
-
     filters = [
         ProfileModel.is_active,
         ProfileModel.id != profile.id,
         ProfileModel.gender == target_gender,
-        ~ProfileModel.id.in_(viewed_subq),
-        ~ProfileModel.id.in_(matched_subq),
     ]
 
     if filter_obj.city_id is not None:

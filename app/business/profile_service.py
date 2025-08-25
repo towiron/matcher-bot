@@ -9,6 +9,8 @@ from database.models.user import UserModel
 from database.services import City, Ethnicity, Religion
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup
+from app.keyboards.inline.contact import contact_user_ikb
+from database.services import User
 
 from database.services.marital_status import MaritalStatus
 from loader import bot
@@ -26,14 +28,80 @@ async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileMode
     )
 
 
-async def display_filtered_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru") -> None:
-    """Отправляет профиль пользователя которые подошли по фильтрам"""
+async def display_filtered_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru", current_user_id: int = None) -> None:
+    """Отправляет профиль пользователя которые подошли по фильтрам (работает для обычного и умного поиска)"""
     text = await format_candidate_profile_text(session, profile, user_language)
+    
+    # Проверяем, давал ли текущий пользователь шанс этому профилю
+    reply_markup = search_kb()
+    
+    if current_user_id and profile.id != current_user_id:
+        from database.services import Match
+        from app.keyboards.inline.contact import contact_user_ikb
+        from utils.logging import logger
+        
+        # Проверяем, давал ли пользователь шанс этому профилю
+        existing_match = await Match.get(session, receiver_id=profile.id, sender_id=current_user_id)
+        
+        if existing_match:
+            # Если пользователь уже дал шанс, показываем клавиатуру без "дать шанс"
+            from app.keyboards.default.base import search_kb_after_chance
+            reply_markup = search_kb_after_chance()
+            # Добавляем inline-кнопку для связи
+            try:
+                user_obj = await User.get_by_id(session, profile.id)
+
+                if user_obj and user_obj.username:
+                    profile_link = f"https://t.me/{user_obj.username}"
+                elif user_obj and user_obj.id:
+                    profile_link = f"tg://user?id={user_obj.id}"
+                else:
+                    raise ValueError("Cannot create valid profile link")
+                
+                # Создаем inline-клавиатуру для связи
+                inline_markup = contact_user_ikb(user_language, profile_link)
+
+                # Отправляем сообщение с inline-клавиатурой
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=text,
+                    parse_mode="HTML",
+                    reply_markup=reply_markup,
+                    disable_web_page_preview=True,
+                )
+                
+                # Отправляем отдельное сообщение с inline-кнопкой связи
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text="💬 Вы уже дали шанс этому пользователю. Можете связаться с ним:",
+                    reply_markup=inline_markup,
+                )
+                return
+                
+            except Exception as e:
+                # Если не удалось создать кнопку связи, показываем информативное сообщение
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=text,
+                    parse_mode="HTML",
+                    reply_markup=reply_markup,
+                    disable_web_page_preview=True,
+                )
+                
+                # Отправляем сообщение о приватном аккаунте
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text="🔒 У этого пользователя приватный аккаунт, но он может связаться с вами сам, если захочет ответить взаимностью на ваш шанс.",
+                    reply_markup=reply_markup,
+                )
+                return
+
     await bot.send_message(
         chat_id=chat_id,
         text=text,
         parse_mode="HTML",
-        reply_markup=search_kb()
+        reply_markup=reply_markup,
+        disable_web_page_preview=True,
     )
 
 

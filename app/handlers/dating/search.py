@@ -178,7 +178,7 @@ async def start_search_by_filter(
 
     another_user = await User.get_with_profile(session, profile_list[0])
     if another_user:
-        await display_filtered_profile(session, user.id, another_user.profile, user.language)
+        await display_filtered_profile(session, user.id, another_user.profile, user.language, user.id)
     else:
         await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
 
@@ -272,7 +272,7 @@ async def start_search_by_ai(
     if reason_text:
         await message.answer(text=mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
 
-    await display_filtered_profile(session, user.id, another_user.profile, user.language)
+    await display_filtered_profile(session, user.id, another_user.profile, user.language, user.id)
 
 
 async def handle_search_navigation(
@@ -283,10 +283,23 @@ async def handle_search_navigation(
     profile_list = data.ids
 
     if not profile_list:
-        await message.answer(mt.EMPTY_PROFILE_SEARCH)
-        await state.clear()
-        await send_filter(session, message.from_user.id, user)
-        return
+        # Проверяем, есть ли профили по текущему фильтру
+        remaining_profiles = await search_profiles(session, user.profile)
+        if remaining_profiles:
+            # Обновляем список ID в состоянии
+            data.ids = remaining_profiles
+            await data.save(state)
+            
+            # Показываем первый профиль
+            first_id = remaining_profiles[0]
+            profile = await Profile.get(session, first_id)
+            await display_filtered_profile(session, user.id, profile, user.language, user.id)
+            return
+        else:
+            await message.answer(mt.EMPTY_PROFILE_SEARCH)
+            await state.clear()
+            await send_filter(session, message.from_user.id, user)
+            return
 
     # Ветка "Дать шанс"
     if message.text in KB_GIVE_CHANCE_V:
@@ -305,8 +318,9 @@ async def handle_search_navigation(
         )
         return
 
-    # Ветка "Назад к настройкам"
+    # Ветка "Меню поиска"
     if message.text in KB_BACK_TO_SEARCH_V:
+        # Очищаем состояние поиска и возвращаемся к меню поиска
         await state.clear()
         await send_filter(session, message.from_user.id, user)
         return
@@ -358,11 +372,10 @@ async def _give_chance(message: types.Message, user: UserModel, another_user: Us
         else f"tg://user?id={another_user.id}"
     )
 
-    await message.answer(text=mt.GAVE_CHANCE(profile_link, user_balance), parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance())
+    await message.answer(text=mt.GAVE_CHANCE(profile_link, user_balance), parse_mode=ParseMode.HTML, reply_markup=search_kb_after_chance(), disable_web_page_preview=True)
 
     # Уведомим получателя шанса: отправим ему профиль дарителя и ссылку на контакт
     await send_got_chance_alert(session=session, recipient=another_user, giver=user)
-
 
 async def _show_next_profile(
     session: AsyncSession,
@@ -373,10 +386,23 @@ async def _show_next_profile(
 ) -> None:
     ids = data.ids
     if not ids:
-        await message.answer(mt.EMPTY_PROFILE_SEARCH)
-        await state.clear()
-        await send_filter(session, message.from_user.id, user)
-        return
+        # Проверяем, есть ли профили по текущему фильтру
+        remaining_profiles = await search_profiles(session, user.profile)
+        if remaining_profiles:
+            # Обновляем список ID в состоянии
+            data.ids = remaining_profiles
+            await data.save(state)
+            
+            # Показываем первый профиль
+            first_id = remaining_profiles[0]
+            profile = await Profile.get(session, first_id)
+            await display_filtered_profile(session, user.id, profile, user.language, user.id)
+            return
+        else:
+            await message.answer(mt.EMPTY_PROFILE_SEARCH)
+            await state.clear()
+            await send_filter(session, message.from_user.id, user)
+            return
 
     # текущий просмотренный
     shown_user_id = ids.pop(0)
@@ -400,7 +426,21 @@ async def _show_next_profile(
                     reply_markup=search_menu_kb(user=user),
                 )
         else:
-            await message.answer(mt.EMPTY_PROFILE_SEARCH)
+            # Получаем заново список профилей по текущему фильтру
+            profile_list = await search_profiles(session, user.profile)
+            if profile_list:
+                # Обновляем список ID в состоянии
+                data.ids = profile_list
+                await data.save(state)
+                
+                # Показываем первый профиль
+                first_id = profile_list[0]
+                profile = await Profile.get(session, first_id)
+                await display_filtered_profile(session, user.id, profile, user.language, user.id)
+                return
+            else:
+                # Если профили не найдены, показываем сообщение об ошибке
+                await message.answer(mt.INVALID_PROFILE_SEARCH)
 
         await state.clear()
         await send_filter(session, message.from_user.id, user)
@@ -418,7 +458,7 @@ async def _show_next_profile(
             await message.answer(mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
 
     profile = await Profile.get(session, next_id)
-    await display_filtered_profile(session, user.id, profile, user.language)
+    await display_filtered_profile(session, user.id, profile, user.language, user.id)
 
 
 # ---------- Функция для проверки и возобновления приостановленного поиска ----------
@@ -487,7 +527,7 @@ async def check_and_resume_paused_search(
         if reason_text:
             await message.answer(text=mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
     
-    await display_filtered_profile(session, user.id, another_user.profile, user.language)
+    await display_filtered_profile(session, user.id, another_user.profile, user.language, user.id)
     
     await message.answer(
         "✅ Теперь у вас достаточно шансов! Вы можете дать шанс этому пользователю или продолжить поиск.",

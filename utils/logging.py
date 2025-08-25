@@ -23,6 +23,9 @@ logger.level("CALLBACK", no=15, color="<blue>", icon="📩")
 logger.level("DATABASE", no=17, color="<magenta>", icon="💾")
 
 # Уровни для умного поиска
+logger.level("MATCH_GET_DEBUG", no=19, color="<cyan>", icon="🤝")          # чуть выше DATABASE(17)
+logger.level("DEBUG_MATCH", no=19, color="<cyan>", icon="🤝")          # чуть выше DATABASE(17)
+
 logger.level("AI_MATCH", no=19, color="<cyan>", icon="🤝")          # чуть выше DATABASE(17)
 logger.level("AI_MATCH_DEBUG", no=20, color="<blue>", icon="🔍")    # между AI_MATCH(19) и AI_MATCH_REASONS(21)
 logger.level("AI_MATCH_REASONS", no=21, color="<magenta>", icon="🧠") # между INFO(20) и SUCCESS(25)
@@ -35,6 +38,8 @@ logger.level("AI_MATCH_FULL_RESPONSE", no=39, color="<red>", icon="📄") # по
 logger.level("AI_MATCH_ITEM_SKIP", no=40, color="<red>", icon="⏭️")   # пропуск элементов
 logger.level("AI_MATCH_EMPTY", no=41, color="<red>", icon="📭")      # пустой результат
 logger.level("AI_MATCH_GIVE_UP", no=42, color="<red>", icon="🏳️")   # сдались после попыток
+
+logger.level("PROFILE_LINK_ERROR", no=42, color="<red>", icon="⚠️")   # ошибка при создании ссылки на профиль
 
 logger.level("BALANCE_DEBUG", no=22, color="<yellow>", icon="💰")    # между AI_MATCH_REASONS(21) и WARNING(30)
 logger.level("BALANCE_DEBIT", no=23, color="<red>", icon="��")       # списание шансов
