@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.enums.parse_mode import ParseMode
 
 from app.business.filter_service import send_filter
-from app.business.profile_service import display_filtered_profile
+from app.business.profile_service import display_filtered_profile, update_user_username_from_telegram
 from app.business.dating_service import send_got_chance_alert
 from app.keyboards.default.base import search_kb, search_kb_after_chance, payment_kb
 from app.keyboards.default.search import build_filter_kb, search_menu_kb
@@ -178,6 +178,9 @@ async def start_search_by_filter(
 
     another_user = await User.get_with_profile(session, profile_list[0])
     if another_user:
+        # Обновляем username пользователя из Telegram перед показом профиля
+        await update_user_username_from_telegram(session, profile_list[0])
+        
         await display_filtered_profile(session, user.id, another_user.profile, user.language, user.id)
     else:
         await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
@@ -268,6 +271,9 @@ async def start_search_by_ai(
         await message.answer(mt.INVALID_PROFILE_SEARCH, reply_markup=search_menu_kb(user=user))
         return
 
+    # Обновляем username пользователя из Telegram перед показом профиля
+    await update_user_username_from_telegram(session, first_id)
+
     reason_text = data.ai_reasons.get(str(first_id))
     if reason_text:
         await message.answer(text=mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
@@ -292,6 +298,10 @@ async def handle_search_navigation(
             
             # Показываем первый профиль
             first_id = remaining_profiles[0]
+            
+            # Обновляем username пользователя из Telegram перед показом профиля
+            await update_user_username_from_telegram(session, first_id)
+            
             profile = await Profile.get(session, first_id)
             await display_filtered_profile(session, user.id, profile, user.language, user.id)
             return
@@ -366,9 +376,13 @@ async def _give_chance(message: types.Message, user: UserModel, another_user: Us
     # Получаем обновленный баланс и обновляем объект пользователя
     await session.refresh(user)
     user_balance = await User.get_chance_balance(user)
+    
+    # Обновляем username пользователя из Telegram перед формированием ссылки
+    updated_username = await update_user_username_from_telegram(session, another_user.id)
+    
     profile_link = (
-        f"https://t.me/{another_user.username}"
-        if another_user.username
+        f"https://t.me/{updated_username}"
+        if updated_username
         else f"tg://user?id={another_user.id}"
     )
 
@@ -435,6 +449,10 @@ async def _show_next_profile(
                 
                 # Показываем первый профиль
                 first_id = profile_list[0]
+                
+                # Обновляем username пользователя из Telegram перед показом профиля
+                await update_user_username_from_telegram(session, first_id)
+                
                 profile = await Profile.get(session, first_id)
                 await display_filtered_profile(session, user.id, profile, user.language, user.id)
                 return
@@ -456,6 +474,9 @@ async def _show_next_profile(
         reason_text = data.ai_reasons.get(str(next_id))
         if reason_text:
             await message.answer(mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
+
+    # Обновляем username пользователя из Telegram перед показом профиля
+    await update_user_username_from_telegram(session, next_id)
 
     profile = await Profile.get(session, next_id)
     await display_filtered_profile(session, user.id, profile, user.language, user.id)
@@ -526,6 +547,9 @@ async def check_and_resume_paused_search(
         reason_text = data.ai_reasons.get(str(current_id))
         if reason_text:
             await message.answer(text=mt.SMART_SEARCH_MATCH_REASON(reason=reason_text))
+    
+    # Обновляем username пользователя из Telegram перед показом профиля
+    await update_user_username_from_telegram(session, current_id)
     
     await display_filtered_profile(session, user.id, another_user.profile, user.language, user.id)
     

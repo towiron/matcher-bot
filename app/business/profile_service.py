@@ -16,6 +16,45 @@ from database.services.marital_status import MaritalStatus
 from loader import bot
 from utils.logging import logger
 
+async def update_user_username_from_telegram(session: AsyncSession, user_id: int) -> str | None:
+    """
+    Получает актуальный username пользователя из Telegram и обновляет его в базе данных.
+    Возвращает актуальный username или None, если не удалось получить.
+    """
+    try:
+        # Получаем информацию о пользователе из Telegram
+        chat_member = await bot.get_chat_member(chat_id=user_id, user_id=user_id)
+        if chat_member and chat_member.user and chat_member.user.username:
+            new_username = chat_member.user.username
+            
+            # Получаем пользователя из базы данных
+            user_obj = await User.get_by_id(session, user_id)
+            if user_obj and user_obj.username != new_username:
+                # Обновляем username в базе данных
+                await User.update_username(session, user_id, new_username)
+                logger.log("USERNAME_UPDATE", f"Обновлен username для пользователя {user_id}: {user_obj.username} -> {new_username}")
+            
+            return new_username
+        else:
+            # У пользователя нет username
+            user_obj = await User.get_by_id(session, user_id)
+            if user_obj and user_obj.username is not None:
+                # Очищаем username в базе данных
+                await User.update_username(session, user_id, None)
+                logger.log("USERNAME_UPDATE", f"Очищен username для пользователя {user_id}")
+            
+            return None
+            
+    except TelegramForbiddenError:
+        logger.warning(f"Не удалось получить информацию о пользователе {user_id}: бот заблокирован пользователем")
+        return None
+    except TelegramBadRequest as e:
+        logger.warning(f"Ошибка при получении информации о пользователе {user_id}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Неожиданная ошибка при обновлении username для пользователя {user_id}: {e}")
+        return None
+
 async def send_profile(session: AsyncSession, chat_id: int, profile: ProfileModel, user_language: str = "ru", reply_markup: ReplyKeyboardMarkup | InlineKeyboardMarkup | None = None) -> None:
     """Отправляет пользователю переданный в функцию профиль"""
     profile_text = await format_profile_text(session, profile, user_language)
@@ -49,14 +88,13 @@ async def display_filtered_profile(session: AsyncSession, chat_id: int, profile:
             reply_markup = search_kb_after_chance()
             # Добавляем inline-кнопку для связи
             try:
-                user_obj = await User.get_by_id(session, profile.id)
-
-                if user_obj and user_obj.username:
-                    profile_link = f"https://t.me/{user_obj.username}"
-                elif user_obj and user_obj.id:
-                    profile_link = f"tg://user?id={user_obj.id}"
+                # Обновляем username пользователя из Telegram перед формированием кнопки
+                updated_username = await update_user_username_from_telegram(session, profile.id)
+                
+                if updated_username:
+                    profile_link = f"https://t.me/{updated_username}"
                 else:
-                    raise ValueError("Cannot create valid profile link")
+                    profile_link = f"tg://user?id={profile.id}"
                 
                 # Создаем inline-клавиатуру для связи
                 inline_markup = contact_user_ikb(user_language, profile_link)

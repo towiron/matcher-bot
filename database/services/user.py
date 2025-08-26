@@ -221,3 +221,16 @@ class User(BaseService):
         )
         await session.commit()
         logger.log("DATABASE", f"Пользователь {user_id} {'принял' if value else 'отклонил'} оферту")
+
+    @staticmethod
+    async def update_username(
+        session: AsyncSession, user_id: int, new_username: str | None
+    ) -> None:
+        """Обновляет username пользователя."""
+        await session.execute(
+            update(UserModel)
+            .where(UserModel.id == user_id)
+            .values(username=new_username)
+        )
+        await session.commit()
+        logger.log("DATABASE", f"Пользователь {user_id} username обновлен на: {new_username}")
