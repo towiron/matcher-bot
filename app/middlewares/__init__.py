@@ -11,7 +11,7 @@ from .dating import DatingMiddleware
 from .log import LoggingMiddleware
 from .offer_check import OfferCheckMiddleware
 from .voide import VoideMiddleware
-from .daily_streak import DailyStreakMiddleware   # 👈 добавь это
+from .daily_streak import DailyStreakMiddleware
 
 def setup_middlewares(dp: Dispatcher) -> None:
     dp.update.middleware(DatabaseMiddleware(async_session))
@@ -23,6 +23,8 @@ def setup_middlewares(dp: Dispatcher) -> None:
     common_router.callback_query.middleware(CommonMiddleware())
     common_router.message.middleware(i18n_middleware)
     common_router.callback_query.middleware(i18n_middleware)
+    common_router.message.middleware(DailyStreakMiddleware())
+    common_router.callback_query.middleware(DailyStreakMiddleware())
 
     dating_router.message.middleware(LoggingMiddleware())
     dating_router.callback_query.middleware(LoggingMiddleware())
@@ -32,6 +34,8 @@ def setup_middlewares(dp: Dispatcher) -> None:
     dating_router.callback_query.middleware(i18n_middleware)
     dating_router.message.middleware(OfferCheckMiddleware())
     dating_router.callback_query.middleware(OfferCheckMiddleware())
+    dating_router.message.middleware(DailyStreakMiddleware())
+    dating_router.callback_query.middleware(DailyStreakMiddleware())
 
     admin_router.message.middleware(LoggingMiddleware())
     admin_router.callback_query.middleware(LoggingMiddleware())

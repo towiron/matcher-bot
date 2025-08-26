@@ -1,9 +1,9 @@
-from typing import Any, Callable, Optional, Tuple
-from datetime import date, timedelta, timezone
+from typing import Any, Callable, Optional, Tuple, Union
+from datetime import date, datetime, timedelta, timezone
 import pytz
 
 from aiogram import BaseMiddleware
-from aiogram.types import Update
+from aiogram.types import Update, Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.config import CHANCE_COST
@@ -33,19 +33,37 @@ def _to_tashkent_date(dt) -> Optional[date]:
     return dt.astimezone(_TZ).date()
 
 
-def _extract_user_and_chat(update: Update) -> Tuple[Optional[int], Optional[int], Optional[str], Optional[str]]:
-    """Достаёт (user_id, chat_id, username, language) из Update."""
-    if update.message:
-        u = update.message.from_user
+def _extract_user_and_chat(event: Union[Update, Message, CallbackQuery]) -> Tuple[Optional[int], Optional[int], Optional[str], Optional[str]]:
+    """Достаёт (user_id, chat_id, username, language) из Update, Message или CallbackQuery."""
+    if isinstance(event, Update):
+        if event.message:
+            u = event.message.from_user
+            return (
+                (u.id if u else None),
+                event.message.chat.id,
+                (u.username if u else None),
+                (u.language_code if u else None),
+            )
+        if event.callback_query:
+            u = event.callback_query.from_user
+            chat_id = event.callback_query.message.chat.id if event.callback_query.message else None
+            return (
+                (u.id if u else None),
+                chat_id,
+                (u.username if u else None),
+                (u.language_code if u else None),
+            )
+    elif isinstance(event, Message):
+        u = event.from_user
         return (
             (u.id if u else None),
-            update.message.chat.id,
+            event.chat.id,
             (u.username if u else None),
             (u.language_code if u else None),
         )
-    if update.callback_query:
-        u = update.callback_query.from_user
-        chat_id = update.callback_query.message.chat.id if update.callback_query.message else None
+    elif isinstance(event, CallbackQuery):
+        u = event.from_user
+        chat_id = event.message.chat.id if event.message else None
         return (
             (u.id if u else None),
             chat_id,
@@ -63,7 +81,7 @@ class DailyStreakMiddleware(BaseMiddleware):
     - Уведомляем пользователя только если бонус реально выдан.
     """
 
-    async def __call__(self, handler: Callable, event: Update, data: dict) -> Any:
+    async def __call__(self, handler: Callable, event: Union[Update, Message, CallbackQuery], data: dict) -> Any:
         session: AsyncSession = data["session"]
         bot = data["bot"]
 
@@ -114,7 +132,7 @@ class DailyStreakMiddleware(BaseMiddleware):
         # 5) уведомление, если бонус реально выдан
         if got_bonus and chat_id:
             try:
-                await bot.send_message(chat_id, _(mt.DAILY_BONUS(streak=user.daily_streak)))
+                await bot.send_message(chat_id, _(mt.DAILY_BONUS(balance=user.balance_chances)))
             except Exception:
                 pass  # не роняем пайплайн
 

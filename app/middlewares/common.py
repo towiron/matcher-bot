@@ -15,14 +15,14 @@ from app.text import message_text as mt
 
 
 class CommonMiddleware(BaseMiddleware):
-    async def __call__(self, handler: Callable, message: Message | CallbackQuery, data: dict) -> Any:
+    async def __call__(self, handler: Callable, event: Message | CallbackQuery, data: dict) -> Any:
         session = data["session"]
 
         user, is_create = await User.get_or_create(
             session,
-            id=message.from_user.id,
-            username=message.from_user.username,
-            language=message.from_user.language_code,
+            id=event.from_user.id,
+            username=event.from_user.username,
+            language=event.from_user.language_code,
         )
 
         if user.status == UserStatus.Banned:
@@ -31,21 +31,21 @@ class CommonMiddleware(BaseMiddleware):
         data["user"] = user
 
         # Проверка принятия оферты
-        is_start_command = isinstance(message, Message) and message.text and message.text.startswith("/start")
-        is_offer_callback = isinstance(message, CallbackQuery) and message.data and message.data.startswith("offer_")
-        is_lang_callback = isinstance(message, CallbackQuery) and message.data and message.data.startswith("lang:")
-        is_lang_command = isinstance(message, Message) and message.text and message.text in ["/lang", "/language"]
+        is_start_command = isinstance(event, Message) and event.text and event.text.startswith("/start")
+        is_offer_callback = isinstance(event, CallbackQuery) and event.data and event.data.startswith("offer_")
+        is_lang_callback = isinstance(event, CallbackQuery) and event.data and event.data.startswith("lang:")
+        is_lang_command = isinstance(event, Message) and event.text and event.text in ["/lang", "/language"]
 
         # Добавляем проверку на команды помощи
-        is_help_command = isinstance(message, Message) and message.text and message.text in ["/help", "Помощь"]
+        is_help_command = isinstance(event, Message) and event.text and event.text in ["/help", "Помощь"]
 
         if not user.accepted_offer and not (is_start_command or is_offer_callback or is_lang_callback or is_lang_command or is_help_command):
-            msg = message.message if isinstance(message, CallbackQuery) else message
+            msg = event.message if isinstance(event, CallbackQuery) else event
             await msg.answer(_(mt.OFFER_REQUIRED))
             return
 
         # Новые пользователи
-        if isinstance(message, Message):
+        if isinstance(event, Message):
             if is_create:
                 await new_user_alert_to_group(user)
 
@@ -56,4 +56,4 @@ class CommonMiddleware(BaseMiddleware):
             if is_active is False:
                 await Profile.update(session=session, id=user.id, is_active=True)
 
-        return await handler(message, data)
+        return await handler(event, data)

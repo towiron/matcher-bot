@@ -475,11 +475,11 @@ The reason: {}
     ###########
     #  BONUS #
     ###########
-    def DAILY_BONUS(self, streak: int) -> str:
+    def DAILY_BONUS(self, balance: int) -> str:
         return _("""
-🎁 Вы получили ежедневный бонус: 1 шанс!
-🔥 Вы активны уже {streak} дней подряд!
-""").format(streak=streak)
+🎁 Ежедневный бонус: +1 шанс 💎 за вашу активность!
+На вашем балансе: {balance} шанс(ов) 💎
+""").format(balance=balance)
 
 
     ###########
