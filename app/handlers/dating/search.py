@@ -69,6 +69,37 @@ async def _search_by_ai_command(message: types.Message, state: FSMContext, user:
 async def _search_profile(message: types.Message, state: FSMContext, user: UserModel, session: AsyncSession) -> None:
     await handle_search_navigation(message=message, state=state, user=user, session=session)
 
+@dating_router.message(StateFilter(Search.message))
+async def _unexpected_input_in_search_message(message: types.Message, state: FSMContext, user: UserModel) -> None:
+    """Обработчик для неожиданного ввода в состоянии сообщения поиска."""
+    logger.debug(f"user={user.id} unexpected_input_in_search_message: '{message.text}'")
+    
+    await message.answer(
+        "❓ Похоже, вы отправили сообщение, которое я не понимаю в режиме поиска.\n\n"
+        "💡 Если у вас возникли проблемы, нажмите /start для перезапуска бота."
+    )
+
+@dating_router.message(StateFilter(Search))
+async def _unexpected_input_in_any_search_state(message: types.Message, state: FSMContext, user: UserModel) -> None:
+    """Общий обработчик для неожиданного ввода в любом состоянии поиска."""
+    current_state = await state.get_state()
+    logger.debug(f"user={user.id} unexpected_input_in_search_state_{current_state}: '{message.text}'")
+    
+    if current_state == Search.search:
+        # Для состояния просмотра профилей даем более подробную информацию
+        logger.debug(f"user={user.id} providing_detailed_help_for_search_state")
+        await message.answer(
+            "❓ Похоже, вы отправили сообщение, которое я не понимаю в режиме поиска.\n\n"
+            "💡 Если у вас возникли проблемы, нажмите /start для перезапуска бота."
+        )
+    else:
+        # Для других состояний поиска даем общее сообщение
+        logger.debug(f"user={user.id} providing_general_help_for_state_{current_state}")
+        await message.answer(
+            "❓ Похоже, вы отправили сообщение, которое я не понимаю в режиме поиска.\n\n"
+            "💡 Если у вас возникли проблемы, нажмите /start для перезапуска бота."
+        )
+
 
 # ---------- FSM payload ----------
 
@@ -201,10 +232,10 @@ async def start_search_by_ai(
 
     # 1) Проверяем баланс ПЕРЕД любыми операциями
     balance_now = user.balance_chances
-    logger.log("BALANCE_DEBUG", f"user={user.id} balance_now={balance_now} (type: {type(balance_now)})")
+    logger.debug(f"user={user.id} balance_now={balance_now} (type: {type(balance_now)})")
     
     if balance_now < 3:
-        logger.log("BALANCE_DEBUG", f"user={user.id} insufficient_balance: {balance_now} < 3")
+        logger.debug(f"user={user.id} insufficient_balance: {balance_now} < 3")
         await message.answer(
             text=mt.SMART_SEARCH_BALANCE_ERROR(balance_now),
             reply_markup=payment_kb())
@@ -225,9 +256,9 @@ async def start_search_by_ai(
             max_results=5,
             language=user.language,
         )
-        logger.log("AI_MATCH_REASONS", f"user={user.id} top={ids} reasons={reasons}")
+        logger.debug(f"user={user.id} top={ids} reasons={reasons}")
     except Exception as e:
-        logger.log("AI_MATCH_ERROR", f"user={user.id} error: {e}")
+        logger.debug(f"user={user.id} error: {e}")
         ids, reasons = [], {}
 
     if not ids:
@@ -243,18 +274,18 @@ async def start_search_by_ai(
         return
 
     # 4) Списываем 3 шанса через User.use_ai_search
-    logger.log("BALANCE_DEBUG", f"user={user.id} balance_check_passed, proceeding to debit")
+    logger.debug(f"user={user.id} balance_check_passed, proceeding to debit")
     try:
-        logger.log("BALANCE_DEBUG", f"user={user.id} calling use_ai_search")
+        logger.debug(f"user={user.id} calling use_ai_search")
         await User.use_ai_search(session=session, user=user)
         await session.refresh(user)  # Обновляем баланс пользователя
-        logger.log("BALANCE_DEBIT", f"user={user.id} -3 (smart_search_success via use_ai_search)")
+        logger.debug(f"user={user.id} -3 (smart_search_success via use_ai_search)")
     except Exception as e:
-        logger.log("BALANCE_DEBIT_ERROR", f"user={user.id} use_ai_search failed: {e!r}")
+        logger.debug(f"user={user.id} use_ai_search failed: {e!r}")
         await message.answer(mt.ERR_CHANCES_DEBIT_FAILED, reply_markup=search_menu_kb(user=user))
         return
 
-    logger.log("BALANCE_DEBUG", f"user={user.id} debit_successful, proceeding to show results")
+    logger.debug(f"user={user.id} debit_successful, proceeding to show results")
 
     # 5) Сохраняем состояние и показываем первую анкету
     await state.set_state(Search.search)
@@ -347,7 +378,7 @@ async def _give_chance(message: types.Message, user: UserModel, another_user: Us
             # Сохраняем состояние поиска для продолжения после оплаты
             search_data.paused_for_payment = True
             await search_data.save(state)
-            logger.log("GIVE_CHANCE_DEBUG", f"user={user.id} saved_search_state_for_payment, mode={search_data.mode}")
+            logger.debug(f"user={user.id} saved_search_state_for_payment, mode={search_data.mode}")
         
         await message.answer(
             f"❌ Недостаточно шансов для дачи шанса. У вас {user.balance_chances} шанс(ов).",
@@ -359,12 +390,12 @@ async def _give_chance(message: types.Message, user: UserModel, another_user: Us
     try:
         await User.use_one_chance(session=session, user=user, target_id=another_user.id)
         await session.refresh(user)  # Обновляем баланс пользователя
-        logger.log("BALANCE_DEBUG", f"user={user.id} -1 (give_chance via use_one_chance)")
+        logger.debug(f"user={user.id} -1 (give_chance via use_one_chance)")
     except ValueError as e:
-        logger.log("BALANCE_DEBUG", f"user={user.id} ValueError caught in give_chance: {e}")
+        logger.debug(f"user={user.id} ValueError caught in give_chance: {e}")
         raise ValueError("Недостаточно шансов для дачи шанса")
     except Exception as e:
-        logger.log("BALANCE_DEBUG", f"user={user.id} use_one_chance failed: {e!r}")
+        logger.debug(f"user={user.id} use_one_chance failed: {e!r}")
         await message.answer(mt.ERR_CHANCES_DEBIT_FAILED, parse_mode=ParseMode.HTML)
         return
 
@@ -427,7 +458,7 @@ async def _show_next_profile(
     if not ids:
         # === КОНЕЦ ПАЧКИ ===
         if data.mode == "ai":
-            # Проверяем, есть ли ещё кандидаты по обычному фильтру (значит можно снова запустить умный поиск)
+            # Проверяем, ещё кандидаты по обычному фильтру (значит можно снова запустить умный поиск)
             remaining_candidates = await search_profiles(session, user.profile)
 
             if remaining_candidates:
@@ -495,17 +526,17 @@ async def check_and_resume_paused_search(
     Возвращает True, если поиск был возобновлен, False - если нет.
     """
     current_state = await state.get_state()
-    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} checking_paused_search, current_state={current_state}")
+    logger.debug(f"user={user.id} checking_paused_search, current_state={current_state}")
     
     if current_state != Search.search:
-        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} not_in_search_state")
+        logger.debug(f"user={user.id} not_in_search_state")
         return False
     
     data = await SearchData.load(state)
-    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} loaded_search_data, paused={data.paused_for_payment}, ids_count={len(data.ids)}")
+    logger.debug(f"user={user.id} loaded_search_data, paused={data.paused_for_payment}, ids_count={len(data.ids)}")
     
     if not data.paused_for_payment or not data.ids:
-        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} no_paused_search_or_empty_ids")
+        logger.debug(f"user={user.id} no_paused_search_or_empty_ids")
         return False
     
     # Проверяем баланс после оплаты
@@ -518,11 +549,11 @@ async def check_and_resume_paused_search(
     # - В любом случае для продолжения просмотра достаточно 1 шанса
     required_chances = 1
     
-    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} mode={data.mode} balance={balance_now} required={required_chances}")
+    logger.debug(f"user={user.id} mode={data.mode} balance={balance_now} required={required_chances}")
     
     if balance_now < required_chances:
         # Баланс все еще недостаточен
-        logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} insufficient_balance_for_resume: {balance_now} < {required_chances}")
+        logger.debug(f"user={user.id} insufficient_balance_for_resume: {balance_now} < {required_chances}")
         await message.answer(
             f"❌ Недостаточно шансов для продолжения поиска. У вас {balance_now} шанс(ов), требуется {required_chances}.",
             reply_markup=payment_kb()
@@ -558,6 +589,6 @@ async def check_and_resume_paused_search(
         reply_markup=search_kb()
     )
     
-    logger.log("RESUME_SEARCH_DEBUG", f"user={user.id} resumed_search_with_same_profile={current_id}")
+    logger.debug(f"user={user.id} resumed_search_with_same_profile={current_id}")
     
     return True
