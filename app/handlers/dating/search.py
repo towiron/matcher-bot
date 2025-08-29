@@ -592,15 +592,3 @@ async def check_and_resume_paused_search(
     logger.debug(f"user={user.id} resumed_search_with_same_profile={current_id}")
     
     return True
-
-# ---------- Общий обработчик для всех необработанных сообщений ----------
-
-@dating_router.message()
-async def _catch_all_messages(message: types.Message, user: UserModel) -> None:
-    """Ловит все сообщения, которые не были обработаны другими обработчиками"""
-    logger.debug(f"user={user.id} catch_all_messages: text='{message.text}'")
-    
-    await message.answer(
-        "❓ Похоже, вы отправили сообщение, которое я не понимаю.\n\n"
-        "💡 Если у вас возникли проблемы, нажмите /start для перезапуска бота."
-    )
